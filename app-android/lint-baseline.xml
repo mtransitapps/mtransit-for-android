@@ -1037,28 +1037,6 @@
 
     <issue
         id="DeprecatedCall"
-        message="android.webkit.WebView.loadUrl is deprecated; consider using an alternative."
-        errorLine1="      webView.loadUrl(fallbackUrl);"
-        errorLine2="      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/util/LinkUtils.java"
-            line="151"
-            column="7"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
-        message="android.webkit.WebView.loadUrl is deprecated; consider using an alternative."
-        errorLine1="      webView.loadUrl(fallbackUrl);"
-        errorLine2="                      ~~~~~~~~~~~">
-        <location
-            file="src/main/java/org/mtransit/android/util/LinkUtils.java"
-            line="151"
-            column="23"/>
-    </issue>
-
-    <issue
-        id="DeprecatedCall"
         message="org.mtransit.android.util.CrashUtils.w is deprecated; consider using an alternative."
         errorLine1="   CrashUtils.w(LOG_TAG, e, &quot;Error while adding agencies to email subject!&quot;);"
         errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">

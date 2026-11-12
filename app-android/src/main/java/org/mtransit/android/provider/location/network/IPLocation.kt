@@ -7,4 +7,6 @@ data class IPLocation(
     val latitude: Float? = null,
     @SerializedName("longitude")
     val longitude: Float? = null,
+    @SerializedName("country_code")
+    val countryCode: String? = null,
 )

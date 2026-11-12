@@ -23,11 +23,21 @@ class UserPrefManager @Inject constructor(
             DefaultPreferenceRepository.PREFS_USE_INTERNAL_WEB_BROWSER, DefaultPreferenceRepository.PREFS_USE_INTERNAL_WEB_BROWSER_DEFAULT
         )
 
+    @Discouraged("use suspend function or live data")
+    fun getUseInternalWebBrowserNow() = defaultPrefRepository.pref.getBoolean(
+        DefaultPreferenceRepository.PREFS_USE_INTERNAL_WEB_BROWSER, DefaultPreferenceRepository.PREFS_USE_INTERNAL_WEB_BROWSER_DEFAULT
+    )
+
     // endregion
 
     // region distance units
 
     val distanceUnits: LiveData<String> = defaultPrefRepository.pref.liveData(
+        DefaultPreferenceRepository.PREFS_DISTANCE_UNITS, DefaultPreferenceRepository.PREFS_DISTANCE_UNITS_DEFAULT
+    )
+
+    @Discouraged("use suspend function")
+    fun getDistanceUnitNow() = defaultPrefRepository.pref.getString(
         DefaultPreferenceRepository.PREFS_DISTANCE_UNITS, DefaultPreferenceRepository.PREFS_DISTANCE_UNITS_DEFAULT
     )
 

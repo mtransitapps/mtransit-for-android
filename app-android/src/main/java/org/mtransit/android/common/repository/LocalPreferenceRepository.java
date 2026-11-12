@@ -35,6 +35,7 @@ public class LocalPreferenceRepository extends PreferenceRepository implements M
 
 	public static final String PREFS_LCL_IP_LOCATION_LAT = "pIpLocationLat";
 	public static final String PREFS_LCL_IP_LOCATION_LNG = "pIpLocationLng";
+	public static final String PREFS_LCL_IP_LOCATION_COUNTRY_CODE = "pIpLocationCountryCode";
 	public static final String PREFS_LCL_IP_LOCATION_TIMESTAMP = "pIpLocationTimestamp";
 
 	public static final String PREF_USER_SEEN_APP_DISABLED = "pSeenDisabledModule";

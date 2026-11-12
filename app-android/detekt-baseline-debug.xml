@@ -386,8 +386,10 @@
     <ID>ReturnCount:SearchViewModel.kt:SearchViewModel.POISearchComparator$override fun compare: Int</ID>
     <ID>ReturnCount:SensorManagerImpl.kt:SensorManagerImpl$override fun updateCompass</ID>
     <ID>ReturnCount:SensorManagerImpl.kt:SensorManagerImpl$private fun calculateOrientation: Float?</ID>
+    <ID>ReturnCount:WebBrowserFragmentExt.kt:@JvmOverloads fun String.urlMatch: Boolean</ID>
     <ID>ReturnCount:StickyHeaderItemDecorator.kt:StickyHeaderItemDecorator$override fun onDrawOver</ID>
     <ID>ReturnCount:UIColorUtils.kt:UIColorUtils$@JvmStatic @ColorInt fun adaptBackgroundColorToLightText: Int</ID>
+    <ID>ReturnCount:WebBrowserFragmentExt.kt:fun WebBrowserFragment.loadIFrame: Boolean</ID>
     <ID>SpreadOperator:GlobalAdManager.kt:GlobalAdManager$(*context.resources.getStringArray(R.array.google_ads_test_devices_ids))</ID>
     <ID>SpreadOperator:UISourceLabelUtils.kt:UISourceLabelUtils$(textView, readFromSource = null, *it.toTypedArray())</ID>
     <ID>TooGenericExceptionCaught:AnalyticsManager.kt:AnalyticsManager$e: Exception</ID>
@@ -395,6 +397,7 @@
     <ID>TooGenericExceptionCaught:BatteryOptimizationIssueUtils.kt:BatteryOptimizationIssueUtils$e: Exception</ID>
     <ID>TooGenericExceptionCaught:GlobalAdManager.kt:GlobalAdManager$e: Exception</ID>
     <ID>TooGenericExceptionCaught:InlineBannerAdManager.kt:InlineBannerAdManager$t: Throwable</ID>
+    <ID>TooGenericExceptionCaught:LinkUtilsExt.kt:e: Exception</ID>
     <ID>TooGenericExceptionCaught:MTPOIMarkerIds.kt:MTPOIMarkerIds$e: Exception</ID>
     <ID>TooGenericExceptionCaught:MainActivity.kt:MainActivity$e: Exception</ID>
     <ID>TooGenericExceptionCaught:MapViewModel.kt:MapViewModel$e: Exception</ID>
@@ -474,6 +477,8 @@
     <ID>UnreachableCode:PurchaseDialogFragment.kt:PurchaseDialogFragment$val priceFormatted = this.pricesFormatted.getOrNull(pricePosition)?.takeIf { it.isNotEmpty() } ?: run { MTLog.w(this, "onBuyBtnClick() &gt; skip (unexpected price position: $pricePosition)") ToastUtils.makeTextAndShow(context, R.string.support_subs_default_failure_message) return }</ID>
     <ID>UnreachableCode:PurchaseDialogFragment.kt:PurchaseDialogFragment$val pricePosition = binding.price.selectedItemPosition</ID>
     <ID>UnreachableCode:PurchaseDialogFragment.kt:PurchaseDialogFragment$val productId = this.periodAndPriceCatToProductId[periodCat to priceCat] ?: run { MTLog.w(this, "onBuyBtnClick() &gt; skip (no product ID for period/price: $periodCat/$priceCat)") ToastUtils.makeTextAndShow(context, R.string.support_subs_default_failure_message) return }</ID>
+    <ID>UnreachableCode:WebBrowserFragmentExt.kt:return extractBaseUrl(initialFrameUrl) == url</ID>
+    <ID>UnreachableCode:WebBrowserFragmentExt.kt:val initialFrameUrl = this.initialUrl ?.takeIf { it.isNotBlank() } ?.takeIf { arguments?.getBoolean(EXTRA_USE_IFRAME) == true } ?: return false</ID>
     <ID>UnusedPrivateFunction:AgencyTypeViewModel.kt:AgencyTypeViewModel$private fun saveSelectedTypeAgency</ID>
     <ID>UnusedVariable:POIViewModel.kt:POIViewModel$trigger</ID>
     <ID>UseOrEmpty:IBillingManager.kt:IBillingManager.Companion$arrayListOf( NEW_BASIC_SUBSCRIPTIONS, NEW_PRO_SUBSCRIPTIONS ).takeIf { UIFeatureFlags.F_NEW_IN_APP_SUBS } ?: emptyList()</ID>

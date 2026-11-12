@@ -28,6 +28,7 @@ import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.databinding.FragmentNearbyBinding
 import org.mtransit.android.datasource.DataSourcesRepository
+import org.mtransit.android.provider.direction.MapDirectionsProvider
 import org.mtransit.android.ui.MTActivityWithLocation
 import org.mtransit.android.ui.MTActivityWithLocation.DeviceLocationListener
 import org.mtransit.android.ui.MainActivity
@@ -46,7 +47,6 @@ import org.mtransit.android.ui.setStatusBarBgColorEdgeToEdge
 import org.mtransit.android.ui.view.common.MTTransitions
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
-import org.mtransit.android.util.MapUtils
 import org.mtransit.commons.FeatureFlags
 import javax.inject.Inject
 import android.location.Location as AndroidLocation
@@ -176,6 +176,9 @@ class NearbyFragment :
     @Inject
     lateinit var analyticsManager: IAnalyticsManager
 
+    @Inject
+    lateinit var mapDirectionsProvider: MapDirectionsProvider
+
     override val viewModel by viewModels<NearbyViewModel>()
     override val attachedViewModel
         get() = if (isAttached()) viewModel else null
@@ -288,6 +291,12 @@ class NearbyFragment :
         viewModel.useInternalWebBrowserPref.observe(viewLifecycleOwner) {
             // DO NOTHING
         }
+        viewModel.mapTypePref.observe(viewLifecycleOwner) {
+            // DO NOTHING
+        }
+        viewModel.distanceUnitsPref.observe(viewLifecycleOwner) {
+            // DO NOTHING
+        }
     }
 
     override fun updateScreenToolbarBgColor() {
@@ -374,13 +383,15 @@ class NearbyFragment :
                 val locationPick = viewModel.fixedOnLocation.value ?: viewModel.nearbyLocation.value ?: viewModel.deviceLocation.value
                 locationPick ?: return false // not handled
                 viewModel.onShowDirectionClick()
-                MapUtils.showDirection(
-                    binding = binding,
+                mapDirectionsProvider.showDirection(
+                    view = binding?.root,
                     activity = requireActivity(),
-                    optDestLat = locationPick.latitude,
-                    optDestLng = locationPick.longitude,
+                    destinationLat = locationPick.latitude,
+                    destinationLng = locationPick.longitude,
                     optQuery = viewModel.fixedOnName.value,
-                    useInternalWebBrowserPref = viewModel.useInternalWebBrowserPref.value
+                    useInternalWebBrowserPref = viewModel.useInternalWebBrowserPref.value,
+                    mapTypePref = viewModel.mapTypePref.value,
+                    distanceUnitsPref = viewModel.distanceUnitsPref.value,
                 )
                 true // handled
             }

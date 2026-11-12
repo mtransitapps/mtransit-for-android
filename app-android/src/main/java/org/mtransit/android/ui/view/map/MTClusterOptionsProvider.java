@@ -12,7 +12,6 @@ import com.google.android.gms.maps.model.BitmapDescriptor;
 
 import org.mtransit.android.commons.ColorUtils;
 import org.mtransit.android.commons.MTLog;
-import org.mtransit.android.util.MapUtils;
 import org.mtransit.commons.CollectionUtils;
 
 import java.lang.ref.WeakReference;
@@ -53,7 +52,7 @@ public class MTClusterOptionsProvider implements ClusterOptionsProvider, MTLog.L
 	private BitmapDescriptor getClusterIcon(@NonNull List<IMarker> markers, @DrawableRes int iconResId, @Nullable Integer targetSize, boolean replaceColor) {
 		final Context context = this.contextWR.get();
 		final int color = getColor(context, markers);
-		return MapUtils.getIcon(context, iconResId, color, replaceColor, targetSize);
+		return MapIcons.getIcon(context, iconResId, color, replaceColor, targetSize);
 	}
 
 	@ColorInt

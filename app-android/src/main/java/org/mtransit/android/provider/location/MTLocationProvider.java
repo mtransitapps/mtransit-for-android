@@ -18,8 +18,12 @@ public interface MTLocationProvider {
 
 	void checkLocationSettings();
 
-	boolean handleRequestPermissionsResult(@NonNull ScreenWithLocationView screenWithLocationView,
-										   int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults);
+	boolean handleRequestPermissionsResult(
+			@NonNull ScreenWithLocationView screenWithLocationView,
+			int requestCode,
+			@NonNull String[] permissions,
+			@NonNull int[] grantResults
+	);
 
 	@Nullable
 	Location getLastLocationOrNull();

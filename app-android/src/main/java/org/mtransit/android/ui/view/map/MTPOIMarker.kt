@@ -9,7 +9,6 @@ import org.mtransit.android.commons.StringUtils
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.ui.view.MapViewController
 import org.mtransit.android.ui.view.map.MTMapIconsProvider.defaultIconDef
-import org.mtransit.android.util.MapUtils
 import org.mtransit.commons.CollectionUtils
 import java.util.Locale
 
@@ -180,11 +179,11 @@ data class MTPOIMarker(
             }
         }
 
-    val alphaOrDefault get() = alpha ?: MapUtils.MAP_MARKER_ALPHA_DEFAULT
+    val alphaOrDefault get() = alpha ?: MapConstants.MAP_MARKER_ALPHA_DEFAULT
 
-    val rotationOrDefault get() = rotation ?: MapUtils.MAP_MARKER_ROTATION_DEFAULT
+    val rotationOrDefault get() = rotation ?: MapConstants.MAP_MARKER_ROTATION_DEFAULT
 
-    val zIndexOrDefault get() = zIndex ?: MapUtils.MAP_MARKER_Z_INDEX_DEFAULT
+    val zIndexOrDefault get() = zIndex ?: MapConstants.MAP_MARKER_Z_INDEX_DEFAULT
 
     fun hasUUID(uuid: String?) = this.uuidsAndAuthority.hasUUID(uuid)
 
@@ -275,18 +274,18 @@ data class MTPOIMarker(
                 this.secondaryColor = null
             }
         }
-        val thisAlpha = this.alpha ?: MapUtils.MAP_MARKER_ALPHA_DEFAULT
-        val otherAlpha = alpha ?: MapUtils.MAP_MARKER_ALPHA_DEFAULT
+        val thisAlpha = this.alpha ?: MapConstants.MAP_MARKER_ALPHA_DEFAULT
+        val otherAlpha = alpha ?: MapConstants.MAP_MARKER_ALPHA_DEFAULT
         if (thisAlpha != otherAlpha) {
             this.alpha = (thisAlpha + otherAlpha) / 2.0f
         }
-        val thisRotation = this.rotation ?: MapUtils.MAP_MARKER_ROTATION_DEFAULT
-        val otherRotation = rotation ?: MapUtils.MAP_MARKER_ROTATION_DEFAULT
+        val thisRotation = this.rotation ?: MapConstants.MAP_MARKER_ROTATION_DEFAULT
+        val otherRotation = rotation ?: MapConstants.MAP_MARKER_ROTATION_DEFAULT
         if (thisRotation != otherRotation) {
             this.rotation = (thisRotation + otherRotation) / 2.0f
         }
-        val thisIndex = this.zIndex ?: MapUtils.MAP_MARKER_Z_INDEX_DEFAULT
-        val otherIndex = zIndex ?: MapUtils.MAP_MARKER_Z_INDEX_DEFAULT
+        val thisIndex = this.zIndex ?: MapConstants.MAP_MARKER_Z_INDEX_DEFAULT
+        val otherIndex = zIndex ?: MapConstants.MAP_MARKER_Z_INDEX_DEFAULT
         if (thisIndex != otherIndex) {
             this.zIndex = (thisIndex + otherIndex) / 2.0f
         }

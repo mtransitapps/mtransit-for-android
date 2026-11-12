@@ -30,6 +30,7 @@ import org.mtransit.android.commons.location.toStringSimple
 import org.mtransit.android.commons.pref.liveData
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.datasource.DataSourcesRepository
+import org.mtransit.android.device.DevicePrefManager
 import org.mtransit.android.provider.location.MTLocationProvider
 import org.mtransit.android.provider.location.network.NetworkLocationRepository
 import org.mtransit.android.provider.permission.LocationPermissionProvider
@@ -66,9 +67,10 @@ class NearbyViewModel @Inject constructor(
     private val networkLocationRepository: NetworkLocationRepository,
     private val dataSourcesRepository: DataSourcesRepository,
     private val lclPrefRepository: LocalPreferenceRepository,
-    private val userPrefManager: UserPrefManager,
+    userPrefManager: UserPrefManager,
     private val statusLoader: StatusLoader,
     private val serviceUpdateLoader: ServiceUpdateLoader,
+    devicePrefManager: DevicePrefManager,
     pm: PackageManager,
 ) : MTViewModelWithLocation(),
     NewLocationAwareViewModel,
@@ -171,7 +173,9 @@ class NearbyViewModel @Inject constructor(
 
     val useInternalWebBrowserPref: LiveData<Boolean> = userPrefManager.useInternalWebBrowser.distinctUntilChanged()
 
-    private val _distanceUnitsPref = this.userPrefManager.distanceUnits.distinctUntilChanged()
+    val mapTypePref: LiveData<Int> = devicePrefManager.mapType.distinctUntilChanged()
+
+    val distanceUnitsPref: LiveData<String> = userPrefManager.distanceUnits.distinctUntilChanged()
 
     private val locationAddress: LiveData<Address> = nearbyLocation.switchMap { nearbyLocation ->
         liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
@@ -181,7 +185,7 @@ class NearbyViewModel @Inject constructor(
         }
     }
 
-    val nearbyLocationAddress: LiveData<String?> = MediatorLiveData3(nearbyLocation, locationAddress, _distanceUnitsPref)
+    val nearbyLocationAddress: LiveData<String?> = MediatorLiveData3(nearbyLocation, locationAddress, distanceUnitsPref)
         .map { (nearbyLocation, locationAddress, distanceUnitsPref) ->
             nearbyLocation ?: return@map null
             distanceUnitsPref ?: return@map null

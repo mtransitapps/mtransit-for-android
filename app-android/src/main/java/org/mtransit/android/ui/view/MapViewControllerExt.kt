@@ -22,6 +22,7 @@ import org.mtransit.android.ui.view.map.MTMapIconsProvider.vehicleIconDef
 import org.mtransit.android.ui.view.map.MTPOIMarker
 import org.mtransit.android.ui.view.map.MTPOIMarker.Companion.toExtendedMarkerOptions
 import org.mtransit.android.ui.view.map.MTPOIMarker.Companion.updateMarker
+import org.mtransit.android.ui.view.map.MapConstants
 import org.mtransit.android.ui.view.map.MapMarkerProvider
 import org.mtransit.android.ui.view.map.countMarkersInside
 import org.mtransit.android.ui.view.map.countPOIMarkersInside
@@ -36,7 +37,6 @@ import org.mtransit.android.ui.view.map.updateAlpha
 import org.mtransit.android.ui.view.map.updateMarker
 import org.mtransit.android.ui.view.map.updateSnippet
 import org.mtransit.android.ui.view.map.updateTitle
-import org.mtransit.android.util.MapUtils
 import java.util.Locale
 import java.util.UUID
 import kotlin.math.abs
@@ -132,7 +132,7 @@ fun MapViewController.updateVehicleLocationMarkersCountdown(context: Context) {
     this.vehicleLocationsMarkersByUuid.forEach { (_, marker) ->
         marker.apply {
             val vehicleLocation = getData<Any?>() as? VehicleLocation ?: return@forEach
-            updateAlpha(vehicleLocation.getMapMarkerAlpha() ?: MapUtils.MAP_MARKER_ALPHA_DEFAULT)
+            updateAlpha(vehicleLocation.getMapMarkerAlpha() ?: MapConstants.MAP_MARKER_ALPHA_DEFAULT)
             if (!isInfoWindowShown) return@forEach
             updateTitle(vehicleLocation.getMapMarkerTitle(context))
             updateSnippet(if (config.hideMapMarkerSnippet) null else vehicleLocation.getMapMarkerSnippet(context))

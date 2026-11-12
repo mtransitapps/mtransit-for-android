@@ -55,6 +55,10 @@ class RemoteConfigProvider @Inject constructor() : MTLog.Loggable {
         const val NEW_USER_ADS_FREE = "mt_new_user_ads_free"
         const val NEW_USER_ADS_FREE_DEFAULT = false
         // const val NEW_USER_ADS_FREE_DEFAULT = true // DEBUG
+
+        const val MAPS_DIRECTION_EMBED_API_ENABLED = "mt_maps_embed_api"
+        const val MAPS_DIRECTION_EMBED_API_ENABLED_DEFAULT = false
+        // const val MAPS_DIRECTION_EMBED_API_ENABLED_DEFAULT = true // DEBUG
     }
 
     override fun getLogTag() = LOG_TAG
@@ -88,6 +92,9 @@ class RemoteConfigProvider @Inject constructor() : MTLog.Loggable {
             }
     }
 
+    private val activatedRemoteConfig: FirebaseRemoteConfig?
+        get() = remoteConfig.takeIf { activated.get() }
+
     fun get(key: String, defaultValue: String) =
         getActivatedValueNonStatic(key)?.asString() ?: defaultValue
 
@@ -101,12 +108,13 @@ class RemoteConfigProvider @Inject constructor() : MTLog.Loggable {
         getActivatedValueNonStatic(key)?.asLong() ?: defaultValue
 
     private fun getActivatedValueNonStatic(key: String) =
-        remoteConfig.takeIf { activated.get() }
+        activatedRemoteConfig
             ?.getValue(key)
             ?.takeIf { it.source != FirebaseRemoteConfig.VALUE_SOURCE_STATIC }
 
     fun getAll(): Map<String, String>? =
-        remoteConfig.takeIf { activated.get() }?.all?.mapValues { it.value.asString() }
+        activatedRemoteConfig
+            ?.all?.mapValues { it.value.asString() }
 
     suspend fun getInstallationToken(forceRefresh: Boolean): InstallationTokenResult? = try {
         installations.getToken(forceRefresh).await()

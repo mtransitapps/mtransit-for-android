@@ -14,7 +14,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.mtransit.android.commons.MTLog;
-import org.mtransit.android.util.MapUtils;
+import org.mtransit.android.ui.view.map.MapIcons;
 
 import java.lang.ref.WeakReference;
 
@@ -293,7 +293,7 @@ public class LazyMarker implements MTLog.Loggable {
 					: secondaryColor != null ? secondaryColor
 					: defaultColor;
 			if (iconResId != null && replaceColor != null && iconColor != null) { // context optional for cache hit
-				final BitmapDescriptor icon = MapUtils.getIcon(context, iconResId, iconColor, replaceColor, targetSize);
+				final BitmapDescriptor icon = MapIcons.getIcon(context, iconResId, iconColor, replaceColor, targetSize);
 				if (icon != null) {
 					marker.setIcon(icon);
 				}
@@ -428,7 +428,7 @@ public class LazyMarker implements MTLog.Loggable {
 				: secondaryColor != null ? secondaryColor
 				: defaultColor;
 		if (iconResId != null && replaceColor != null && iconColor != null) { // context optional for cache hit
-			final BitmapDescriptor icon = MapUtils.getIcon(context, iconResId, iconColor, replaceColor, targetSize);
+			final BitmapDescriptor icon = MapIcons.getIcon(context, iconResId, iconColor, replaceColor, targetSize);
 			if (icon != null) {
 				options.icon(icon);
 			}
