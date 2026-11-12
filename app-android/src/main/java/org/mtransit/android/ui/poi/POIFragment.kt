@@ -198,7 +198,7 @@ package org.mtransit.android.ui.poi
 // false,
 // this.dataSourcesRepository
 // ).apply {
-// setLocationPermissionGranted(locationPermissionProvider.permissionsGranted(requireContext()))
+// setLocationPermissionGranted(locationPermissionProvider.permissionsGranted())
 // }
 // }
 //
@@ -257,7 +257,7 @@ package org.mtransit.android.ui.poi
 // mapViewController.apply {
 // setDataSourcesRepository(dataSourcesRepository)
 // onAttach(requireActivity())
-// setLocationPermissionGranted(locationPermissionProvider.permissionsGranted(context))
+// setLocationPermissionGranted(locationPermissionProvider.permissionsGranted())
 // }
 // }
 //
@@ -500,7 +500,7 @@ package org.mtransit.android.ui.poi
 // viewModel.deviceLocation.observe(viewLifecycleOwner, {
 // MTLog.v(this, "onChanged($it) - deviceLocation")
 // context?.let { context ->
-// mapViewController.setLocationPermissionGranted(locationPermissionProvider.permissionsGranted(context))
+// mapViewController.setLocationPermissionGranted(locationPermissionProvider.permissionsGranted())
 // }
 // mapViewController.onDeviceLocationChanged(it)
 // // TODO if (!this.compassUpdatesEnabled) {

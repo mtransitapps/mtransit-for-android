@@ -1,11 +1,9 @@
 package org.mtransit.android.provider.location.network
 
-import android.content.Context
 import androidx.core.content.edit
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.liveData
 import androidx.lifecycle.switchMap
-import dagger.hilt.android.qualifiers.ApplicationContext
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.commons.MTLog
@@ -21,7 +19,6 @@ import android.location.Location as AndroidLocation
 
 @Singleton
 class NetworkLocationRepository @Inject constructor(
-    @param:ApplicationContext private val appContext: Context,
     private val apiService: IPWhoIsApiService,
     private val lclPrefRepository: LocalPreferenceRepository,
     private val dataSourcesRepository: DataSourcesRepository,
@@ -65,7 +62,7 @@ class NetworkLocationRepository @Inject constructor(
         if (deviceLocation != null) {
             return
         }
-        if (locationPermissionProvider.allRequiredPermissionsGranted(appContext)) {
+        if (locationPermissionProvider.allRequiredPermissionsGranted()) {
             return
         }
         if (dataSourcesRepository.hasAgenciesAdded()) {

@@ -178,7 +178,7 @@ class MapFragment :
             )
         ).apply {
             logTag = this@MapFragment.logTag
-            setLocationPermissionGranted(locationPermissionProvider.allRequiredPermissionsGranted(requireContext()))
+            setLocationPermissionGranted(locationPermissionProvider.allRequiredPermissionsGranted())
         }
     }
 
@@ -187,7 +187,7 @@ class MapFragment :
         mapViewController.apply {
             setDI(dataSourcesRepository, devicePrefManager)
             onAttach(requireActivity())
-            setLocationPermissionGranted(locationPermissionProvider.allRequiredPermissionsGranted(context))
+            setLocationPermissionGranted(locationPermissionProvider.allRequiredPermissionsGranted())
         }
     }
 
@@ -223,7 +223,7 @@ class MapFragment :
             }
         }
         viewModel.deviceLocation.observe(viewLifecycleOwner) { deviceLocation ->
-            context?.let { mapViewController.setLocationPermissionGranted(locationPermissionProvider.allRequiredPermissionsGranted(it)) }
+            mapViewController.setLocationPermissionGranted(locationPermissionProvider.allRequiredPermissionsGranted())
             if (viewModel.initialVisibleArea.value != null) { // initial visible area computed
                 mapViewController.onDeviceLocationChanged(deviceLocation)
             }
