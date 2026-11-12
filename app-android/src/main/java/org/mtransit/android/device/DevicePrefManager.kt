@@ -16,7 +16,7 @@ import org.mtransit.android.commons.pref.liveData
 import org.mtransit.android.commons.pref.preferenceChangeLiveData
 import org.mtransit.android.data.IAgencyProperties
 import org.mtransit.android.data.POIManager
-import org.mtransit.android.util.MapUtils
+import org.mtransit.android.ui.view.map.MapConstants
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -126,25 +126,29 @@ class DevicePrefManager @Inject constructor(
 
     // region map type
 
+    val mapType: LiveData<Int> = lclPrefRepository.pref.liveData(
+        MapConstants.PREFS_LCL_MAP_TYPE, MapConstants.PREFS_LCL_MAP_TYPE_DEFAULT
+    )
+
     /**
      * RedundantSuspendModifier: calling [android.content.SharedPreferences] with I/O dispatcher
      */
     @Suppress("unused", "RedundantSuspendModifier")
     suspend fun getMapType() = withContext(Dispatchers.IO) {
         lclPrefRepository.pref.getInt(
-            MapUtils.PREFS_LCL_MAP_TYPE, MapUtils.PREFS_LCL_MAP_TYPE_DEFAULT
+            MapConstants.PREFS_LCL_MAP_TYPE, MapConstants.PREFS_LCL_MAP_TYPE_DEFAULT
         )
     }
 
     @Discouraged("use suspend function")
     fun getMapTypeNow() = lclPrefRepository.pref.getInt(
-        MapUtils.PREFS_LCL_MAP_TYPE, MapUtils.PREFS_LCL_MAP_TYPE_DEFAULT
+        MapConstants.PREFS_LCL_MAP_TYPE, MapConstants.PREFS_LCL_MAP_TYPE_DEFAULT
     )
 
     @Suppress("unused")
     suspend fun setMapType(mapType: Int) = withContext(Dispatchers.IO) {
         lclPrefRepository.pref.edit {
-            putInt(MapUtils.PREFS_LCL_MAP_TYPE, mapType)
+            putInt(MapConstants.PREFS_LCL_MAP_TYPE, mapType)
         }
     }
 
@@ -152,7 +156,7 @@ class DevicePrefManager @Inject constructor(
     @Discouraged("use suspend function")
     fun setMapTypeNow(mapType: Int) {
         lclPrefRepository.pref.edit {
-            putInt(MapUtils.PREFS_LCL_MAP_TYPE, mapType)
+            putInt(MapConstants.PREFS_LCL_MAP_TYPE, mapType)
         }
     }
 

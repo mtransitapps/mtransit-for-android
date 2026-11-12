@@ -98,6 +98,7 @@ import org.mtransit.android.datasource.POIRepository;
 import org.mtransit.android.dev.DemoModeManager;
 import org.mtransit.android.device.DevicePrefManager;
 import org.mtransit.android.provider.FavoriteRepository;
+import org.mtransit.android.provider.direction.MapDirectionsProvider;
 import org.mtransit.android.provider.permission.LocationPermissionProvider;
 import org.mtransit.android.provider.sensor.MTSensorManager;
 import org.mtransit.android.task.ServiceUpdateLoader;
@@ -136,7 +137,6 @@ import org.mtransit.android.util.BatteryOptimizationIssueUtils;
 import org.mtransit.android.util.DegreeUtils;
 import org.mtransit.android.util.FragmentUtils;
 import org.mtransit.android.util.LinkUtils;
-import org.mtransit.android.util.MapUtils;
 import org.mtransit.android.util.UIFeatureFlags;
 import org.mtransit.android.util.UITimeUtils;
 import org.mtransit.commons.FeatureFlags;
@@ -247,6 +247,8 @@ public class POIFragment extends ABFragment implements
 	DevicePrefManager devicePrefManager;
 	@Inject
 	IAnalyticsManager analyticsManager;
+	@Inject
+	MapDirectionsProvider mapDirectionsProvider;
 	@Inject
 	FavoriteRepository favoriteRepository;
 	@Inject
@@ -375,18 +377,18 @@ public class POIFragment extends ABFragment implements
 	}
 
 	@Nullable
-	private String distanceUnitPref = null;
+	private String distanceUnitsPref = null;
 
-	private void onDistanceUnitPrefLoaded(@Nullable String distanceUnitPref) {
-		this.distanceUnitPref = distanceUnitPref;
+	private void onDistanceUnitsPrefLoaded(@Nullable String distanceUnitsPref) {
+		this.distanceUnitsPref = distanceUnitsPref;
 		updateDistanceString();
 	}
 
 	private void updateDistanceString() {
-		if (this.distanceUnitPref == null) return;
+		if (this.distanceUnitsPref == null) return;
 		if (this.deviceLocation == null) return;
 		if (this.poim == null) return;
-		UILocationUtils.updateDistanceWithStringNN(this.distanceUnitPref, this.poim, this.deviceLocation);
+		UILocationUtils.updateDistanceWithStringNN(this.distanceUnitsPref, this.poim, this.deviceLocation);
 	}
 
 	private void onNewsLoaded(@Nullable List<News> news) {
@@ -559,8 +561,9 @@ public class POIFragment extends ABFragment implements
 		}));
 		viewModel.getPoiAgency().observe(getViewLifecycleOwner(), this::onAgencyLoaded);
 		viewModel.getPoim().observe(getViewLifecycleOwner(), this::onPOIMLoaded);
-		viewModel.getDistanceUnitsPref().observe(getViewLifecycleOwner(), this::onDistanceUnitPrefLoaded);
+		viewModel.getDistanceUnitsPref().observe(getViewLifecycleOwner(), this::onDistanceUnitsPrefLoaded);
 		viewModel.getUseInternalWebBrowserPref().observe(getViewLifecycleOwner(), this::onUseInternalWebBrowserPrefLoaded);
+		viewModel.getMapTypePref().observe(getViewLifecycleOwner(), this::onMapTypePrefChanged);
 		viewModel.getHasScheduleProviders().observe(getViewLifecycleOwner(), hasScheduleProviders -> setupRDSFullScheduleBtn());
 		viewModel.getNearbyPOIs().observe(getViewLifecycleOwner(), this::onNearbyPOIsLoaded);
 		viewModel.getLatestNewsArticleList().observe(getViewLifecycleOwner(), this::onNewsLoaded);
@@ -1021,6 +1024,13 @@ public class POIFragment extends ABFragment implements
 
 	private void onUseInternalWebBrowserPrefLoaded(@Nullable Boolean useInternalWebBrowserPref) {
 		this.useInternalWebBrowserPref = useInternalWebBrowserPref;
+	}
+
+	@Nullable
+	private Integer mapTypePref = null;
+
+	private void onMapTypePrefChanged(@Nullable Integer mapTypePref) {
+		this.mapTypePref = mapTypePref;
 	}
 
 	@Override
@@ -1512,20 +1522,33 @@ public class POIFragment extends ABFragment implements
 			final AgencyProperties agency = getAgencyOrNull();
 			final String faresWebUrl = agency == null ? null : agency.getFaresWebForLang();
 			if (!TextUtils.isEmpty(faresWebUrl)) {
-				LinkUtils.open(this.binding == null ? null : this.binding.getRoot(), requireActivity(), faresWebUrl, getString(R.string.fares), null, true, this.useInternalWebBrowserPref);
+				LinkUtils.open(
+						this.binding == null ? null : this.binding.getRoot(),
+						requireActivity(),
+						faresWebUrl,
+						getString(R.string.fares),
+						null,
+						true,
+						this.useInternalWebBrowserPref
+				);
 				return true; // handled
 			}
 		} else if (menuItem.getItemId() == R.id.menu_show_directions) {
-			POIManager poim2 = getPoimOrNull();
-			if (poim2 != null) {
+			final POIManager poim = getPoimOrNull();
+			if (poim != null) {
 				this.analyticsManager.logEvent(AnalyticsEvents.OPENED_GOOGLE_MAPS_TRIP_PLANNER);
-				Double optSrcLat = null;
-				Double optSrcLng = null;
-				if (this.deviceLocation != null) {
-					optSrcLat = this.deviceLocation.getLatitude();
-					optSrcLng = this.deviceLocation.getLongitude();
-				}
-				MapUtils.showDirection(this.binding, requireActivity(), poim2.poi.getLat(), poim2.poi.getLng(), optSrcLat, optSrcLng, poim2.poi.getName(), this.useInternalWebBrowserPref);
+				this.mapDirectionsProvider.showDirection(
+						this.binding == null ? null : this.binding.getRoot(),
+						requireActivity(),
+						poim.poi.getLat(),
+						poim.poi.getLng(),
+						this.deviceLocation == null ? null : this.deviceLocation.getLatitude(),
+						this.deviceLocation == null ? null : this.deviceLocation.getLongitude(),
+						poim.poi.getName(),
+						this.useInternalWebBrowserPref,
+						this.mapTypePref,
+						this.distanceUnitsPref
+				);
 				return true; // handled
 			}
 		}
