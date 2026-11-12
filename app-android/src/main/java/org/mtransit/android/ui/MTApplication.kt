@@ -9,7 +9,9 @@ import org.mtransit.android.BuildConfig
 import org.mtransit.android.analytics.AnalyticsUserProperties
 import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.commons.LocaleUtils
+import org.mtransit.android.commons.currentProcessName
 import org.mtransit.android.commons.fixWebViewLocale
+import org.mtransit.android.commons.isMainProcess
 import org.mtransit.android.commons.ui.MTCommonApp
 import org.mtransit.android.dev.CrashReporter
 import org.mtransit.android.dev.IStrictMode
@@ -59,7 +61,7 @@ class MTApplication : MTCommonApp() {
         if (BuildConfig.DEBUG) {
             this.leakDetector.setup(this)
         }
-        NightModeUtils.setDefaultNightMode(this, null)
+        if (isMainProcess) NightModeUtils.setDefaultNightMode(this, null)
         fixWebViewDataDirectorySuffix() // before any webview usage
         if (!UIFeatureFlags.F_LOCALE_WEB_VIEW_FIX_IN_ACTIVITY) fixWebViewLocale(this) // before ads SDK
         this.remoteConfigProvider.init()
@@ -72,11 +74,11 @@ class MTApplication : MTCommonApp() {
         // RuntimeException: Using WebView from more than one process at once with the same data directory is not supported. https://crbug.com/558377 :
         // Current process org.mtransit.android (pid 1111), lock owner org.mtransit.android (pid 2222) is a zombie
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            val appProcessName: String = getProcessName()
-            if (packageName != appProcessName) {
-                val suffix = appProcessName.replace("$packageName:", "")
-                @SuppressLint("DeprecatedCall")
-                WebView.setDataDirectorySuffix(suffix)
+            if (!isMainProcess) {
+                currentProcessName?.replace("$packageName:", "")?.takeIf { it.isNotEmpty() }?.let { suffix ->
+                    @SuppressLint("DeprecatedCall")
+                    WebView.setDataDirectorySuffix(suffix)
+                }
             }
         }
     }
