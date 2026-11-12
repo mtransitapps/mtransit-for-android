@@ -1,19 +1,17 @@
 package org.mtransit.android.ui
 
 import android.annotation.SuppressLint
-import android.app.ActivityManager
-import android.app.Application
 import android.content.Context
 import android.os.Build
-import android.os.Process
 import android.webkit.WebView
-import androidx.core.content.getSystemService
 import dagger.hilt.android.HiltAndroidApp
 import org.mtransit.android.BuildConfig
 import org.mtransit.android.analytics.AnalyticsUserProperties
 import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.commons.LocaleUtils
+import org.mtransit.android.commons.currentProcessName
 import org.mtransit.android.commons.fixWebViewLocale
+import org.mtransit.android.commons.isMainProcess
 import org.mtransit.android.commons.ui.MTCommonApp
 import org.mtransit.android.dev.CrashReporter
 import org.mtransit.android.dev.IStrictMode
@@ -84,15 +82,4 @@ class MTApplication : MTCommonApp() {
             }
         }
     }
-
-    val Application.currentProcessName: String?
-        get() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            getProcessName()
-        } else {
-            val pid = Process.myPid()
-            getSystemService<ActivityManager>()?.runningAppProcesses?.firstOrNull { it.pid == pid }?.processName
-        }
-
-    val Application.isMainProcess: Boolean
-        get() = currentProcessName == packageName
 }
