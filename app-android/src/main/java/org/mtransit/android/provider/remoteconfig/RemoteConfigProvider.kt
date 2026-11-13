@@ -7,58 +7,24 @@ import com.google.firebase.installations.installations
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.remoteconfig.remoteConfig
 import com.google.firebase.remoteconfig.remoteConfigSettings
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withTimeoutOrNull
 import org.mtransit.android.BuildConfig
 import org.mtransit.android.commons.MTLog
 import java.io.IOException
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
 @Singleton
 class RemoteConfigProvider @Inject constructor() : MTLog.Loggable {
 
     companion object {
         private val LOG_TAG: String = RemoteConfigProvider::class.java.simpleName
-
-        // const val AD_BANNER_LOAD_ON_SCREEN_RESUME = "mt_ad_banner_load_on_screen_resume" // -> true is outperforming Baseline by 95% after 2 weeks
-        // const val AD_BANNER_LOAD_ON_SCREEN_RESUME_DEFAULT = false
-
-        // should be using different AD unit IDs with different custom Automatic refresh (30-150 secs) or Google Optimized (-1)
-        const val AD_BANNER_LOAD_ON_SCREEN_RESUME_MIN_DURATION_SEC = "mt_ad_banner_load_on_screen_resume_min_duration_sec"
-        const val AD_BANNER_LOAD_ON_SCREEN_RESUME_MIN_DURATION_SEC_DEFAULT = 1L // -> 1 second is outperforming Baseline (-1=disabled) by 114% (& 2,3,5,7,10)
-
-        const val AD_BANNER_LARGE = "mt_ad_banner_large"
-        const val AD_BANNER_LARGE_DEFAULT = false
-        // const val AD_BANNER_LARGE_DEFAULT = true // DEBUG
-
-        const val AD_APP_OPEN_ENABLED = "mt_ad_app_open"
-        const val AD_APP_OPEN_ENABLED_DEFAULT = false
-        // const val AD_APP_OPEN_ENABLED_DEFAULT = true // DEBUG
-
-        const val AD_REWARDED_AMOUNT_IN_DAYS = "mt_ad_rewarded_amount_days"
-        const val AD_REWARDED_AMOUNT_IN_DAYS_DEFAULT = 7
-
-        @Deprecated("use ALLOW_TWITTER_NEWS_CACHED instead")
-        const val ALLOW_TWITTER_NEWS_FOR_FREE = "mt_twitter_news_free"
-        const val ALLOW_TWITTER_NEWS_FOR_FREE_DEFAULT = false
-        // const val ALLOW_TWITTER_NEWS_FOR_FREE_DEFAULT = true // DEBUG
-
-        const val ALLOW_TWITTER_NEWS_CACHED = "mt_twitter_news_cached"
-        const val ALLOW_TWITTER_NEWS_CACHED_DEFAULT = false
-        // const val ALLOW_TWITTER_NEWS_CACHED_DEFAULT = true // DEBUG
-
-        const val VEHICLE_LOCATION_DATA_REFRESH_MIN_MS = "mt_vehicle_location_refresh_min_ms"
-        const val VEHICLE_LOCATION_DATA_REFRESH_MIN_MS_DEFAULT = 30_000L // 30 seconds
-        // const val VEHICLE_LOCATION_DATA_REFRESH_MIN_MS_DEFAULT = 10_000L // DEBUG
-
-        const val NEW_USER_ADS_FREE = "mt_new_user_ads_free"
-        const val NEW_USER_ADS_FREE_DEFAULT = false
-        // const val NEW_USER_ADS_FREE_DEFAULT = true // DEBUG
-
-        const val MAPS_DIRECTION_EMBED_API_ENABLED = "mt_maps_embed_api"
-        const val MAPS_DIRECTION_EMBED_API_ENABLED_DEFAULT = false
-        // const val MAPS_DIRECTION_EMBED_API_ENABLED_DEFAULT = true // DEBUG
     }
 
     override fun getLogTag() = LOG_TAG
@@ -69,7 +35,10 @@ class RemoteConfigProvider @Inject constructor() : MTLog.Loggable {
 
     private val activated = AtomicBoolean(false)
 
-    fun init() {
+    private val snapshotDeferred = CompletableDeferred<RemoteConfigData>()
+
+    suspend fun init(timeout: Duration = 3.seconds) {
+        if (snapshotDeferred.isCompleted) return
         remoteConfig.setConfigSettingsAsync(
             remoteConfigSettings {
                 if (BuildConfig.DEBUG) {
@@ -79,38 +48,56 @@ class RemoteConfigProvider @Inject constructor() : MTLog.Loggable {
             }
         )
 
-        remoteConfig
-            .fetchAndActivate()
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    this.activated.set(true)
-                    MTLog.d(this, "Config params updated: ${task.result}")
-                } else {
-                    this.activated.set(false)
-                    MTLog.w(this, task.exception, "Fetch failed!")
-                }
+        withTimeoutOrNull(timeout) {
+            try {
+                remoteConfig.fetchAndActivate().await()
+            } catch (e: Exception) {
+                MTLog.w(this, e, "Remote config fetch failed!")
             }
+        }
+
+        with(remoteConfig) {
+            @Suppress("DEPRECATION")
+            RemoteConfigData(
+                adBannerLoadOnScreenResumeMinDurationSec =
+                    getValueNonStatic(RemoteConfigData.AD_BANNER_LOAD_ON_SCREEN_RESUME_MIN_DURATION_SEC)?.asLong(),
+                adBannerLarge =
+                    getValueNonStatic(RemoteConfigData.AD_BANNER_LARGE)?.asBoolean(),
+                adAppOpenEnabled =
+                    getValueNonStatic(RemoteConfigData.AD_APP_OPEN_ENABLED)?.asBoolean(),
+                adRewardedAmountInDays =
+                    getValueNonStatic(RemoteConfigData.AD_REWARDED_AMOUNT_IN_DAYS)?.asLong(),
+                allowTwitterNewsForFree =
+                    getValueNonStatic(RemoteConfigData.ALLOW_TWITTER_NEWS_FOR_FREE)?.asBoolean(),
+                allowTwitterNewsCached =
+                    getValueNonStatic(RemoteConfigData.ALLOW_TWITTER_NEWS_CACHED)?.asBoolean(),
+                vehicleLocationDataRefreshMinMs =
+                    getValueNonStatic(RemoteConfigData.VEHICLE_LOCATION_DATA_REFRESH_MIN_MS)?.asLong(),
+                newUserAdsFree =
+                    getValueNonStatic(RemoteConfigData.NEW_USER_ADS_FREE)?.asBoolean(),
+                mapsDirectionsEmbedApiEnabled =
+                    getValueNonStatic(RemoteConfigData.MAPS_DIRECTION_EMBED_API_ENABLED)?.asBoolean(),
+            ).let {
+                snapshotDeferred.complete(it)
+            }
+        }
     }
+
+    private fun FirebaseRemoteConfig.getValueNonStatic(key: String) =
+        getValue(key).takeIf { it.source != FirebaseRemoteConfig.VALUE_SOURCE_STATIC }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun getNow() =
+        snapshotDeferred.takeIf { it.isCompleted }?.getCompleted()
+
+    private val defaultConfig by lazy { RemoteConfigData() }
+
+    fun getNowOrDefault() = getNow() ?: defaultConfig
+
+    suspend fun get() = snapshotDeferred.await()
 
     private val activatedRemoteConfig: FirebaseRemoteConfig?
         get() = remoteConfig.takeIf { activated.get() }
-
-    fun get(key: String, defaultValue: String) =
-        getActivatedValueNonStatic(key)?.asString() ?: defaultValue
-
-    fun get(key: String, defaultValue: Boolean) =
-        getActivatedValueNonStatic(key)?.asBoolean() ?: defaultValue
-
-    fun get(key: String, defaultValue: Double) =
-        getActivatedValueNonStatic(key)?.asDouble() ?: defaultValue
-
-    fun get(key: String, defaultValue: Long) =
-        getActivatedValueNonStatic(key)?.asLong() ?: defaultValue
-
-    private fun getActivatedValueNonStatic(key: String) =
-        activatedRemoteConfig
-            ?.getValue(key)
-            ?.takeIf { it.source != FirebaseRemoteConfig.VALUE_SOURCE_STATIC }
 
     fun getAll(): Map<String, String>? =
         activatedRemoteConfig

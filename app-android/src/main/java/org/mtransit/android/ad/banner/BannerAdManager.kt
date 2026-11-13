@@ -66,10 +66,7 @@ class BannerAdManager @Inject constructor(
     private var setupTask: SetupBannerAdTask? = null
 
     private val loadOnScreenResumeMinDurationSec: Long by lazy {
-        remoteConfigProvider.get(
-            RemoteConfigProvider.AD_BANNER_LOAD_ON_SCREEN_RESUME_MIN_DURATION_SEC,
-            RemoteConfigProvider.AD_BANNER_LOAD_ON_SCREEN_RESUME_MIN_DURATION_SEC_DEFAULT
-        )
+        remoteConfigProvider.getNowOrDefault().adBannerLoadOnScreenResumeMinDurationSecOrDefault
     }
 
     internal val loadOnScreenResume: Boolean by lazy {
@@ -270,7 +267,7 @@ class BannerAdManager @Inject constructor(
             }
         val density = displayMetrics.density
         val adWidth = (adWidthPixels / density).toInt()
-        if (remoteConfigProvider.get(RemoteConfigProvider.AD_BANNER_LARGE, RemoteConfigProvider.AD_BANNER_LARGE_DEFAULT)) {
+        if (remoteConfigProvider.getNowOrDefault().adBannerLargeOrDefault) {
             return AdSize.getLargeAnchoredAdaptiveBannerAdSize(this, adWidth)
         }
         @SuppressLint("DeprecatedCall")

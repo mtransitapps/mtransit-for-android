@@ -165,9 +165,7 @@ class SplashScreenViewModel @Inject constructor(
             }
             analyticsManager.setUserProperty(AnalyticsUserProperties.OPEN_APP_COUNTS, getAndUpdateAppOpenCounts())
             val canShowAds = adManager.canShowAds() != false
-            val appOpenAdEnabled = remoteConfigProvider.get(
-                RemoteConfigProvider.AD_APP_OPEN_ENABLED, RemoteConfigProvider.AD_APP_OPEN_ENABLED_DEFAULT
-            )
+            val appOpenAdEnabled = remoteConfigProvider.get().adAppOpenEnabledOrDefault
             if (appOpenAdEnabled && canShowAds) {
                 deployIfNecessary()
             }

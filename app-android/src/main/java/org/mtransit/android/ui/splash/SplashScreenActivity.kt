@@ -8,7 +8,9 @@ import androidx.activity.viewModels
 import androidx.annotation.MainThread
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import org.mtransit.android.R
 import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.ad.IAdScreenActivity
@@ -17,6 +19,7 @@ import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.commons.fixWebViewLocale
 import org.mtransit.android.commons.getText
 import org.mtransit.android.device.PerformanceManager
+import org.mtransit.android.provider.remoteconfig.RemoteConfigProvider
 import org.mtransit.android.ui.MTActivity
 import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.main.NextMainActivity
@@ -54,6 +57,9 @@ open class SplashScreenActivity :
     @Inject
     lateinit var performanceManager: PerformanceManager
 
+    @Inject
+    lateinit var remoteConfigProvider: RemoteConfigProvider
+
     private val viewModel by viewModels<SplashScreenViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -61,6 +67,9 @@ open class SplashScreenActivity :
         super.onCreate(savedInstanceState)
         splashScreen.setKeepOnScreenCondition { // Keep the splash screen visible for this Activity
             viewModel.shouldKeepSplashScreenOn.value != false // unknown OR true
+        }
+        lifecycleScope.launch {
+            remoteConfigProvider.init()
         }
         if (UIFeatureFlags.F_LOCALE_WEB_VIEW_FIX_IN_ACTIVITY) fixWebViewLocale(this.applicationContext) // before ads SDK
         viewModel.initHasSubscriptionFromCache()
