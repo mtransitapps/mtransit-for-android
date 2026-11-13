@@ -1817,6 +1817,17 @@
     "lng": "-97.139926"
   },
   {
+    "repo": "ca-wood-buffalo-rmwb-transit-bus-android",
+    "pkg": "org.mtransit.android.ca_wood_buffalo_rmwb_transit_bus",
+    "store": "production",
+    "name": "Wood Buffalo Transit (RMWB, Regional Municipality of Wood Buffalo)",
+    "location": "Fort McMurray, AB, Canada",
+    "type_id": "3",
+    "color": "11284A",
+    "lat": "56.658468",
+    "lng": "-111.333998"
+  },
+  {
     "repo": "ca-yellowknife-transit-bus-android",
     "pkg": "org.mtransit.android.ca_yellowknife_transit_bus",
     "store": "production",
