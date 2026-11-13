@@ -114,7 +114,7 @@ class GlobalAdManager(
     }
 
     private val newUserAdsFreeAllowed by lazy {
-        remoteConfigProvider.get(RemoteConfigProvider.NEW_USER_ADS_FREE, RemoteConfigProvider.NEW_USER_ADS_FREE_DEFAULT)
+        remoteConfigProvider.getNowOrDefault().newUserAdsFreeOrDefault
     }
 
     val rewardedUntil: LiveData<Instant> get() = this.rewardedUserManager.rewardedUntilLive

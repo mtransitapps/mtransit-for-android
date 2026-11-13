@@ -124,10 +124,8 @@ class RDSDirectionStopsViewModel @Inject constructor(
 
     private var _vehicleRefreshJob: Job? = null
 
-    private val _vehicleLocationDataRefreshMinMs = remoteConfigProvider.get(
-        RemoteConfigProvider.VEHICLE_LOCATION_DATA_REFRESH_MIN_MS,
-        RemoteConfigProvider.VEHICLE_LOCATION_DATA_REFRESH_MIN_MS_DEFAULT,
-    ).milliseconds
+    private val vehicleLocationDataRefreshMinMs =
+        remoteConfigProvider.getNowOrDefault().vehicleLocationDataRefreshMinMsOrDefault.milliseconds
 
     fun startVehicleLocationRefresh() {
         if (!UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) return
@@ -135,7 +133,7 @@ class RDSDirectionStopsViewModel @Inject constructor(
         _vehicleRefreshJob = viewModelScope.launch {
             while (true) {
                 _vehicleLocationRequestedTrigger.value = (_vehicleLocationRequestedTrigger.value ?: 0) + 1
-                delay(_vehicleLocationDataRefreshMinMs)
+                delay(vehicleLocationDataRefreshMinMs)
             }
         }
     }

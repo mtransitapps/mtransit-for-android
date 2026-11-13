@@ -105,7 +105,7 @@ class MapDirectionsProvider @Inject constructor(
     private val lastDeviceLocation: AndroidLocation? get() = locationProvider.lastLocationOrNull
 
     private val embedApiEnabled: Boolean by lazy {
-        remoteConfigProvider.get(RemoteConfigProvider.MAPS_DIRECTION_EMBED_API_ENABLED, RemoteConfigProvider.MAPS_DIRECTION_EMBED_API_ENABLED_DEFAULT)
+        remoteConfigProvider.getNowOrDefault().mapsDirectionsEmbedApiEnabledOrDefault
     }
 
     private val embedApiKey by lazy {

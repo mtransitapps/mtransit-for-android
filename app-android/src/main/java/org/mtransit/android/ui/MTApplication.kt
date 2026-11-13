@@ -64,7 +64,6 @@ class MTApplication : MTCommonApp() {
         if (isMainProcess) NightModeUtils.setDefaultNightMode(this, null)
         fixWebViewDataDirectorySuffix() // before any webview usage
         if (!UIFeatureFlags.F_LOCALE_WEB_VIEW_FIX_IN_ACTIVITY) fixWebViewLocale(this) // before ads SDK
-        this.remoteConfigProvider.init()
         this.crashReporter.setup(!BuildConfig.DEBUG)
         this.strictMode.setup() // uses crash reporter
         this.analyticsManager.setUserProperty(AnalyticsUserProperties.DEVICE_MANUFACTURER, Build.MANUFACTURER)
