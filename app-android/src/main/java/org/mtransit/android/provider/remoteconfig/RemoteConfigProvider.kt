@@ -5,6 +5,7 @@ import com.google.firebase.installations.FirebaseInstallationsException
 import com.google.firebase.installations.InstallationTokenResult
 import com.google.firebase.installations.installations
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
+import com.google.firebase.remoteconfig.FirebaseRemoteConfigException
 import com.google.firebase.remoteconfig.remoteConfig
 import com.google.firebase.remoteconfig.remoteConfigSettings
 import kotlinx.coroutines.CompletableDeferred
@@ -51,7 +52,7 @@ class RemoteConfigProvider @Inject constructor() : MTLog.Loggable {
         withTimeoutOrNull(timeout) {
             try {
                 remoteConfig.fetchAndActivate().await()
-            } catch (e: Exception) {
+            } catch (e: FirebaseRemoteConfigException) {
                 MTLog.w(this, e, "Remote config fetch failed!")
             }
         }
@@ -59,24 +60,15 @@ class RemoteConfigProvider @Inject constructor() : MTLog.Loggable {
         with(remoteConfig) {
             @Suppress("DEPRECATION")
             RemoteConfigData(
-                adBannerLoadOnScreenResumeMinDurationSec =
-                    getValueNonStatic(RemoteConfigData.AD_BANNER_LOAD_ON_SCREEN_RESUME_MIN_DURATION_SEC)?.asLong(),
-                adBannerLarge =
-                    getValueNonStatic(RemoteConfigData.AD_BANNER_LARGE)?.asBoolean(),
-                adAppOpenEnabled =
-                    getValueNonStatic(RemoteConfigData.AD_APP_OPEN_ENABLED)?.asBoolean(),
-                adRewardedAmountInDays =
-                    getValueNonStatic(RemoteConfigData.AD_REWARDED_AMOUNT_IN_DAYS)?.asLong(),
-                allowTwitterNewsForFree =
-                    getValueNonStatic(RemoteConfigData.ALLOW_TWITTER_NEWS_FOR_FREE)?.asBoolean(),
-                allowTwitterNewsCached =
-                    getValueNonStatic(RemoteConfigData.ALLOW_TWITTER_NEWS_CACHED)?.asBoolean(),
-                vehicleLocationDataRefreshMinMs =
-                    getValueNonStatic(RemoteConfigData.VEHICLE_LOCATION_DATA_REFRESH_MIN_MS)?.asLong(),
-                newUserAdsFree =
-                    getValueNonStatic(RemoteConfigData.NEW_USER_ADS_FREE)?.asBoolean(),
-                mapsDirectionsEmbedApiEnabled =
-                    getValueNonStatic(RemoteConfigData.MAPS_DIRECTION_EMBED_API_ENABLED)?.asBoolean(),
+                getValueNonStatic(RemoteConfigData.AD_BANNER_LOAD_ON_SCREEN_RESUME_MIN_DURATION_SEC)?.asLong(),
+                getValueNonStatic(RemoteConfigData.AD_BANNER_LARGE)?.asBoolean(),
+                getValueNonStatic(RemoteConfigData.AD_APP_OPEN_ENABLED)?.asBoolean(),
+                getValueNonStatic(RemoteConfigData.AD_REWARDED_AMOUNT_IN_DAYS)?.asLong(),
+                getValueNonStatic(RemoteConfigData.ALLOW_TWITTER_NEWS_FOR_FREE)?.asBoolean(),
+                getValueNonStatic(RemoteConfigData.ALLOW_TWITTER_NEWS_CACHED)?.asBoolean(),
+                getValueNonStatic(RemoteConfigData.VEHICLE_LOCATION_DATA_REFRESH_MIN_MS)?.asLong(),
+                getValueNonStatic(RemoteConfigData.NEW_USER_ADS_FREE)?.asBoolean(),
+                getValueNonStatic(RemoteConfigData.MAPS_DIRECTION_EMBED_API_ENABLED)?.asBoolean(),
             ).let {
                 snapshotDeferred.complete(it)
             }
