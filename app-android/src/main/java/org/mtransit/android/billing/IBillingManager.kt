@@ -115,14 +115,10 @@ interface IBillingManager {
     fun launchBillingFlow(activity: IActivity, productId: String): Boolean
 }
 
-@Suppress("DEPRECATION")
-fun RemoteConfigProvider.allowTwitterNews() = with(this.getNowOrDefault()) { allowTwitterNewsForFreeOrDefault || allowTwitterNewsCachedOrDefault }
-// || (org.mtransit.android.commons.Constants.DEBUG && org.mtransit.android.BuildConfig.DEBUG) // DEBUG
-
 fun <T : IAgencyProperties> List<T>.filterExpansiveAgencies(billingManager: IBillingManager, remoteConfigProvider: RemoteConfigProvider) =
     filterExpansiveAgencies(
         billingManager.showingPaidFeatures(),
-        remoteConfigProvider.allowTwitterNews()
+        remoteConfigProvider.getNowOrDefault().allowTwitterNewsOrDefault
     )
 
 fun <T : IAgencyProperties> List<T>.filterExpansiveAgencies(showingPaidFeatures: Boolean, allowTwitterNewsForFree: Boolean): List<T> {
@@ -135,7 +131,7 @@ fun <T : IAgencyProperties> List<T>.filterExpansiveAgencies(showingPaidFeatures:
 fun List<String>.filterExpansiveAgencyAuthorities(billingManager: IBillingManager, remoteConfigProvider: RemoteConfigProvider) =
     filterExpansiveAgencyAuthorities(
         billingManager.showingPaidFeatures(),
-        remoteConfigProvider.allowTwitterNews(),
+        remoteConfigProvider.getNowOrDefault().allowTwitterNewsOrDefault,
     )
 
 fun List<String>.filterExpansiveAgencyAuthorities(showingPaidFeatures: Boolean, allowTwitterNewsForFree: Boolean): List<String> {
@@ -148,7 +144,7 @@ fun List<String>.filterExpansiveAgencyAuthorities(showingPaidFeatures: Boolean, 
 fun List<NewsProviderProperties>.filterExpansiveNewsProviders(billingManager: IBillingManager, remoteConfigProvider: RemoteConfigProvider) =
     filterExpansiveNewsProviders(
         billingManager.showingPaidFeatures(),
-        remoteConfigProvider.allowTwitterNews()
+        remoteConfigProvider.getNowOrDefault().allowTwitterNewsOrDefault
     )
 
 fun List<NewsProviderProperties>.filterExpansiveNewsProviders(showingPaidFeatures: Boolean, allowTwitterNewsForFree: Boolean): List<NewsProviderProperties> {

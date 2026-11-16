@@ -89,6 +89,9 @@ data class RemoteConfigData(
     val allowTwitterNewsCachedOrDefault =
         this.allowTwitterNewsCached ?: ALLOW_TWITTER_NEWS_CACHED_DEFAULT
 
+    @Suppress("DEPRECATION")
+    val allowTwitterNewsOrDefault by lazy { allowTwitterNewsForFreeOrDefault || allowTwitterNewsCachedOrDefault }
+
     val vehicleLocationDataRefreshMinMsOrDefault =
         this.vehicleLocationDataRefreshMinMs ?: VEHICLE_LOCATION_DATA_REFRESH_MIN_MS_DEFAULT
 

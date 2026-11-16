@@ -104,7 +104,7 @@ class MapDirectionsProvider @Inject constructor(
 
     private val lastDeviceLocation: AndroidLocation? get() = locationProvider.lastLocationOrNull
 
-    private val embedApiEnabled get() = remoteConfigProvider.getNowOrDefault().mapsDirectionsEmbedApiEnabledOrDefault
+    private val embedApiEnabled by lazy { remoteConfigProvider.getNowOrDefault().mapsDirectionsEmbedApiEnabledOrDefault }
 
     private val embedApiKey by lazy {
         KeysManager.getKey(appContext, KeysIds.GOOGLE_MAPS_EMBED_API_KEY)?.takeIf { it.isNotBlank() }

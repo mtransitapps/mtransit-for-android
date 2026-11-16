@@ -81,13 +81,13 @@ class RemoteConfigProvider @Inject constructor() : MTLog.Loggable {
 
     private fun FirebaseRemoteConfigValue.asLongOrNull() = try {
         asLong()
-    } catch (_: NumberFormatException) {
+    } catch (_: IllegalArgumentException) {
         null
     }
 
     private fun FirebaseRemoteConfigValue.asBooleanOrNull() = try {
         asBoolean()
-    } catch (_: NumberFormatException) {
+    } catch (_: IllegalArgumentException) {
         null
     }
 

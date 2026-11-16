@@ -140,7 +140,7 @@ class RewardedUserManager @Inject constructor(
     }
 
     // 1 week (not possible to have dynamic eCPM/RPM-based value)
-    private val _rewardedAdAmountInDays get() = remoteConfigProvider.getNowOrDefault().adRewardedAmountInDaysOrDefault
+    private val _rewardedAdAmountInDays by lazy { remoteConfigProvider.getNowOrDefault().adRewardedAmountInDaysOrDefault }
 
-    val rewardedAdAmountInDays get() = _rewardedAdAmountInDays.toIntOrNull() ?: RemoteConfigData.AD_REWARDED_AMOUNT_IN_DAYS_DEFAULT_INT
+    val rewardedAdAmountInDays by lazy { _rewardedAdAmountInDays.toIntOrNull() ?: RemoteConfigData.AD_REWARDED_AMOUNT_IN_DAYS_DEFAULT_INT }
 }
