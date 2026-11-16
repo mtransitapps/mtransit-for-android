@@ -238,6 +238,7 @@
     <ID>LongMethod:NewsDetailsFragment.kt:NewsDetailsFragment$@SuppressLint("DeprecatedCall") private fun FragmentNewsDetailsBinding.updateThumbnails</ID>
     <ID>LongMethod:NewsListAdapter.kt:NewsListAdapter.NewsListItemViewHolder$fun bind</ID>
     <ID>LongMethod:NewsListDetailFragment.kt:NewsListDetailFragment$override fun onViewCreated</ID>
+    <ID>LongMethod:NextMainActivity.kt:NextMainActivity$override fun onCreate</ID>
     <ID>LongMethod:PickPOIViewModel.kt:PickPOIViewModel$private suspend fun getNearbyPOIs: List&lt;POIManager&gt;</ID>
     <ID>LongMethod:POIViewModel.kt:POIViewModel$private suspend fun getNearbyPOIs: List&lt;POIManager&gt;?</ID>
     <ID>LongMethod:PurchaseDialogFragment.kt:PurchaseDialogFragment$private fun onAvailableProductIdsLoaded</ID>
@@ -452,7 +453,7 @@
     <ID>TooManyFunctions:NewsListAdapter.kt:NewsListAdapter : AdapterStickyAdapterLoggable</ID>
     <ID>TooManyFunctions:NewsListDetailFragment.kt:NewsListDetailFragment : ABFragmentMenuProviderModuleDisabledAwareFragment</ID>
     <ID>TooManyFunctions:NextMainActivity.kt:NextMainActivity : MTActivityWithLocationOnBackStackChangedListenerAnalyticsScreenIActivityIAdScreenActivityRewardedAdListener</ID>
-    <ID>TooManyFunctions:NextMainViewModel.kt:NextMainViewModel : ViewModelLoggable</ID>
+    <ID>TooManyFunctions:NextMainViewModel.kt:NextMainViewModel : SharedActivityViewModelLoggable</ID>
     <ID>TooManyFunctions:POIManagerExt.kt:org.mtransit.android.data.POIManagerExt.kt</ID>
     <ID>TooManyFunctions:POIRepository.kt:POIRepository : Loggable</ID>
     <ID>TooManyFunctions:PickPOIDialogFragment.kt:PickPOIDialogFragment : MTBottomSheetDialogFragmentXDeviceLocationListenerIFragment</ID>

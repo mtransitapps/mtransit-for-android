@@ -45,7 +45,7 @@ import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAw
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledUI
 import org.mtransit.android.ui.inappnotification.newlocation.NewLocationAwareFragment
 import org.mtransit.android.ui.inappnotification.newlocation.NewLocationUI
-import org.mtransit.android.ui.main.NextMainViewModel
+import org.mtransit.android.ui.main.next.NextMainViewModel
 import org.mtransit.android.ui.map.MapFragment
 import org.mtransit.android.ui.nearby.NearbyFragment
 import org.mtransit.android.ui.setUpListEdgeToEdge

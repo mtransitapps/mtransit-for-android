@@ -1,4 +1,4 @@
-package org.mtransit.android.ui.main
+package org.mtransit.android.ui.main.next
 
 import android.annotation.SuppressLint
 import android.app.PendingIntent
@@ -165,6 +165,7 @@ class NextMainActivity :
         enableEdgeToEdgeMT()
         window.decorView // fix random crash (gesture nav back then re-open app)
         super.onCreate(savedInstanceState)
+        viewModel.onCreate()
         adManager.initForScreens(this)
         NightModeUtils.resetColorCache() // single activity, no cache can be trusted to be from the right theme
         currentUiMode = resources.configuration.uiMode

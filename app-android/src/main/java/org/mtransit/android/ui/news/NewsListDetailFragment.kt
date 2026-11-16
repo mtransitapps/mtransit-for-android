@@ -42,7 +42,7 @@ import org.mtransit.android.ui.applyStatusBarsInsetsEdgeToEdge
 import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAwareFragment
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledUI
-import org.mtransit.android.ui.main.NextMainViewModel
+import org.mtransit.android.ui.main.next.NextMainViewModel
 import org.mtransit.android.ui.news.pager.NewsPagerAdapter
 import org.mtransit.android.ui.setUpListEdgeToEdge
 import org.mtransit.android.ui.view.common.ImageManager

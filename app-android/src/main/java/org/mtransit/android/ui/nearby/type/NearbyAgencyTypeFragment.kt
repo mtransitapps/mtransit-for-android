@@ -24,7 +24,7 @@ import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.task.StatusLoader
 import org.mtransit.android.ui.empty.EmptyLayoutUtils.updateEmptyLayout
 import org.mtransit.android.ui.fragment.MTFragmentX
-import org.mtransit.android.ui.main.NextMainViewModel
+import org.mtransit.android.ui.main.next.NextMainViewModel
 import org.mtransit.android.ui.nearby.NearbyViewModel
 import org.mtransit.android.ui.setUpListEdgeToEdge
 import org.mtransit.android.ui.view.common.isAttached

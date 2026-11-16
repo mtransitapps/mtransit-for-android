@@ -108,7 +108,7 @@ import org.mtransit.android.ui.EdgeToEdgeKt;
 import org.mtransit.android.ui.MTActivityWithLocation;
 import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.location.UILocationUtils;
-import org.mtransit.android.ui.main.NextMainViewModel;
+import org.mtransit.android.ui.main.next.NextMainViewModel;
 import org.mtransit.android.ui.nearby.NearbyFragment;
 import org.mtransit.android.ui.news.NewsListAdapter;
 import org.mtransit.android.ui.news.NewsListDetailFragment;

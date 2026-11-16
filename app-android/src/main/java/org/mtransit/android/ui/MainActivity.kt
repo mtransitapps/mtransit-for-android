@@ -13,6 +13,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.viewModels
 import androidx.annotation.AnyThread
 import androidx.annotation.MainThread
 import androidx.annotation.WorkerThread
@@ -50,6 +51,7 @@ import org.mtransit.android.receiver.ModulesReceiver
 import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.task.StatusLoader
 import org.mtransit.android.ui.fragment.ABFragment
+import org.mtransit.android.ui.main.MainViewModel
 import org.mtransit.android.ui.search.SearchFragment
 import org.mtransit.android.ui.search.SearchFragment.Companion.newInstance
 import org.mtransit.android.ui.view.common.IActivity
@@ -92,6 +94,8 @@ class MainActivity :
     override fun getLogTag() = LOG_TAG
 
     override val screenName = TRACKING_SCREEN_NAME
+
+    private val viewModel by viewModels<MainViewModel>()
 
     private var navigationDrawerController: NavigationDrawerController? = null
 
@@ -166,6 +170,7 @@ class MainActivity :
         enableEdgeToEdgeMT()
         window.decorView // fix random crash (gesture nav back then re-open app)
         super.onCreate(savedInstanceState)
+        viewModel.onCreate()
         adManager.initForScreens(this)
         NightModeUtils.resetColorCache() // single activity, no cache can be trusted to be from the right theme
         this.currentUiMode = resources.configuration.uiMode
