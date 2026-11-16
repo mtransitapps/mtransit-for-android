@@ -10,6 +10,8 @@ import com.google.firebase.remoteconfig.FirebaseRemoteConfigValue
 import com.google.firebase.remoteconfig.remoteConfig
 import com.google.firebase.remoteconfig.remoteConfigSettings
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withTimeoutOrNull
 import org.mtransit.android.BuildConfig
@@ -35,11 +37,11 @@ class RemoteConfigProvider @Inject constructor() : MTLog.Loggable {
 
     @Volatile
     private var snapshot: RemoteConfigData? = null
-
     private val snapshotDeferred = CompletableDeferred<RemoteConfigData>()
+    private val initMutex = Mutex()
 
-    suspend fun init(timeout: Duration = 3.seconds) {
-        if (snapshotDeferred.isCompleted) return
+    suspend fun init(timeout: Duration = 3.seconds) = initMutex.withLock {
+        if (snapshotDeferred.isCompleted) return@withLock
         remoteConfig.setConfigSettingsAsync(
             remoteConfigSettings {
                 if (BuildConfig.DEBUG) {
@@ -99,7 +101,11 @@ class RemoteConfigProvider @Inject constructor() : MTLog.Loggable {
 
     suspend fun get() = snapshotDeferred.await()
 
-    fun getAll(): Map<String, Any?>? = getNow()?.toMap()
+    private fun getAllReceived() = remoteConfig.all
+        .filterValues { it.source != FirebaseRemoteConfig.VALUE_SOURCE_STATIC }
+        .mapValues { (_, value) -> value.asString() }
+
+    fun getAll(): Map<String, Any?>? = getNow()?.toMap(getAllReceived())
 
     suspend fun getInstallationToken(forceRefresh: Boolean): InstallationTokenResult? = try {
         installations.getToken(forceRefresh).await()

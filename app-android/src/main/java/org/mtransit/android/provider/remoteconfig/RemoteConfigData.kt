@@ -54,19 +54,37 @@ data class RemoteConfigData(
         internal const val MAPS_DIRECTION_EMBED_API_ENABLED = "mt_maps_embed_api"
         private const val MAPS_DIRECTION_EMBED_API_ENABLED_DEFAULT = false
         // private const val MAPS_DIRECTION_EMBED_API_ENABLED_DEFAULT = true // DEBUG
+        @Suppress("DEPRECATION")
+        private val IGNORED = listOf(
+            "mt_ad_banner_load_on_screen_resume",
+            ALLOW_TWITTER_NEWS_FOR_FREE,
+            "mt_ad_banner_keep_old_ad_visible",
+            "churn_hrt",
+            "not_churn_lrt",
+            "open_count_more_than_100",
+            "mt_in_app_purchase_users",
+            "mt_ad_reward_users",
+        )
     }
 
-    fun toMap() = buildMap {
-        put(AD_BANNER_LOAD_ON_SCREEN_RESUME_MIN_DURATION_SEC, adBannerLoadOnScreenResumeMinDurationSec)
-        put(AD_BANNER_LARGE, adBannerLarge)
-        put(AD_APP_OPEN_ENABLED, adAppOpenEnabled)
-        put(AD_REWARDED_AMOUNT_IN_DAYS, adRewardedAmountInDays)
-        @Suppress("DEPRECATION")
-        put(ALLOW_TWITTER_NEWS_FOR_FREE, allowTwitterNewsForFree)
-        put(ALLOW_TWITTER_NEWS_CACHED, allowTwitterNewsCached)
-        put(VEHICLE_LOCATION_DATA_REFRESH_MIN_MS, vehicleLocationDataRefreshMinMs)
-        put(NEW_USER_ADS_FREE, newUserAdsFree)
-        put(MAPS_DIRECTION_EMBED_API_ENABLED, mapsDirectionsEmbedApiEnabled)
+    fun toMap(received: Map<String, String>) = buildMap {
+        adBannerLoadOnScreenResumeMinDurationSec?.let { put(AD_BANNER_LOAD_ON_SCREEN_RESUME_MIN_DURATION_SEC, it) }
+        adBannerLarge?.let { put(AD_BANNER_LARGE, it) }
+        adAppOpenEnabled?.let { put(AD_APP_OPEN_ENABLED, it) }
+        adRewardedAmountInDays?.let { put(AD_REWARDED_AMOUNT_IN_DAYS, it) }
+        allowTwitterNewsCached?.let { put(ALLOW_TWITTER_NEWS_CACHED, it) }
+        vehicleLocationDataRefreshMinMs?.let { put(VEHICLE_LOCATION_DATA_REFRESH_MIN_MS, it) }
+        newUserAdsFree?.let { put(NEW_USER_ADS_FREE, it) }
+        mapsDirectionsEmbedApiEnabled?.let { put(MAPS_DIRECTION_EMBED_API_ENABLED, it) }
+        received.forEach { (key, value) ->
+            if (key in IGNORED) return@forEach // ignore unused key
+            if (this[key].toString() == value) return@forEach // ignore same value
+            if (this.contains(key)) {
+                put(key, "c:'${this[key]}'!r:'$value'")
+            } else {
+                put("R:$key", value)
+            }
+        }
     }
 
     val adBannerLoadOnScreenResumeMinDurationSecOrDefault =
