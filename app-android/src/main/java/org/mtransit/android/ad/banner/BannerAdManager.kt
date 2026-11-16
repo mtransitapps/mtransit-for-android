@@ -65,9 +65,7 @@ class BannerAdManager @Inject constructor(
 
     private var setupTask: SetupBannerAdTask? = null
 
-    private val loadOnScreenResumeMinDurationSec: Long by lazy {
-        remoteConfigProvider.getNowOrDefault().adBannerLoadOnScreenResumeMinDurationSecOrDefault
-    }
+    private val loadOnScreenResumeMinDurationSec get() = remoteConfigProvider.getNowOrDefault().adBannerLoadOnScreenResumeMinDurationSecOrDefault
 
     internal val loadOnScreenResume: Boolean by lazy {
         loadOnScreenResumeMinDurationSec > 0L

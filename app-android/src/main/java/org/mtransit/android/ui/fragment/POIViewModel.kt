@@ -181,8 +181,7 @@ class POIViewModel @Inject constructor(
 
     private var vehicleRefreshJob: Job? = null
 
-    private val vehicleLocationDataRefreshMinMs =
-        remoteConfigProvider.getNowOrDefault().vehicleLocationDataRefreshMinMsOrDefault.milliseconds
+    private val vehicleLocationDataRefreshMinMs = remoteConfigProvider.getNowOrDefault().vehicleLocationDataRefreshMinMsOrDefault.milliseconds
 
     fun startVehicleLocationRefresh() {
         if (!UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) return

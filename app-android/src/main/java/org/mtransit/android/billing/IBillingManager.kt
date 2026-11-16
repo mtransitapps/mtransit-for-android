@@ -116,10 +116,7 @@ interface IBillingManager {
 }
 
 @Suppress("DEPRECATION")
-fun RemoteConfigProvider.allowTwitterNews() = with(this.getNowOrDefault()) {
-    allowTwitterNewsForFreeOrDefault
-        || allowTwitterNewsCachedOrDefault
-}
+fun RemoteConfigProvider.allowTwitterNews() = with(this.getNowOrDefault()) { allowTwitterNewsForFreeOrDefault || allowTwitterNewsCachedOrDefault }
 // || (org.mtransit.android.commons.Constants.DEBUG && org.mtransit.android.BuildConfig.DEBUG) // DEBUG
 
 fun <T : IAgencyProperties> List<T>.filterExpansiveAgencies(billingManager: IBillingManager, remoteConfigProvider: RemoteConfigProvider) =

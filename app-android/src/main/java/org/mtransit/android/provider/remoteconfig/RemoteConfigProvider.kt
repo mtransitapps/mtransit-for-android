@@ -6,6 +6,7 @@ import com.google.firebase.installations.InstallationTokenResult
 import com.google.firebase.installations.installations
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.remoteconfig.FirebaseRemoteConfigException
+import com.google.firebase.remoteconfig.FirebaseRemoteConfigValue
 import com.google.firebase.remoteconfig.remoteConfig
 import com.google.firebase.remoteconfig.remoteConfigSettings
 import kotlinx.coroutines.CompletableDeferred
@@ -59,15 +60,15 @@ class RemoteConfigProvider @Inject constructor() : MTLog.Loggable {
         with(remoteConfig) {
             @Suppress("DEPRECATION")
             RemoteConfigData(
-                getValueNonStatic(RemoteConfigData.AD_BANNER_LOAD_ON_SCREEN_RESUME_MIN_DURATION_SEC)?.asLong(),
-                getValueNonStatic(RemoteConfigData.AD_BANNER_LARGE)?.asBoolean(),
-                getValueNonStatic(RemoteConfigData.AD_APP_OPEN_ENABLED)?.asBoolean(),
-                getValueNonStatic(RemoteConfigData.AD_REWARDED_AMOUNT_IN_DAYS)?.asLong(),
-                getValueNonStatic(RemoteConfigData.ALLOW_TWITTER_NEWS_FOR_FREE)?.asBoolean(),
-                getValueNonStatic(RemoteConfigData.ALLOW_TWITTER_NEWS_CACHED)?.asBoolean(),
-                getValueNonStatic(RemoteConfigData.VEHICLE_LOCATION_DATA_REFRESH_MIN_MS)?.asLong(),
-                getValueNonStatic(RemoteConfigData.NEW_USER_ADS_FREE)?.asBoolean(),
-                getValueNonStatic(RemoteConfigData.MAPS_DIRECTION_EMBED_API_ENABLED)?.asBoolean(),
+                getValueNonStatic(RemoteConfigData.AD_BANNER_LOAD_ON_SCREEN_RESUME_MIN_DURATION_SEC)?.asLongOrNull(),
+                getValueNonStatic(RemoteConfigData.AD_BANNER_LARGE)?.asBooleanOrNull(),
+                getValueNonStatic(RemoteConfigData.AD_APP_OPEN_ENABLED)?.asBooleanOrNull(),
+                getValueNonStatic(RemoteConfigData.AD_REWARDED_AMOUNT_IN_DAYS)?.asLongOrNull(),
+                getValueNonStatic(RemoteConfigData.ALLOW_TWITTER_NEWS_FOR_FREE)?.asBooleanOrNull(),
+                getValueNonStatic(RemoteConfigData.ALLOW_TWITTER_NEWS_CACHED)?.asBooleanOrNull(),
+                getValueNonStatic(RemoteConfigData.VEHICLE_LOCATION_DATA_REFRESH_MIN_MS)?.asLongOrNull(),
+                getValueNonStatic(RemoteConfigData.NEW_USER_ADS_FREE)?.asBooleanOrNull(),
+                getValueNonStatic(RemoteConfigData.MAPS_DIRECTION_EMBED_API_ENABLED)?.asBooleanOrNull(),
             ).let {
                 snapshot = it
                 snapshotDeferred.complete(it)
@@ -77,6 +78,18 @@ class RemoteConfigProvider @Inject constructor() : MTLog.Loggable {
 
     private fun FirebaseRemoteConfig.getValueNonStatic(key: String) =
         getValue(key).takeIf { it.source != FirebaseRemoteConfig.VALUE_SOURCE_STATIC }
+
+    private fun FirebaseRemoteConfigValue.asLongOrNull() = try {
+        asLong()
+    } catch (_: NumberFormatException) {
+        null
+    }
+
+    private fun FirebaseRemoteConfigValue.asBooleanOrNull() = try {
+        asBoolean()
+    } catch (_: NumberFormatException) {
+        null
+    }
 
     fun getNow() = snapshot
 
