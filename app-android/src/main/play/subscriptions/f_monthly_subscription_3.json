@@ -35,6 +35,15 @@
         {
           "newSubscriberAvailability": true,
           "price": {
+            "currencyCode": "ARS",
+            "nanos": 300000000,
+            "units": "3498"
+          },
+          "regionCode": "AR"
+        },
+        {
+          "newSubscriberAvailability": true,
+          "price": {
             "currencyCode": "EUR",
             "units": "3"
           },
@@ -47,6 +56,15 @@
             "units": "3"
           },
           "regionCode": "AU"
+        },
+        {
+          "newSubscriberAvailability": true,
+          "price": {
+            "currencyCode": "AZN",
+            "nanos": 980000000,
+            "units": "3"
+          },
+          "regionCode": "AZ"
         },
         {
           "newSubscriberAvailability": true,
@@ -235,6 +253,15 @@
             "units": "3"
           },
           "regionCode": "ES"
+        },
+        {
+          "newSubscriberAvailability": true,
+          "price": {
+            "currencyCode": "ETB",
+            "nanos": 840000000,
+            "units": "370"
+          },
+          "regionCode": "ET"
         },
         {
           "newSubscriberAvailability": true,
@@ -802,6 +829,14 @@
         {
           "newSubscriberAvailability": true,
           "price": {
+            "currencyCode": "UZS",
+            "units": "28080"
+          },
+          "regionCode": "UZ"
+        },
+        {
+          "newSubscriberAvailability": true,
+          "price": {
             "currencyCode": "EUR",
             "nanos": 190000000,
             "units": "2"
@@ -876,25 +911,7 @@
             "nanos": 340000000,
             "units": "2"
           },
-          "regionCode": "AR"
-        },
-        {
-          "newSubscriberAvailability": true,
-          "price": {
-            "currencyCode": "USD",
-            "nanos": 340000000,
-            "units": "2"
-          },
           "regionCode": "AW"
-        },
-        {
-          "newSubscriberAvailability": true,
-          "price": {
-            "currencyCode": "USD",
-            "nanos": 340000000,
-            "units": "2"
-          },
-          "regionCode": "AZ"
         },
         {
           "newSubscriberAvailability": true,
@@ -1452,15 +1469,6 @@
             "nanos": 340000000,
             "units": "2"
           },
-          "regionCode": "UZ"
-        },
-        {
-          "newSubscriberAvailability": true,
-          "price": {
-            "currencyCode": "USD",
-            "nanos": 340000000,
-            "units": "2"
-          },
           "regionCode": "VE"
         },
         {
@@ -1514,12 +1522,22 @@
   ],
   "listings": [
     {
+      "benefits": [
+        "Hide ads",
+        "Support MonTransit development",
+        "Cancel anytime"
+      ],
       "description": "Hide ads. Support MonTransit development. Cancel anytime.",
       "languageCode": "en-US",
       "title": "Support MonTransit (monthly)"
     },
     {
-      "description": "Masquer les publicités. Soutenir MonTransit. Annuler à tout moment",
+      "benefits": [
+        "Masquer les publicités",
+        "Soutenir le développement de MonTransit",
+        "Annuler à tout moment"
+      ],
+      "description": "Masquer les publicités. Soutenir le développement de MonTransit. Annuler à tout moment",
       "languageCode": "fr-FR",
       "title": "Soutenir MonTransit (mensuellement)"
     }
