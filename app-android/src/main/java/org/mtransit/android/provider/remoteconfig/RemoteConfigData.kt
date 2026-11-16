@@ -54,6 +54,7 @@ data class RemoteConfigData(
         internal const val MAPS_DIRECTION_EMBED_API_ENABLED = "mt_maps_embed_api"
         private const val MAPS_DIRECTION_EMBED_API_ENABLED_DEFAULT = false
         // private const val MAPS_DIRECTION_EMBED_API_ENABLED_DEFAULT = true // DEBUG
+
         @Suppress("DEPRECATION")
         private val IGNORED = listOf(
             "mt_ad_banner_load_on_screen_resume",
