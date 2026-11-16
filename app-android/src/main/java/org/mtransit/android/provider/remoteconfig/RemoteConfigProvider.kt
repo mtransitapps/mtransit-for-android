@@ -12,15 +12,12 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.tasks.await
-import kotlinx.coroutines.withTimeoutOrNull
 import org.mtransit.android.BuildConfig
 import org.mtransit.android.commons.MTLog
 import org.mtransit.commons.suspendRunCatching
 import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlin.time.Duration
-import kotlin.time.Duration.Companion.seconds
 
 @Singleton
 class RemoteConfigProvider @Inject constructor() : MTLog.Loggable {
@@ -40,8 +37,10 @@ class RemoteConfigProvider @Inject constructor() : MTLog.Loggable {
     private val snapshotDeferred = CompletableDeferred<RemoteConfigData>()
     private val initMutex = Mutex()
 
-    suspend fun init(timeout: Duration = 3.seconds) = initMutex.withLock {
+    suspend fun init() = initMutex.withLock {
         if (snapshotDeferred.isCompleted) return@withLock
+
+        // setup remote config settings
         remoteConfig.setConfigSettingsAsync(
             remoteConfigSettings {
                 if (BuildConfig.DEBUG) {
@@ -51,13 +50,13 @@ class RemoteConfigProvider @Inject constructor() : MTLog.Loggable {
             }
         )
 
-        withTimeoutOrNull(timeout) {
-            suspendRunCatching { remoteConfig.fetchAndActivate().await() }
-                .onFailure { e ->
-                    MTLog.w(this, e, "Remote config fetch failed!")
-                }
-        }
+        // activate cached Remote Config values
+        suspendRunCatching { remoteConfig.activate().await() }
+            .onFailure { e ->
+                MTLog.w(this, e, "Remote config activation failed!")
+            }
 
+        // use activated Remote Config values
         with(remoteConfig) {
             @Suppress("DEPRECATION")
             RemoteConfigData(
@@ -75,6 +74,12 @@ class RemoteConfigProvider @Inject constructor() : MTLog.Loggable {
                 snapshotDeferred.complete(it)
             }
         }
+
+        // fetch latest remote config value for next time
+        remoteConfig.fetch()
+            .addOnFailureListener { e ->
+                MTLog.w(this, e, "Remote config fetch failed!")
+            }
     }
 
     private fun FirebaseRemoteConfig.getValueNonStatic(key: String) =

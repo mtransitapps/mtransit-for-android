@@ -46,15 +46,15 @@ class DataSourcesInMemoryCache @Inject constructor(
 
     private val defaultDataSourceTypeComparator: Comparator<DataSourceType> by lazy { DataSourceType.DataSourceTypeShortNameComparator(appContext) }
 
-    private var _agencyProperties = listOf<AgencyProperties>() // sorted
-    private var _agencyBaseProperties = listOf<AgencyBaseProperties>() // sorted
-    private var _supportedDataSourceTypes = listOf<DataSourceType>() // sorted
+    private var agencyProperties = listOf<AgencyProperties>() // sorted
+    private var agencyBaseProperties = listOf<AgencyBaseProperties>() // sorted
+    private var supportedDataSourceTypes = listOf<DataSourceType>() // sorted
 
-    private var _statusProviderProperties = listOf<StatusProviderProperties>() // sorted for stability
-    private var _scheduleProviderProperties = listOf<ScheduleProviderProperties>() // sorted for stability
-    private var _serviceUpdateProviderProperties = listOf<ServiceUpdateProviderProperties>() // sorted for stability
-    private var _vehicleLocationProviderProperties = listOf<VehicleLocationProviderProperties>() // sorted for stability
-    private var _newsProviderProperties = listOf<NewsProviderProperties>() // sorted for stability
+    private var statusProviderProperties = listOf<StatusProviderProperties>() // sorted for stability
+    private var scheduleProviderProperties = listOf<ScheduleProviderProperties>() // sorted for stability
+    private var serviceUpdateProviderProperties = listOf<ServiceUpdateProviderProperties>() // sorted for stability
+    private var vehicleLocationProviderProperties = listOf<VehicleLocationProviderProperties>() // sorted for stability
+    private var newsProviderProperties = listOf<NewsProviderProperties>() // sorted for stability
 
     init {
         // START LISTENING FOR CHANGE TO FILL IN-MEMORY CACHE
@@ -63,14 +63,12 @@ class DataSourcesInMemoryCache @Inject constructor(
 
     private fun startListeningForChangesIntoMemory() {
         dataSourcesStorage.readingAllAgencies().observeForever { agencies -> // SINGLETON
-            this._agencyProperties = agencies
-                .filterExpansiveAgencies(billingManager, remoteConfigProvider)
+            this.agencyProperties = agencies
                 .filterDemoModeAgency(demoModeManager)
                 .sortedWith(defaultAgencyComparator)
         }
         dataSourcesStorage.readingAllAgenciesBase().observeForever { agencies -> // SINGLETON
-            this._agencyBaseProperties = agencies
-                .filterExpansiveAgencies(billingManager, remoteConfigProvider)
+            this.agencyBaseProperties = agencies
                 .filterDemoModeAgency(demoModeManager)
                 .sortedWith(defaultAgencyComparator)
         }
@@ -79,90 +77,95 @@ class DataSourcesInMemoryCache @Inject constructor(
             dataSourcesStorage.readingAllExtendedDataSourceTypes(),
         ).observeForever { (notExtendedDST, extendedDST) -> // SINGLETON
             if (notExtendedDST == null || extendedDST == null) return@observeForever
-            this._supportedDataSourceTypes = notExtendedDST.toMutableList().apply { addAllNNE(extendedDST) }
+            this.supportedDataSourceTypes = notExtendedDST.toMutableList().apply { addAllNNE(extendedDST) }
                 .filterDemoModeType(demoModeManager)
                 .sortedWith(defaultDataSourceTypeComparator)
         }
         dataSourcesStorage.readingAllStatusProviders().observeForever { // SINGLETON
-            this._statusProviderProperties = it
+            this.statusProviderProperties = it
                 .filterDemoModeTargeted(demoModeManager)
         }
         dataSourcesStorage.readingAllScheduleProviders().observeForever { // SINGLETON
-            this._scheduleProviderProperties = it
+            this.scheduleProviderProperties = it
                 .filterDemoModeTargeted(demoModeManager)
         }
         dataSourcesStorage.readingAllServiceUpdateProviders().observeForever { // SINGLETON
-            this._serviceUpdateProviderProperties = it
+            this.serviceUpdateProviderProperties = it
                 .filterDemoModeTargeted(demoModeManager)
         }
         if (UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) {
             dataSourcesStorage.readingAllVehicleLocationProviders().observeForever { // SINGLETON
-                this._vehicleLocationProviderProperties = it
+                this.vehicleLocationProviderProperties = it
                     .filterDemoModeTargeted(demoModeManager)
             }
         }
         dataSourcesStorage.readingAllNewsProviders().observeForever { newsProviders -> // SINGLETON
-            this._newsProviderProperties = newsProviders
-                .filterExpansiveNewsProviders(billingManager, remoteConfigProvider)
+            this.newsProviderProperties = newsProviders
                 .filterDemoModeTargeted(demoModeManager)
         }
     }
 
     // AGENCY
 
-    fun getAllAgencies() = this._agencyProperties
+    private val filteredAgencyProperties get() = this.agencyProperties.filterExpansiveAgencies(billingManager, remoteConfigProvider)
 
-    fun getAgency(authority: String) = this._agencyProperties.singleOrNull { it.authority == authority }
+    fun getAllAgencies() = this.filteredAgencyProperties
 
-    fun getAgencyBase(authority: String) = this._agencyBaseProperties.singleOrNull { it.authority == authority }
+    fun getAgency(authority: String) = this.filteredAgencyProperties.singleOrNull { it.authority == authority }
 
-    fun getAgencyForPkg(pkg: String) = this._agencyProperties.singleOrNull { it.pkg == pkg }
+    private val filteredAgencyBaseProperties get() = this.agencyBaseProperties.filterExpansiveAgencies(billingManager, remoteConfigProvider)
 
-    fun getAllSupportedDataSourceTypes() = this._supportedDataSourceTypes
+    fun getAgencyBase(authority: String) = this.filteredAgencyBaseProperties.singleOrNull { it.authority == authority }
+
+    fun getAgencyForPkg(pkg: String) = this.filteredAgencyProperties.singleOrNull { it.pkg == pkg }
+
+    fun getAllSupportedDataSourceTypes() = this.supportedDataSourceTypes
 
     // STATUS
 
-    fun getAllStatusProviders() = this._statusProviderProperties
+    fun getAllStatusProviders() = this.statusProviderProperties
 
-    fun getStatusProviders(targetAuthority: String) = this._statusProviderProperties.filter { it.targetAuthority == targetAuthority }
+    fun getStatusProviders(targetAuthority: String) = this.statusProviderProperties.filter { it.targetAuthority == targetAuthority }
 
-    fun getStatusProvider(authority: String) = this._statusProviderProperties.singleOrNull { it.authority == authority }
+    fun getStatusProvider(authority: String) = this.statusProviderProperties.singleOrNull { it.authority == authority }
 
     // SCHEDULE
 
-    fun getAllScheduleProviders() = this._scheduleProviderProperties
+    fun getAllScheduleProviders() = this.scheduleProviderProperties
 
-    fun getScheduleProviders(targetAuthority: String?) = this._scheduleProviderProperties.filter { it.targetAuthority == targetAuthority }
+    fun getScheduleProviders(targetAuthority: String?) = this.scheduleProviderProperties.filter { it.targetAuthority == targetAuthority }
 
-    fun getScheduleProvidersList(targetAuthority: String?) = this._scheduleProviderProperties.filter { it.targetAuthority == targetAuthority }
+    fun getScheduleProvidersList(targetAuthority: String?) = this.scheduleProviderProperties.filter { it.targetAuthority == targetAuthority }
 
-    fun getScheduleProvider(authority: String) = this._scheduleProviderProperties.singleOrNull { it.authority == authority }
+    fun getScheduleProvider(authority: String) = this.scheduleProviderProperties.singleOrNull { it.authority == authority }
 
     // SERVICE UPDATE
 
-    fun getAllServiceUpdateProviders() = this._serviceUpdateProviderProperties
+    fun getAllServiceUpdateProviders() = this.serviceUpdateProviderProperties
 
-    fun getServiceUpdateProviders(targetAuthority: String) = this._serviceUpdateProviderProperties.filter { it.targetAuthority == targetAuthority }
+    fun getServiceUpdateProviders(targetAuthority: String) = this.serviceUpdateProviderProperties.filter { it.targetAuthority == targetAuthority }
 
-    fun getServiceUpdateProvider(authority: String) = this._serviceUpdateProviderProperties.singleOrNull { it.authority == authority }
+    fun getServiceUpdateProvider(authority: String) = this.serviceUpdateProviderProperties.singleOrNull { it.authority == authority }
 
     // VEHICLE LOCATION
 
-    fun getAllVehicleLocationProviders() = this._vehicleLocationProviderProperties
+    fun getAllVehicleLocationProviders() = this.vehicleLocationProviderProperties
 
-    fun getVehicleLocationProviders(targetAuthority: String) = this._vehicleLocationProviderProperties.filter { it.targetAuthority == targetAuthority }
+    fun getVehicleLocationProviders(targetAuthority: String) = this.vehicleLocationProviderProperties.filter { it.targetAuthority == targetAuthority }
 
-    fun getVehicleLocationProvidersList(targetAuthority: String) = this._vehicleLocationProviderProperties.filter { it.targetAuthority == targetAuthority }
+    fun getVehicleLocationProvidersList(targetAuthority: String) = this.vehicleLocationProviderProperties.filter { it.targetAuthority == targetAuthority }
 
-    fun getVehicleLocationProvider(authority: String) = this._vehicleLocationProviderProperties.singleOrNull { it.authority == authority }
+    fun getVehicleLocationProvider(authority: String) = this.vehicleLocationProviderProperties.singleOrNull { it.authority == authority }
 
     // NEWS
 
-    fun getAllNewsProviders() = this._newsProviderProperties
+    private val filteredNewsProviderProperties get() = this.newsProviderProperties.filterExpansiveNewsProviders(billingManager, remoteConfigProvider)
 
-    fun getNewsProviders(targetAuthority: String) = this._newsProviderProperties.filter { it.targetAuthority == targetAuthority }
+    fun getAllNewsProviders() = this.filteredNewsProviderProperties
 
-    fun getNewsProvidersList(targetAuthority: String) = this._newsProviderProperties.filter { it.targetAuthority == targetAuthority }
+    fun getNewsProviders(targetAuthority: String) = this.filteredNewsProviderProperties.filter { it.targetAuthority == targetAuthority }
 
-    fun getNewsProvider(authority: String) = this._newsProviderProperties.singleOrNull { it.authority == authority }
+    fun getNewsProvidersList(targetAuthority: String) = this.filteredNewsProviderProperties.filter { it.targetAuthority == targetAuthority }
+
+    fun getNewsProvider(authority: String) = this.filteredNewsProviderProperties.singleOrNull { it.authority == authority }
 }
