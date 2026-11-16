@@ -9,7 +9,6 @@ import com.google.firebase.remoteconfig.FirebaseRemoteConfigException
 import com.google.firebase.remoteconfig.remoteConfig
 import com.google.firebase.remoteconfig.remoteConfigSettings
 import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withTimeoutOrNull
 import org.mtransit.android.BuildConfig
@@ -32,6 +31,9 @@ class RemoteConfigProvider @Inject constructor() : MTLog.Loggable {
     private val remoteConfig by lazy { Firebase.remoteConfig }
 
     private val installations by lazy { Firebase.installations }
+
+    @Volatile
+    private var snapshot: RemoteConfigData? = null
 
     private val snapshotDeferred = CompletableDeferred<RemoteConfigData>()
 
@@ -67,6 +69,7 @@ class RemoteConfigProvider @Inject constructor() : MTLog.Loggable {
                 getValueNonStatic(RemoteConfigData.NEW_USER_ADS_FREE)?.asBoolean(),
                 getValueNonStatic(RemoteConfigData.MAPS_DIRECTION_EMBED_API_ENABLED)?.asBoolean(),
             ).let {
+                snapshot = it
                 snapshotDeferred.complete(it)
             }
         }
@@ -75,13 +78,11 @@ class RemoteConfigProvider @Inject constructor() : MTLog.Loggable {
     private fun FirebaseRemoteConfig.getValueNonStatic(key: String) =
         getValue(key).takeIf { it.source != FirebaseRemoteConfig.VALUE_SOURCE_STATIC }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
-    fun getNow() =
-        snapshotDeferred.takeIf { it.isCompleted }?.getCompleted()
+    fun getNow() = snapshot
 
     private val defaultConfig by lazy { RemoteConfigData() }
 
-    fun getNowOrDefault() = getNow() ?: defaultConfig
+    fun getNowOrDefault() = snapshot ?: defaultConfig
 
     suspend fun get() = snapshotDeferred.await()
 
