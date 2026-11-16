@@ -56,6 +56,19 @@ data class RemoteConfigData(
         // private const val MAPS_DIRECTION_EMBED_API_ENABLED_DEFAULT = true // DEBUG
     }
 
+    fun toMap() = buildMap {
+        put(AD_BANNER_LOAD_ON_SCREEN_RESUME_MIN_DURATION_SEC, adBannerLoadOnScreenResumeMinDurationSec)
+        put(AD_BANNER_LARGE, adBannerLarge)
+        put(AD_APP_OPEN_ENABLED, adAppOpenEnabled)
+        put(AD_REWARDED_AMOUNT_IN_DAYS, adRewardedAmountInDays)
+        @Suppress("DEPRECATION")
+        put(ALLOW_TWITTER_NEWS_FOR_FREE, allowTwitterNewsForFree)
+        put(ALLOW_TWITTER_NEWS_CACHED, allowTwitterNewsCached)
+        put(VEHICLE_LOCATION_DATA_REFRESH_MIN_MS, vehicleLocationDataRefreshMinMs)
+        put(NEW_USER_ADS_FREE, newUserAdsFree)
+        put(MAPS_DIRECTION_EMBED_API_ENABLED, mapsDirectionsEmbedApiEnabled)
+    }
+
     val adBannerLoadOnScreenResumeMinDurationSecOrDefault =
         this.adBannerLoadOnScreenResumeMinDurationSec ?: AD_BANNER_LOAD_ON_SCREEN_RESUME_MIN_DURATION_SEC_DEFAULT
 

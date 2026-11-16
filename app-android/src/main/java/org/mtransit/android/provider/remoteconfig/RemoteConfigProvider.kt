@@ -15,7 +15,6 @@ import kotlinx.coroutines.withTimeoutOrNull
 import org.mtransit.android.BuildConfig
 import org.mtransit.android.commons.MTLog
 import java.io.IOException
-import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.time.Duration
@@ -33,8 +32,6 @@ class RemoteConfigProvider @Inject constructor() : MTLog.Loggable {
     private val remoteConfig by lazy { Firebase.remoteConfig }
 
     private val installations by lazy { Firebase.installations }
-
-    private val activated = AtomicBoolean(false)
 
     private val snapshotDeferred = CompletableDeferred<RemoteConfigData>()
 
@@ -88,12 +85,7 @@ class RemoteConfigProvider @Inject constructor() : MTLog.Loggable {
 
     suspend fun get() = snapshotDeferred.await()
 
-    private val activatedRemoteConfig: FirebaseRemoteConfig?
-        get() = remoteConfig.takeIf { activated.get() }
-
-    fun getAll(): Map<String, String>? =
-        activatedRemoteConfig
-            ?.all?.mapValues { it.value.asString() }
+    fun getAll(): Map<String, Any?>? = getNow()?.toMap()
 
     suspend fun getInstallationToken(forceRefresh: Boolean): InstallationTokenResult? = try {
         installations.getToken(forceRefresh).await()
