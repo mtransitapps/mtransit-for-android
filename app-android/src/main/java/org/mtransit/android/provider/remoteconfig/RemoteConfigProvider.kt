@@ -5,7 +5,6 @@ import com.google.firebase.installations.FirebaseInstallationsException
 import com.google.firebase.installations.InstallationTokenResult
 import com.google.firebase.installations.installations
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
-import com.google.firebase.remoteconfig.FirebaseRemoteConfigException
 import com.google.firebase.remoteconfig.FirebaseRemoteConfigValue
 import com.google.firebase.remoteconfig.remoteConfig
 import com.google.firebase.remoteconfig.remoteConfigSettings
@@ -16,6 +15,7 @@ import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withTimeoutOrNull
 import org.mtransit.android.BuildConfig
 import org.mtransit.android.commons.MTLog
+import org.mtransit.commons.suspendRunCatching
 import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -52,11 +52,10 @@ class RemoteConfigProvider @Inject constructor() : MTLog.Loggable {
         )
 
         withTimeoutOrNull(timeout) {
-            try {
-                remoteConfig.fetchAndActivate().await()
-            } catch (e: FirebaseRemoteConfigException) {
-                MTLog.w(this, e, "Remote config fetch failed!")
-            }
+            suspendRunCatching { remoteConfig.fetchAndActivate().await() }
+                .onFailure { e ->
+                    MTLog.w(this, e, "Remote config fetch failed!")
+                }
         }
 
         with(remoteConfig) {
