@@ -124,7 +124,8 @@ class RDSDirectionStopsViewModel @Inject constructor(
 
     private var _vehicleRefreshJob: Job? = null
 
-    private val vehicleLocationDataRefreshMinMs = remoteConfigProvider.getNowOrDefault().vehicleLocationDataRefreshMinMsOrDefault.milliseconds
+    // read once from remote config
+    private val vehicleLocationDataRefreshMinMs by lazy { remoteConfigProvider.getNowOrDefault().vehicleLocationDataRefreshMinMsOrDefault.milliseconds }
 
     fun startVehicleLocationRefresh() {
         if (!UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) return
