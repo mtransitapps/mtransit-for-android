@@ -12,6 +12,7 @@ import org.mtransit.android.commons.pref.liveDataN
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.provider.permission.LocationPermissionProvider
 import org.mtransit.android.ui.view.common.MediatorLiveData3
+import org.mtransit.commons.suspendRunCatching
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -72,7 +73,7 @@ class NetworkLocationRepository @Inject constructor(
         if (lastCheckInMs + MIN_INTERVAL_BETWEEN_IP_LOCATION_CHECK_MS > TimeUtils.currentTimeMillis()) {
             return // SKIP too soon
         }
-        runCatching {
+        suspendRunCatching {
             apiService.getCurrentIPLocation()
         }.fold(
             onSuccess = { ipLocationResult ->

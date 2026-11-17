@@ -14,6 +14,7 @@ import org.mtransit.android.commons.ToastUtils
 import org.mtransit.android.commons.millisToInstant
 import org.mtransit.android.commons.toMillis
 import org.mtransit.android.dev.DemoModeManager
+import org.mtransit.android.provider.remoteconfig.RemoteConfigData
 import org.mtransit.android.provider.remoteconfig.RemoteConfigProvider
 import org.mtransit.android.ui.view.common.IActivity
 import org.mtransit.android.user.UserManager
@@ -134,16 +135,14 @@ class RewardedUserManager @Inject constructor(
         if (!isRewardedNow(rewardedUntil)) return false // never skip for non-rewarded users
         val skipRewardedAdUntil = TimeUtilsK.currentInstant() -
             1.hours + // accounts for "recent" rewards
-            _rewardedAdAmountInDays.days.times(2)
+            rewardedAdAmountInDays.days.times(2)
         return rewardedUntil > skipRewardedAdUntil
     }
 
-    private val _rewardedAdAmountInDays: Long by lazy {
-        remoteConfigProvider.get(
-            RemoteConfigProvider.AD_REWARDED_AMOUNT_IN_DAYS,
-            RemoteConfigProvider.AD_REWARDED_AMOUNT_IN_DAYS_DEFAULT.toLong(), // 1 week (not possible to have dynamic eCPM/RPM-based value)
-        )
+    // 1 week (not possible to have dynamic eCPM/RPM-based value)
+    val rewardedAdAmountInDays by lazy {
+        remoteConfigProvider.getNowOrDefault().adRewardedAmountInDaysOrDefault
+            .toIntOrNull() // ignore invalid int values
+            ?: RemoteConfigData.AD_REWARDED_AMOUNT_IN_DAYS_DEFAULT_INT
     }
-
-    val rewardedAdAmountInDays get() = _rewardedAdAmountInDays.toIntOrNull() ?: RemoteConfigProvider.AD_REWARDED_AMOUNT_IN_DAYS_DEFAULT
 }

@@ -19,7 +19,7 @@ import org.mtransit.android.commons.getText
 import org.mtransit.android.device.PerformanceManager
 import org.mtransit.android.ui.MTActivity
 import org.mtransit.android.ui.MainActivity
-import org.mtransit.android.ui.main.NextMainActivity
+import org.mtransit.android.ui.main.next.NextMainActivity
 import org.mtransit.android.ui.view.MapsInitializerUtil
 import org.mtransit.android.ui.view.common.IActivity
 import org.mtransit.android.ui.view.common.observeEvent

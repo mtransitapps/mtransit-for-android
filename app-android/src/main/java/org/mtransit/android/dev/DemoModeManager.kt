@@ -199,7 +199,7 @@ class DemoModeManager @Inject constructor(
     }
 
     private suspend fun apply(dataSourcesStorage: DataSourcesStorage) = withContext(Dispatchers.IO) {
-        billingManager.fullDemoMode = isFullDemo()
+        billingManager.setFullDemoMode(isFullDemo())
         filterAgencyAuthority?.let { authority ->
             filterAgency = dataSourcesStorage.getAgency(authority)
         }

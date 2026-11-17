@@ -1,11 +1,10 @@
-package org.mtransit.android.ui.main
+package org.mtransit.android.ui.main.next
 
 import androidx.annotation.ColorInt
 import androidx.annotation.IdRes
 import androidx.core.content.edit
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.map
 import androidx.lifecycle.viewModelScope
@@ -19,6 +18,8 @@ import org.mtransit.android.commons.pref.liveData
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.dev.DemoModeManager
+import org.mtransit.android.provider.remoteconfig.RemoteConfigProvider
+import org.mtransit.android.ui.common.SharedActivityViewModel
 import org.mtransit.android.ui.view.common.Event
 import org.mtransit.android.ui.view.common.MediatorLiveData2
 import org.mtransit.android.user.UserManager
@@ -30,7 +31,8 @@ class NextMainViewModel @Inject constructor(
     private val lclPrefRepository: LocalPreferenceRepository,
     private val userManager: UserManager,
     private val demoModeManager: DemoModeManager,
-) : ViewModel(), MTLog.Loggable {
+    remoteConfigProvider: RemoteConfigProvider,
+) : SharedActivityViewModel(remoteConfigProvider), MTLog.Loggable {
 
     companion object {
         private val LOG_TAG = "Stack-" + NextMainViewModel::class.java.simpleName

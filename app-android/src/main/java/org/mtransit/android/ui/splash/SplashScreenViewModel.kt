@@ -10,7 +10,6 @@ import androidx.core.content.edit
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.map
 import androidx.lifecycle.viewModelScope
@@ -37,6 +36,7 @@ import org.mtransit.android.datasource.DataSourcesReader
 import org.mtransit.android.datasource.DataSourcesStorage
 import org.mtransit.android.dev.DemoModeManager
 import org.mtransit.android.provider.remoteconfig.RemoteConfigProvider
+import org.mtransit.android.ui.common.SharedActivityViewModel
 import org.mtransit.android.ui.view.common.Event
 import org.mtransit.android.ui.view.common.MediatorLiveData2
 import org.mtransit.android.ui.view.common.toEvent
@@ -67,7 +67,7 @@ class SplashScreenViewModel @Inject constructor(
     private val remoteConfigProvider: RemoteConfigProvider,
     private val adManager: IAdManager,
     private val pm: PackageManager,
-) : ViewModel(), MTLog.Loggable {
+) : SharedActivityViewModel(remoteConfigProvider), MTLog.Loggable {
 
     companion object {
         private val LOG_TAG: String = SplashScreenViewModel::class.java.simpleName
@@ -165,9 +165,7 @@ class SplashScreenViewModel @Inject constructor(
             }
             analyticsManager.setUserProperty(AnalyticsUserProperties.OPEN_APP_COUNTS, getAndUpdateAppOpenCounts())
             val canShowAds = adManager.canShowAds() != false
-            val appOpenAdEnabled = remoteConfigProvider.get(
-                RemoteConfigProvider.AD_APP_OPEN_ENABLED, RemoteConfigProvider.AD_APP_OPEN_ENABLED_DEFAULT
-            )
+            val appOpenAdEnabled = remoteConfigProvider.get().adAppOpenEnabledOrDefault
             if (appOpenAdEnabled && canShowAds) {
                 deployIfNecessary()
             }

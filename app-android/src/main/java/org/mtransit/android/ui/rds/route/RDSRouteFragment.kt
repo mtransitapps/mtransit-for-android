@@ -35,7 +35,7 @@ import org.mtransit.android.ui.MTActivityWithLocation.DeviceLocationListener
 import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.common.UIColorUtils
 import org.mtransit.android.ui.fragment.ABFragment
-import org.mtransit.android.ui.main.NextMainActivity
+import org.mtransit.android.ui.main.next.NextMainActivity
 import org.mtransit.android.ui.serviceupdates.ServiceUpdatesDialog
 import org.mtransit.android.ui.setStatusBarBgColorEdgeToEdge
 import org.mtransit.android.ui.view.common.MTTransitions

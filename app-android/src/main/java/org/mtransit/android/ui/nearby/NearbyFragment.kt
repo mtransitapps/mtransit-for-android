@@ -41,7 +41,8 @@ import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAw
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledUI
 import org.mtransit.android.ui.inappnotification.newlocation.NewLocationAwareFragment
 import org.mtransit.android.ui.inappnotification.newlocation.NewLocationUI
-import org.mtransit.android.ui.main.NextMainViewModel
+import org.mtransit.android.ui.main.next.NextMainActivity
+import org.mtransit.android.ui.main.next.NextMainViewModel
 import org.mtransit.android.ui.map.MapFragment
 import org.mtransit.android.ui.setStatusBarBgColorEdgeToEdge
 import org.mtransit.android.ui.view.common.MTTransitions
@@ -233,7 +234,7 @@ class NearbyFragment :
                 }.apply { attach() }
             }
             if (FeatureFlags.F_NAVIGATION) {
-                (activity as? org.mtransit.android.ui.main.NextMainActivity?)?.supportActionBar?.elevation?.let {
+                (activity as? NextMainActivity?)?.supportActionBar?.elevation?.let {
                     tabs.elevation = it
                 }
             }

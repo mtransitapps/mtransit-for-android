@@ -2,12 +2,15 @@ package org.mtransit.android.datasource
 
 import android.content.Context
 import android.content.pm.PackageManager
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.liveData
 import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
@@ -31,15 +34,17 @@ import org.mtransit.android.dev.takeIfDemoModeAgency
 import org.mtransit.android.dev.takeIfDemoModeTargeted
 import org.mtransit.android.provider.remoteconfig.RemoteConfigProvider
 import org.mtransit.android.ui.view.common.MediatorLiveData2
+import org.mtransit.android.ui.view.common.MediatorLiveData3
 import org.mtransit.commons.addAllNNE
 import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.coroutines.CoroutineContext
 
 @Suppress("unused", "MemberVisibilityCanBePrivate")
 @Singleton
-class DataSourcesRepository @Inject constructor(
-    @param:ApplicationContext private val appContext: Context,
+class DataSourcesRepository(
+    private val appContext: Context,
     private val dataSourcesInMemoryCache: DataSourcesInMemoryCache,
     private val dataSourcesStorage: DataSourcesStorage,
     private val dataSourcesReader: DataSourcesReader,
@@ -47,7 +52,30 @@ class DataSourcesRepository @Inject constructor(
     private val billingManager: IBillingManager,
     private val remoteConfigProvider: RemoteConfigProvider,
     private val pm: PackageManager,
+    ioDispatcher: CoroutineContext,
 ) : MTLog.Loggable {
+
+    @Inject
+    constructor(
+        @ApplicationContext appContext: Context,
+        dataSourcesInMemoryCache: DataSourcesInMemoryCache,
+        dataSourcesStorage: DataSourcesStorage,
+        dataSourcesReader: DataSourcesReader,
+        demoModeManager: DemoModeManager,
+        billingManager: IBillingManager,
+        remoteConfigProvider: RemoteConfigProvider,
+        pm: PackageManager,
+    ) : this(
+        appContext = appContext,
+        dataSourcesInMemoryCache = dataSourcesInMemoryCache,
+        dataSourcesStorage = dataSourcesStorage,
+        dataSourcesReader = dataSourcesReader,
+        demoModeManager = demoModeManager,
+        billingManager = billingManager,
+        remoteConfigProvider = remoteConfigProvider,
+        pm = pm,
+        ioDispatcher = Dispatchers.IO,
+    )
 
     companion object {
         private val LOG_TAG: String = DataSourcesRepository::class.java.simpleName
@@ -57,6 +85,16 @@ class DataSourcesRepository @Inject constructor(
 
     override fun getLogTag() = LOG_TAG
 
+    private val allowTwitterNewsOrDefault = MutableLiveData(this.remoteConfigProvider.getNowOrDefault().allowTwitterNewsOrDefault)
+
+    init {
+        CoroutineScope(ioDispatcher).launch {
+            remoteConfigProvider.get().let {
+                allowTwitterNewsOrDefault.postValue(it.allowTwitterNewsOrDefault)
+            }
+        }
+    }
+
     private val defaultAgencies by lazy {
         listOf(
             appContext.getString(R.string.module_authority),
@@ -64,7 +102,11 @@ class DataSourcesRepository @Inject constructor(
         )
     }
 
-    private val includedAgencyCount: Int get() = defaultAgencies.filterExpansiveAgencyAuthorities(billingManager, remoteConfigProvider).size
+    private val includedAgencyCount: Int
+        get() = defaultAgencies.filterExpansiveAgencyAuthorities(
+            showingPaidFeatures = billingManager.showPaidFeatures.value == true,
+            allowTwitterNewsForFree = remoteConfigProvider.getNowOrDefault().allowTwitterNewsOrDefault,
+        ).size
 
     private val defaultAgencyComparator: Comparator<IAgencyProperties> = IAgencyProperties.SHORT_NAME_COMPARATOR
 
@@ -80,22 +122,44 @@ class DataSourcesRepository @Inject constructor(
         it.getSupportedType()
     }
 
-    fun readingAllAgencies() = this.dataSourcesStorage.readingAllAgencies().map { agencies ->
-        agencies
-            .filterExpansiveAgencies(billingManager, remoteConfigProvider)
-            .filterDemoModeAgency(demoModeManager)
-            .sortedWith(defaultAgencyComparator)
+    fun readingAllAgencies() = MediatorLiveData3(
+        dataSourcesStorage.readingAllAgencies(),
+        billingManager.showPaidFeatures,
+        allowTwitterNewsOrDefault,
+    ).switchMap { (agencies, showPaidFeatures, allowTwitterNewsForFree) ->
+        liveData {
+            agencies ?: return@liveData
+            showPaidFeatures ?: return@liveData
+            allowTwitterNewsForFree ?: return@liveData
+            emit(
+                agencies
+                    .filterExpansiveAgencies(showPaidFeatures, allowTwitterNewsForFree)
+                    .filterDemoModeAgency(demoModeManager)
+                    .sortedWith(defaultAgencyComparator)
+            )
+        }
     }.distinctUntilChanged()
 
     fun readingAllAgenciesByType() = readingAllAgencies().map { agencies ->
         agencies.groupBy { it.getSupportedType() }
     }
 
-    fun readingAllAgenciesBase() = this.dataSourcesStorage.readingAllAgenciesBase().map { agencies ->
-        agencies
-            .filterExpansiveAgencies(billingManager, remoteConfigProvider)
-            .filterDemoModeAgency(demoModeManager)
-            .sortedWith(defaultAgencyComparator)
+    fun readingAllAgenciesBase() = MediatorLiveData3(
+        dataSourcesStorage.readingAllAgenciesBase(),
+        billingManager.showPaidFeatures,
+        allowTwitterNewsOrDefault,
+    ).switchMap { (agencies, showPaidFeatures, allowTwitterNewsForFree) ->
+        liveData {
+            agencies ?: return@liveData
+            showPaidFeatures ?: return@liveData
+            allowTwitterNewsForFree ?: return@liveData
+            emit(
+                agencies
+                    .filterExpansiveAgencies(showingPaidFeatures = showPaidFeatures, allowTwitterNewsForFree = allowTwitterNewsForFree)
+                    .filterDemoModeAgency(demoModeManager)
+                    .sortedWith(defaultAgencyComparator)
+            )
+        }
     }.distinctUntilChanged()
 
     fun readingAllAgenciesEnabledCount() = readingAllAgenciesBase().map {
@@ -283,11 +347,22 @@ class DataSourcesRepository @Inject constructor(
             dataSourcesInMemoryCache.getAllNewsProviders().filterNewsProviders()
         )
         emitSource(
-            dataSourcesStorage.readingAllNewsProviders().map { newsProviders ->
-                newsProviders
-                    .filterExpansiveNewsProviders(billingManager, remoteConfigProvider)
-                    .filterDemoModeTargeted(demoModeManager)
-                    .filterNewsProviders()
+            MediatorLiveData3(
+                dataSourcesStorage.readingAllNewsProviders(),
+                billingManager.showPaidFeatures,
+                allowTwitterNewsOrDefault,
+            ).switchMap { (newsProviders, showPaidFeatures, allowTwitterNewsForFree) ->
+                liveData {
+                    newsProviders ?: return@liveData
+                    showPaidFeatures ?: return@liveData
+                    allowTwitterNewsForFree ?: return@liveData
+                    emit(
+                        newsProviders
+                            .filterExpansiveNewsProviders(showingPaidFeatures = showPaidFeatures, allowTwitterNewsForFree = allowTwitterNewsForFree)
+                            .filterDemoModeTargeted(demoModeManager)
+                            .filterNewsProviders()
+                    )
+                }
             }
         ) // #onModulesUpdated
     }.distinctUntilChanged()
@@ -301,11 +376,22 @@ class DataSourcesRepository @Inject constructor(
                 dataSourcesInMemoryCache.getNewsProvidersList(providerAuthority).filterNewsProviders()
             )
             emitSource(
-                dataSourcesStorage.readingNewsProviders(providerAuthority).map { newsProviders ->
-                    newsProviders
-                        .filterExpansiveNewsProviders(billingManager, remoteConfigProvider)
-                        .filterDemoModeTargeted(demoModeManager)
-                        .filterNewsProviders()
+                MediatorLiveData3(
+                    dataSourcesStorage.readingNewsProviders(providerAuthority),
+                    billingManager.showPaidFeatures,
+                    allowTwitterNewsOrDefault,
+                ).switchMap { (newsProviders, showPaidFeatures, allowTwitterNewsForFree) ->
+                    liveData {
+                        newsProviders ?: return@liveData
+                        showPaidFeatures ?: return@liveData
+                        allowTwitterNewsForFree ?: return@liveData
+                        emit(
+                            newsProviders
+                                .filterExpansiveNewsProviders(showingPaidFeatures = showPaidFeatures, allowTwitterNewsForFree = allowTwitterNewsForFree)
+                                .filterDemoModeTargeted(demoModeManager)
+                                .filterNewsProviders()
+                        )
+                    }
                 }
             ) // #onModulesUpdated
         }

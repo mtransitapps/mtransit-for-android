@@ -42,7 +42,7 @@ import org.mtransit.android.ui.common.UIColorUtils
 import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAwareFragment
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledUI
-import org.mtransit.android.ui.main.NextMainActivity
+import org.mtransit.android.ui.main.next.NextMainActivity
 import org.mtransit.android.ui.nearby.NearbyFragment
 import org.mtransit.android.ui.setStatusBarBgColorEdgeToEdge
 import org.mtransit.android.ui.view.common.MTTabLayoutMediator

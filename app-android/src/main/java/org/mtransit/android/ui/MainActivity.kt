@@ -13,6 +13,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.viewModels
 import androidx.annotation.AnyThread
 import androidx.annotation.MainThread
 import androidx.annotation.WorkerThread
@@ -50,6 +51,7 @@ import org.mtransit.android.receiver.ModulesReceiver
 import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.task.StatusLoader
 import org.mtransit.android.ui.fragment.ABFragment
+import org.mtransit.android.ui.main.MainViewModel
 import org.mtransit.android.ui.search.SearchFragment
 import org.mtransit.android.ui.search.SearchFragment.Companion.newInstance
 import org.mtransit.android.ui.view.common.IActivity
@@ -92,6 +94,8 @@ class MainActivity :
     override fun getLogTag() = LOG_TAG
 
     override val screenName = TRACKING_SCREEN_NAME
+
+    private val viewModel by viewModels<MainViewModel>()
 
     private var navigationDrawerController: NavigationDrawerController? = null
 
@@ -220,14 +224,11 @@ class MainActivity :
                 onHasAgenciesAddedChanged()
             }
         }
-        this.billingManager.hasSubscriptionOrNoError.observe(this) { hasSubscriptionOrNoError ->
+        this.viewModel.hasSubscriptionOrNoError.observe(this) { hasSubscriptionOrNoError ->
             lifecycleScope.launch {
                 adManager.setHasSubscriptionOrNoError(hasSubscriptionOrNoError, this@MainActivity)
             }
             this.navigationDrawerController?.setVisibleMenuItems()
-        }
-        this.billingManager.currentSubsProductId.observe(this) {
-            // do nothing
         }
         MapUtils.fixScreenFlickering(findViewById(R.id.content_frame))
         ContextCompat.registerReceiver(this, this.modulesReceiver, ModulesReceiver.INTENT_FILTER, ContextCompat.RECEIVER_EXPORTED) // Android 13
@@ -272,12 +273,12 @@ class MainActivity :
 
     protected override fun onResume() {
         super.onResume()
+        this.viewModel.onResume()
         this.abController?.updateAB()
         this.navigationDrawerController?.onResume()
         this.adManager.adaptToScreenSize(this)
         this.adManager.setRewardedAdListener(this) // used until POI screen is visible // need to preload ASAP
         this.adManager.linkRewardedAd(this)
-        this.billingManager.refreshPurchases()
         onLastLocationChanged(deviceLocation)
 
         this.isMTResumed = true
@@ -285,9 +286,6 @@ class MainActivity :
             Handler(Looper.getMainLooper()).post {
                 NightModeUtils.setDefaultNightMode(requireContext(), demoModeManager) // does NOT recreate because uiMode in configChanges AndroidManifest.xml
             }
-        }
-        this.lifecycleScope.launch(Dispatchers.IO) {
-            dataSourcesRepository.updateLock()
         }
         BatteryOptimizationIssueUtils.onAppResumeInvisibleActivity(
             this,

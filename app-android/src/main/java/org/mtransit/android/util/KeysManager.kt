@@ -5,7 +5,6 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import org.mtransit.android.BuildConfig
 import org.mtransit.android.R
 import org.mtransit.android.billing.IBillingManager
-import org.mtransit.android.billing.allowTwitterNews
 import org.mtransit.android.commons.KeysIds
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.StringUtils.EMPTY
@@ -63,12 +62,12 @@ class KeysManager @Inject constructor(
             authority.endsWith("$debugS.news.twitter") -> {
                 buildMap {
                     getKeyEntry(context, KeysIds.TWITTER_BEARER_TOKEN)
-                        ?.takeIf { billingManager.showingPaidFeatures() } // main app token $$ for paid users only
+                        ?.takeIf { billingManager.showPaidFeatures.value == true } // main app token $$ for paid users only
                         ?.let { (key, value) ->
                             put(key, value)
                         }
                     getKeyEntry(context, KeysIds.TWITTER_CACHED_API_URL)
-                        ?.takeIf { remoteConfigProvider.allowTwitterNews() } // remote cached API for free users as well (with feature flag)
+                        ?.takeIf { remoteConfigProvider.getNowOrDefault().allowTwitterNewsOrDefault }
                         ?.let { (key, value) ->
                             put(key, value)
                         }

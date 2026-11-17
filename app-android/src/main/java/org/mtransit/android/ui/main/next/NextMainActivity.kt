@@ -1,4 +1,4 @@
-package org.mtransit.android.ui.main
+package org.mtransit.android.ui.main.next
 
 import android.annotation.SuppressLint
 import android.app.PendingIntent
@@ -233,9 +233,6 @@ class NextMainActivity :
         }
         viewModel.abBgColor.observe(this) { newBgColor ->
             abBgDrawable?.color = newBgColor ?: defaultBgColor
-        }
-        billingManager.currentSubsProductId.observe(this) {
-            // do nothing
         }
         billingManager.hasSubscriptionOrNoError.observe(this) { hasSubscriptionOrNoError ->
             lifecycleScope.launch {
