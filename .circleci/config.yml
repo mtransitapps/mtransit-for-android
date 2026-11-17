@@ -115,7 +115,7 @@ jobs:
           path: app-android/build/outputs/bundle
           destination: bundles
       - store_artifacts:
-          path: commons-android/build/reports
+          path: commons-android/shared-android/build/reports
           destination: commons-android-reports
       - run:
           name: Save test results for all Gradle modules
