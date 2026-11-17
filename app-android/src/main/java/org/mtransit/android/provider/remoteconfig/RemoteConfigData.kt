@@ -79,9 +79,10 @@ data class RemoteConfigData(
         mapsDirectionsEmbedApiEnabled?.let { put(MAPS_DIRECTION_EMBED_API_ENABLED, it) }
         received.forEach { (key, value) ->
             if (key in IGNORED) return@forEach // ignore unused key
-            if (this[key].toString() == value) return@forEach // ignore same value
-            if (this.contains(key)) {
-                put(key, "c:'${this[key]}'!r:'$value'")
+            val existingValue = this[key]
+            if (existingValue != null) {
+                if (existingValue.toString() == value) return@forEach // ignore same value
+                put(key, "c:'$existingValue'!r:'$value'")
             } else {
                 put("R:$key", value)
             }
