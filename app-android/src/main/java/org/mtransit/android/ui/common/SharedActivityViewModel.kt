@@ -10,7 +10,7 @@ abstract class SharedActivityViewModel(
     private val remoteConfigProvider: RemoteConfigProvider,
 ) : ViewModel() {
 
-    fun onCreate() {
+    init {
         viewModelScope.launch {
             remoteConfigProvider.init()
         }

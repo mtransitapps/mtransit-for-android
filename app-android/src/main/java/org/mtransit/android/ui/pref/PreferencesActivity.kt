@@ -5,7 +5,6 @@ import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
 import android.view.View
-import androidx.activity.viewModels
 import androidx.annotation.MainThread
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
@@ -67,8 +66,6 @@ class PreferencesActivity : MTActivity(R.layout.activity_preferences) {
         LocaleUtils.attachBaseContextActivityAfter(this)
     }
 
-    private val viewModel by viewModels<PreferencesViewModel>()
-
     @Inject
     lateinit var demoModeManager: DemoModeManager
 
@@ -78,7 +75,6 @@ class PreferencesActivity : MTActivity(R.layout.activity_preferences) {
         enableEdgeToEdgeMT()
         window.decorView // fix random crash (gesture nav back then re-open app)
         super.onCreate(savedInstanceState)
-        viewModel.onCreate()
         this.currentUiMode = resources.configuration.uiMode
         LocaleUtils.onCreateActivity(this)
         setUpStatusBarBgEdgeToEdge(android.R.color.black) // good enough for Theme.MaterialComponents.DayNight.DarkActionBar

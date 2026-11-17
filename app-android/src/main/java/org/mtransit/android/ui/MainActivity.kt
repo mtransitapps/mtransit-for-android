@@ -170,7 +170,6 @@ class MainActivity :
         enableEdgeToEdgeMT()
         window.decorView // fix random crash (gesture nav back then re-open app)
         super.onCreate(savedInstanceState)
-        viewModel.onCreate()
         adManager.initForScreens(this)
         NightModeUtils.resetColorCache() // single activity, no cache can be trusted to be from the right theme
         this.currentUiMode = resources.configuration.uiMode

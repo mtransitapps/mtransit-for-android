@@ -62,7 +62,6 @@ open class SplashScreenActivity :
         splashScreen.setKeepOnScreenCondition { // Keep the splash screen visible for this Activity
             viewModel.shouldKeepSplashScreenOn.value != false // unknown OR true
         }
-        viewModel.onCreate()
         if (UIFeatureFlags.F_LOCALE_WEB_VIEW_FIX_IN_ACTIVITY) fixWebViewLocale(this.applicationContext) // before ads SDK
         viewModel.initHasSubscriptionFromCache()
         adManager.init(activity = this, withConsentOnly = true, onInitCompleteListener = {
