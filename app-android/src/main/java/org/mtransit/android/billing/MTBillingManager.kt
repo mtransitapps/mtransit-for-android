@@ -153,6 +153,9 @@ class MTBillingManager @Inject constructor(
 
     init {
         startConnection()
+        currentSubsProductId.observeForever { // SINGLETON
+            // DO NOTHING (used in setCurrentSubscription())
+        }
     }
 
     private fun startConnection() {

@@ -95,7 +95,6 @@ class MainActivity :
 
     override val screenName = TRACKING_SCREEN_NAME
 
-    @Suppress("unused") // required to init SharedActivityViewModel
     private val viewModel by viewModels<MainViewModel>()
 
     private var navigationDrawerController: NavigationDrawerController? = null
@@ -225,14 +224,11 @@ class MainActivity :
                 onHasAgenciesAddedChanged()
             }
         }
-        this.billingManager.hasSubscriptionOrNoError.observe(this) { hasSubscriptionOrNoError ->
+        this.viewModel.hasSubscriptionOrNoError.observe(this) { hasSubscriptionOrNoError ->
             lifecycleScope.launch {
                 adManager.setHasSubscriptionOrNoError(hasSubscriptionOrNoError, this@MainActivity)
             }
             this.navigationDrawerController?.setVisibleMenuItems()
-        }
-        this.billingManager.currentSubsProductId.observe(this) {
-            // do nothing
         }
         MapUtils.fixScreenFlickering(findViewById(R.id.content_frame))
         ContextCompat.registerReceiver(this, this.modulesReceiver, ModulesReceiver.INTENT_FILTER, ContextCompat.RECEIVER_EXPORTED) // Android 13
@@ -277,12 +273,12 @@ class MainActivity :
 
     protected override fun onResume() {
         super.onResume()
+        this.viewModel.onResume()
         this.abController?.updateAB()
         this.navigationDrawerController?.onResume()
         this.adManager.adaptToScreenSize(this)
         this.adManager.setRewardedAdListener(this) // used until POI screen is visible // need to preload ASAP
         this.adManager.linkRewardedAd(this)
-        this.billingManager.refreshPurchases()
         onLastLocationChanged(deviceLocation)
 
         this.isMTResumed = true
@@ -290,9 +286,6 @@ class MainActivity :
             Handler(Looper.getMainLooper()).post {
                 NightModeUtils.setDefaultNightMode(requireContext(), demoModeManager) // does NOT recreate because uiMode in configChanges AndroidManifest.xml
             }
-        }
-        this.lifecycleScope.launch(Dispatchers.IO) {
-            dataSourcesRepository.updateLock()
         }
         BatteryOptimizationIssueUtils.onAppResumeInvisibleActivity(
             this,
