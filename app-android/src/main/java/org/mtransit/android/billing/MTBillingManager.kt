@@ -137,8 +137,13 @@ class MTBillingManager @Inject constructor(
 
     override var fullDemoMode: Boolean? = null
 
-    override fun showingPaidFeatures() =
-        (hasSubscription.value == true && !isUsingFirebaseTestLab)
+    override val showPaidFeatures: LiveData<Boolean>
+        get() = hasSubscription.map { showingPaidFeatures(it) }
+
+    override fun showingPaidFeatures() = showingPaidFeatures(hasSubscription.value)
+
+    private fun showingPaidFeatures(hasSubscription: Boolean?) =
+        (hasSubscription == true && !isUsingFirebaseTestLab)
             || fullDemoMode == true
     // || (org.mtransit.android.commons.Constants.DEBUG && org.mtransit.android.BuildConfig.DEBUG) // DEBUG
 

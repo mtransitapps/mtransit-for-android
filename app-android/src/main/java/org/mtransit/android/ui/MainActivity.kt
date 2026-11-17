@@ -95,6 +95,7 @@ class MainActivity :
 
     override val screenName = TRACKING_SCREEN_NAME
 
+    @Suppress("unused") // required to init SharedActivityViewModel
     private val viewModel by viewModels<MainViewModel>()
 
     private var navigationDrawerController: NavigationDrawerController? = null

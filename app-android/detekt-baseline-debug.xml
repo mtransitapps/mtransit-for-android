@@ -249,6 +249,7 @@
     <ID>LongMethod:SearchFragment.kt:SearchFragment$override fun onViewCreated</ID>
     <ID>LongParameterList:DataSourceRequestManager.kt:DataSourceRequestManager$suspend fun findAgencyProperties: AgencyProperties?</ID>
     <ID>LongParameterList:DataSourcesRepository.kt:DataSourcesRepository</ID>
+    <ID>LongParameterList:DataSourcesRepository.kt:DataSourcesRepository$constructor</ID>
     <ID>LongParameterList:GetNearbyPOIListUseCase.kt:GetNearbyPOIListUseCase$private suspend fun MutableList&lt;POIManager&gt;.appendMainAgencyPOI</ID>
     <ID>LongParameterList:GlobalAdManager.kt:GlobalAdManager</ID>
     <ID>LongParameterList:GlobalAdManager.kt:GlobalAdManager$constructor</ID>

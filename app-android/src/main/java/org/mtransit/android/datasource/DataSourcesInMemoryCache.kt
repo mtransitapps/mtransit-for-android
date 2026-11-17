@@ -1,7 +1,11 @@
 package org.mtransit.android.datasource
 
 import android.content.Context
+import androidx.lifecycle.MutableLiveData
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.mtransit.android.billing.IBillingManager
 import org.mtransit.android.billing.filterExpansiveAgencies
 import org.mtransit.android.billing.filterExpansiveNewsProviders
@@ -21,20 +25,39 @@ import org.mtransit.android.dev.filterDemoModeTargeted
 import org.mtransit.android.dev.filterDemoModeType
 import org.mtransit.android.provider.remoteconfig.RemoteConfigProvider
 import org.mtransit.android.ui.view.common.MediatorLiveData2
+import org.mtransit.android.ui.view.common.MediatorLiveData3
 import org.mtransit.android.util.UIFeatureFlags
 import org.mtransit.commons.addAllNNE
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.coroutines.CoroutineContext
 
 @Suppress("MemberVisibilityCanBePrivate")
 @Singleton
-class DataSourcesInMemoryCache @Inject constructor(
-    @param:ApplicationContext private val appContext: Context,
+class DataSourcesInMemoryCache(
+    private val appContext: Context,
     private val dataSourcesStorage: DataSourcesStorage,
     private val billingManager: IBillingManager,
     private val remoteConfigProvider: RemoteConfigProvider,
     private val demoModeManager: DemoModeManager,
+    ioDispatcher: CoroutineContext,
 ) : MTLog.Loggable {
+
+    @Inject
+    constructor(
+        @ApplicationContext appContext: Context,
+        dataSourcesStorage: DataSourcesStorage,
+        billingManager: IBillingManager,
+        remoteConfigProvider: RemoteConfigProvider,
+        demoModeManager: DemoModeManager,
+    ) : this(
+        appContext = appContext,
+        dataSourcesStorage = dataSourcesStorage,
+        billingManager = billingManager,
+        remoteConfigProvider = remoteConfigProvider,
+        demoModeManager = demoModeManager,
+        ioDispatcher = Dispatchers.IO,
+    )
 
     companion object {
         private val LOG_TAG: String = DataSourcesInMemoryCache::class.java.simpleName
@@ -56,19 +79,43 @@ class DataSourcesInMemoryCache @Inject constructor(
     private var vehicleLocationProviderProperties = listOf<VehicleLocationProviderProperties>() // sorted for stability
     private var newsProviderProperties = listOf<NewsProviderProperties>() // sorted for stability
 
+    private val allowTwitterNewsOrDefault = MutableLiveData(this.remoteConfigProvider.getNowOrDefault().allowTwitterNewsOrDefault)
+
     init {
         // START LISTENING FOR CHANGE TO FILL IN-MEMORY CACHE
         startListeningForChangesIntoMemory()
+
+        CoroutineScope(ioDispatcher).launch {
+            remoteConfigProvider.get().let {
+                allowTwitterNewsOrDefault.postValue(it.allowTwitterNewsOrDefault)
+            }
+        }
     }
 
     private fun startListeningForChangesIntoMemory() {
-        dataSourcesStorage.readingAllAgencies().observeForever { agencies -> // SINGLETON
+        MediatorLiveData3(
+            dataSourcesStorage.readingAllAgencies(),
+            billingManager.showPaidFeatures,
+            allowTwitterNewsOrDefault,
+        ).observeForever { (agencies, showPaidFeatures, allowTwitterNewsForFree) -> // SINGLETON
+            agencies ?: return@observeForever
+            showPaidFeatures ?: return@observeForever
+            allowTwitterNewsForFree ?: return@observeForever
             this.agencyProperties = agencies
+                .filterExpansiveAgencies(showingPaidFeatures = showPaidFeatures, allowTwitterNewsForFree = allowTwitterNewsForFree)
                 .filterDemoModeAgency(demoModeManager)
                 .sortedWith(defaultAgencyComparator)
         }
-        dataSourcesStorage.readingAllAgenciesBase().observeForever { agencies -> // SINGLETON
+        MediatorLiveData3(
+            dataSourcesStorage.readingAllAgenciesBase(),
+            billingManager.showPaidFeatures,
+            allowTwitterNewsOrDefault,
+        ).observeForever { (agencies, showPaidFeatures, allowTwitterNewsForFree) -> // SINGLETON
+            agencies ?: return@observeForever
+            showPaidFeatures ?: return@observeForever
+            allowTwitterNewsForFree ?: return@observeForever
             this.agencyBaseProperties = agencies
+                .filterExpansiveAgencies(showingPaidFeatures = showPaidFeatures, allowTwitterNewsForFree = allowTwitterNewsForFree)
                 .filterDemoModeAgency(demoModeManager)
                 .sortedWith(defaultAgencyComparator)
         }
@@ -99,25 +146,29 @@ class DataSourcesInMemoryCache @Inject constructor(
                     .filterDemoModeTargeted(demoModeManager)
             }
         }
-        dataSourcesStorage.readingAllNewsProviders().observeForever { newsProviders -> // SINGLETON
+        MediatorLiveData3(
+            dataSourcesStorage.readingAllNewsProviders(),
+            billingManager.showPaidFeatures,
+            allowTwitterNewsOrDefault,
+        ).observeForever { (newsProviders, showPaidFeatures, allowTwitterNewsForFree) -> // SINGLETON
+            newsProviders ?: return@observeForever
+            showPaidFeatures ?: return@observeForever
+            allowTwitterNewsForFree ?: return@observeForever
             this.newsProviderProperties = newsProviders
+                .filterExpansiveNewsProviders(showingPaidFeatures = showPaidFeatures, allowTwitterNewsForFree = allowTwitterNewsForFree)
                 .filterDemoModeTargeted(demoModeManager)
         }
     }
 
     // AGENCY
 
-    private val filteredAgencyProperties get() = this.agencyProperties.filterExpansiveAgencies(billingManager, remoteConfigProvider)
+    fun getAllAgencies() = this.agencyProperties
 
-    fun getAllAgencies() = this.filteredAgencyProperties
+    fun getAgency(authority: String) = this.agencyProperties.singleOrNull { it.authority == authority }
 
-    fun getAgency(authority: String) = this.filteredAgencyProperties.singleOrNull { it.authority == authority }
+    fun getAgencyBase(authority: String) = this.agencyBaseProperties.singleOrNull { it.authority == authority }
 
-    private val filteredAgencyBaseProperties get() = this.agencyBaseProperties.filterExpansiveAgencies(billingManager, remoteConfigProvider)
-
-    fun getAgencyBase(authority: String) = this.filteredAgencyBaseProperties.singleOrNull { it.authority == authority }
-
-    fun getAgencyForPkg(pkg: String) = this.filteredAgencyProperties.singleOrNull { it.pkg == pkg }
+    fun getAgencyForPkg(pkg: String) = this.agencyProperties.singleOrNull { it.pkg == pkg }
 
     fun getAllSupportedDataSourceTypes() = this.supportedDataSourceTypes
 
@@ -159,13 +210,11 @@ class DataSourcesInMemoryCache @Inject constructor(
 
     // NEWS
 
-    private val filteredNewsProviderProperties get() = this.newsProviderProperties.filterExpansiveNewsProviders(billingManager, remoteConfigProvider)
+    fun getAllNewsProviders() = this.newsProviderProperties
 
-    fun getAllNewsProviders() = this.filteredNewsProviderProperties
+    fun getNewsProviders(targetAuthority: String) = this.newsProviderProperties.filter { it.targetAuthority == targetAuthority }
 
-    fun getNewsProviders(targetAuthority: String) = this.filteredNewsProviderProperties.filter { it.targetAuthority == targetAuthority }
+    fun getNewsProvidersList(targetAuthority: String) = this.newsProviderProperties.filter { it.targetAuthority == targetAuthority }
 
-    fun getNewsProvidersList(targetAuthority: String) = this.filteredNewsProviderProperties.filter { it.targetAuthority == targetAuthority }
-
-    fun getNewsProvider(authority: String) = this.filteredNewsProviderProperties.singleOrNull { it.authority == authority }
+    fun getNewsProvider(authority: String) = this.newsProviderProperties.singleOrNull { it.authority == authority }
 }
