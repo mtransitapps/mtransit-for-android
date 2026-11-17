@@ -75,7 +75,7 @@ class RemoteConfigProvider @Inject constructor() : MTLog.Loggable {
             }
         }
 
-        // fetch latest remote config value for next time
+        // fetch latest remote config value for next app start
         remoteConfig.fetch()
             .addOnFailureListener { e ->
                 MTLog.w(this, e, "Remote config fetch failed!")
