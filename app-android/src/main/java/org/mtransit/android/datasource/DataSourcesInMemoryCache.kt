@@ -83,9 +83,7 @@ class DataSourcesInMemoryCache(
 
     init {
         // START LISTENING FOR CHANGE TO FILL IN-MEMORY CACHE
-        CoroutineScope(Dispatchers.Main).launch {
-            startListeningForChangesIntoMemory()
-        }
+        startListeningForChangesIntoMemory()
 
         CoroutineScope(ioDispatcher).launch {
             remoteConfigProvider.get().let {

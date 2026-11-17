@@ -345,9 +345,6 @@ class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
             (findPreference(MainPreferencesViewModel.DEV_MODE_FB_INSTALLATION_TOKEN_PREF) as? Preference)
                 ?.summary = token ?: "(none)"
         }
-        viewModel.currentSubsProductId.observe(viewLifecycleOwner) {
-            // do nothing
-        }
         viewModel.hasSubscription.observe(viewLifecycleOwner) { hasSubscription ->
             (findPreference(MainPreferencesViewModel.SUPPORT_SUBSCRIPTIONS_PREF) as? Preference)?.apply {
                 when {

@@ -135,13 +135,20 @@ class MTBillingManager @Inject constructor(
         SystemSettingManager.isUsingFirebaseTestLab(appContext)
     }
 
-    override var fullDemoMode: Boolean? = null
+    private val fullDemoMode = MutableLiveData<Boolean?>()
 
-    override val showPaidFeatures: LiveData<Boolean> by lazy { hasSubscription.map { showingPaidFeatures(it) } }
+    override fun setFullDemoMode(newFullDemoMode: Boolean) {
+        fullDemoMode.postValue(newFullDemoMode)
+    }
 
-    override fun showingPaidFeatures() = showingPaidFeatures(hasSubscription.value)
+    override val showPaidFeatures: LiveData<Boolean> by lazy {
+        MediatorLiveData2(this.hasSubscription, this.fullDemoMode)
+            .map { (hasSubscription, fullDemoMode) ->
+                showingPaidFeatures(hasSubscription, fullDemoMode)
+            }
+    }
 
-    private fun showingPaidFeatures(hasSubscription: Boolean?) =
+    private fun showingPaidFeatures(hasSubscription: Boolean?, fullDemoMode: Boolean? = this.fullDemoMode.value) =
         (hasSubscription == true && !isUsingFirebaseTestLab)
             || fullDemoMode == true
     // || (org.mtransit.android.commons.Constants.DEBUG && org.mtransit.android.BuildConfig.DEBUG) // DEBUG
@@ -152,9 +159,9 @@ class MTBillingManager @Inject constructor(
 
     init {
         startConnection()
-        currentSubsProductId.observeForever { // SINGLETON
-            // DO NOTHING (used in setCurrentSubscription())
-        }
+        currentSubsProductId.observeForever { } // SINGLETON
+        hasSubscription.observeForever { } // SINGLETON
+        showPaidFeatures.observeForever { } // SINGLETON
     }
 
     private fun startConnection() {

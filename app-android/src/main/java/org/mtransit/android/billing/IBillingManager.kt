@@ -103,11 +103,9 @@ interface IBillingManager {
 
     val hasBillingConfig: LiveData<Boolean?>
 
-    var fullDemoMode: Boolean?
+    fun setFullDemoMode(newFullDemoMode: Boolean)
 
     val showPaidFeatures: LiveData<Boolean>
-
-    fun showingPaidFeatures(): Boolean
 
     fun refreshAvailableSubscriptions()
 

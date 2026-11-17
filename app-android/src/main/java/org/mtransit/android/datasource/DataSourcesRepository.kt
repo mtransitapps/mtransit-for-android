@@ -104,7 +104,7 @@ class DataSourcesRepository(
 
     private val includedAgencyCount: Int
         get() = defaultAgencies.filterExpansiveAgencyAuthorities(
-            showingPaidFeatures = billingManager.showingPaidFeatures(),
+            showingPaidFeatures = billingManager.showPaidFeatures.value == true,
             allowTwitterNewsForFree = remoteConfigProvider.getNowOrDefault().allowTwitterNewsOrDefault,
         ).size
 
