@@ -135,12 +135,14 @@ class RewardedUserManager @Inject constructor(
         if (!isRewardedNow(rewardedUntil)) return false // never skip for non-rewarded users
         val skipRewardedAdUntil = TimeUtilsK.currentInstant() -
             1.hours + // accounts for "recent" rewards
-            _rewardedAdAmountInDays.days.times(2)
+            rewardedAdAmountInDays.days.times(2)
         return rewardedUntil > skipRewardedAdUntil
     }
 
     // 1 week (not possible to have dynamic eCPM/RPM-based value)
-    private val _rewardedAdAmountInDays by lazy { remoteConfigProvider.getNowOrDefault().adRewardedAmountInDaysOrDefault }
-
-    val rewardedAdAmountInDays by lazy { _rewardedAdAmountInDays.toIntOrNull() ?: RemoteConfigData.AD_REWARDED_AMOUNT_IN_DAYS_DEFAULT_INT }
+    val rewardedAdAmountInDays by lazy {
+        remoteConfigProvider.getNowOrDefault().adRewardedAmountInDaysOrDefault
+            .toIntOrNull() // ignore invalid int values
+            ?: RemoteConfigData.AD_REWARDED_AMOUNT_IN_DAYS_DEFAULT_INT
+    }
 }
