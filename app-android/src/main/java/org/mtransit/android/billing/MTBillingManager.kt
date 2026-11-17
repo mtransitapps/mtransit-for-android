@@ -137,8 +137,7 @@ class MTBillingManager @Inject constructor(
 
     override var fullDemoMode: Boolean? = null
 
-    override val showPaidFeatures: LiveData<Boolean>
-        get() = hasSubscription.map { showingPaidFeatures(it) }
+    override val showPaidFeatures: LiveData<Boolean> by lazy { hasSubscription.map { showingPaidFeatures(it) } }
 
     override fun showingPaidFeatures() = showingPaidFeatures(hasSubscription.value)
 
