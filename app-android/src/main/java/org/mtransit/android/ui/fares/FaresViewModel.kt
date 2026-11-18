@@ -9,21 +9,24 @@ import org.mtransit.android.commons.MTLog
 import org.mtransit.android.data.AgencyProperties
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.datasource.DataSourcesRepository
+import org.mtransit.android.user.UserPrefManager
 import javax.inject.Inject
 
 @HiltViewModel
 class FaresViewModel @Inject constructor(
     dataSourcesRepository: DataSourcesRepository,
+    userPrefManager: UserPrefManager,
 ) : ViewModel(), MTLog.Loggable {
 
     companion object {
-        private val LOG_TAG = FaresViewModel::class.java.simpleName
+        private val LOG_TAG: String = FaresViewModel::class.java.simpleName
 
         private val UNSUPPORTED_TYPE = listOf(DataSourceType.TYPE_PLACE, DataSourceType.TYPE_MODULE)
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
+    val useInternalWebBrowserPref: LiveData<Boolean> = userPrefManager.useInternalWebBrowser.distinctUntilChanged()
 
     private val _filteredAgencies = dataSourcesRepository.readingAllAgencies().map { agencies ->
         agencies

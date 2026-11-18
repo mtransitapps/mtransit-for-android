@@ -4,10 +4,10 @@ import android.graphics.Canvas
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver.OnGlobalLayoutListener
+import androidx.core.graphics.withTranslation
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ItemDecoration
-import androidx.core.graphics.withTranslation
 
 class StickyHeaderItemDecorator<VH : RecyclerView.ViewHolder>(
     private val adapter: StickyAdapter<VH>,

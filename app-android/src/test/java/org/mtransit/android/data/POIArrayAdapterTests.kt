@@ -54,12 +54,10 @@ class POIArrayAdapterTests {
         assertEquals(3, result)
     }
 
-
     @Test
     fun test_optimizeMaxButtonPerLines_8_6() {
         val result = POIArrayAdapter.optimizeMaxButtonPerLines(7 + 1, 6)
 
         assertEquals(4, result)
     }
-
 }

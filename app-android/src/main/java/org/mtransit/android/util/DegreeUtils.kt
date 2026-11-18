@@ -4,7 +4,7 @@ object DegreeUtils {
 
     @JvmStatic
     fun convertToPositive360Degree(degree: Int): Int {
-        var newDegree = degree;
+        var newDegree = degree
         while (newDegree < 0) {
             newDegree += 360
         }

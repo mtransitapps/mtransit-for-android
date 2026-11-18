@@ -3,7 +3,6 @@ package org.mtransit.android.ui.view.map.impl;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.VisibleRegion;
 
@@ -18,19 +17,20 @@ import java.util.Set;
 // based on Maciej Górski's Android Maps Extensions library (Apache License, Version 2.0)
 class DynamicNoClusteringStrategy implements ClusteringStrategy, MTLog.Loggable {
 
-	private static final String TAG = DynamicNoClusteringStrategy.class.getSimpleName();
+	private static final String LOG_TAG = DynamicNoClusteringStrategy.class.getSimpleName();
 
 	@NonNull
 	@Override
 	public String getLogTag() {
-		return TAG;
+		return LOG_TAG;
 	}
 
+	@NonNull
 	private final IGoogleMap map;
 	private final Set<DelegatingMarker> markers = new HashSet<>();
 	private LatLngBounds visibleRegionBounds;
 
-	DynamicNoClusteringStrategy(IGoogleMap map, List<DelegatingMarker> markers) {
+	DynamicNoClusteringStrategy(@NonNull IGoogleMap map, List<DelegatingMarker> markers) {
 		this.map = map;
 		for (DelegatingMarker marker : markers) {
 			if (marker.isVisible()) {
@@ -46,8 +46,18 @@ class DynamicNoClusteringStrategy implements ClusteringStrategy, MTLog.Loggable 
 	}
 
 	@Override
-	public void onCameraChange(CameraPosition cameraPosition) {
-		showMarkersInVisibleRegion();
+	public void onCameraMoveStarted(int reason) {
+		// do nothing
+	}
+
+	@Override
+	public void onCameraMove() {
+		// do nothing
+	}
+
+	@Override
+	public void onCameraIdle() {
+		showMarkersInVisibleRegion(); // was inside @Deprecated "onCameraChange()"
 	}
 
 	@Override

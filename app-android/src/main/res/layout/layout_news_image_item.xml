@@ -12,5 +12,4 @@
     app:shapeAppearance="@style/MTShapeAppearanceFull"
     tools:background="#FF00FF"
     tools:layout_height="@dimen/news_image_height"
-    tools:src="@tools:sample/backgrounds/scenic"
-    tools:visibility="visible" />
+    tools:src="@tools:sample/backgrounds/scenic" />

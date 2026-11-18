@@ -14,7 +14,6 @@ import android.text.style.URLSpan;
 import android.text.util.Linkify;
 import android.view.MotionEvent;
 import android.view.View;
-import android.webkit.WebView;
 import android.widget.TextView;
 
 import androidx.annotation.MainThread;
@@ -25,10 +24,10 @@ import androidx.navigation.Navigation;
 import androidx.navigation.fragment.FragmentNavigator;
 
 import org.mtransit.android.R;
+import org.mtransit.android.common.repository.DefaultPreferenceRepository;
 import org.mtransit.android.commons.HtmlUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PackageManagerUtils;
-import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.SpanUtils;
 import org.mtransit.android.commons.StoreUtils;
 import org.mtransit.android.data.AgencyProperties;
@@ -44,10 +43,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.regex.Pattern;
 
-@SuppressWarnings("unused")
 public final class LinkUtils implements MTLog.Loggable {
 
-	private static final String LOG_TAG = LinkUtils.class.getSimpleName();
+	static final String LOG_TAG = LinkUtils.class.getSimpleName();
 
 	@NonNull
 	@Override
@@ -58,7 +56,7 @@ public final class LinkUtils implements MTLog.Loggable {
 	@NonNull
 	public static CharSequence linkifyHtml(@NonNull String originalText, boolean isHTML) {
 		try {
-			Spanned text = isHTML ? HtmlUtils.fromHtml(originalText) : new SpannedString(originalText);
+			Spanned text = isHTML ? HtmlUtils.fromHtmlLegacy(originalText) : new SpannedString(originalText);
 			return linkifyHtml(text, isHTML);
 		} catch (Exception e) {
 			MTLog.w(LOG_TAG, e, "Error while linkify-ing '%s'!", originalText);
@@ -82,20 +80,33 @@ public final class LinkUtils implements MTLog.Loggable {
 		}
 	}
 
-	public static boolean open(@Nullable View view, @NonNull Activity activity, @Nullable String url, @Nullable String label, boolean www) {
-		return open(view, activity, url, label, null, www);
+	@MainThread
+	public static boolean open(
+			@Nullable View view,
+			@NonNull Activity activity,
+			@Nullable String url,
+			@Nullable String label,
+			boolean www,
+			@Nullable Boolean useInternalWebBrowserPref
+	) {
+		return open(view, activity, url, label, null, www, useInternalWebBrowserPref);
 	}
 
-	public static boolean open(@Nullable View view, @NonNull Activity activity, @Nullable String url, @Nullable String label, @Nullable String titleStatic, boolean www) {
-		if (url == null || url.isEmpty()) {
-			return false;
-		}
-		if (intercept(activity, url)) {
-			return true;
-		}
+	@MainThread
+	public static boolean open(
+			@Nullable View view,
+			@NonNull Activity activity,
+			@Nullable String url,
+			@Nullable String label,
+			@Nullable String titleStatic,
+			boolean www,
+			@Nullable Boolean useInternalWebBrowserPref
+	) {
+		if (url == null || url.isEmpty()) return false;
+		if (intercept(activity, url)) return true;
 		if (www && (!FeatureFlags.F_NAVIGATION || view != null)) {
-			boolean useInternalWebBrowser = !SystemSettingManager.isUsingFirebaseTestLab(activity)
-					&& PreferenceUtils.getPrefDefault(activity, PreferenceUtils.PREFS_USE_INTERNAL_WEB_BROWSER, PreferenceUtils.PREFS_USE_INTERNAL_WEB_BROWSER_DEFAULT);
+			final boolean useInternalWebBrowser = !SystemSettingManager.isUsingFirebaseTestLab(activity)
+					&& (useInternalWebBrowserPref == null ? DefaultPreferenceRepository.PREFS_USE_INTERNAL_WEB_BROWSER_DEFAULT : useInternalWebBrowserPref);
 			if (useInternalWebBrowser) {
 				if (FeatureFlags.F_NAVIGATION) {
 					final NavController navController = Navigation.findNavController(view);
@@ -107,7 +118,7 @@ public final class LinkUtils implements MTLog.Loggable {
 					}
 					NavControllerExtKt.navigateF(navController,
 							R.id.nav_to_web_screen,
-							WebBrowserFragment.newInstanceArgs(url, titleStatic),
+							WebBrowserFragment.newInstanceArgs(url, titleStatic, false),
 							null,
 							extras
 					);
@@ -115,7 +126,7 @@ public final class LinkUtils implements MTLog.Loggable {
 				} else {
 					if (activity instanceof MainActivity) {
 						((MainActivity) activity).addFragmentToStack(
-								WebBrowserFragment.newInstance(url, titleStatic)
+								WebBrowserFragment.newInstance(url, titleStatic, false)
 						);
 						return true;
 					}
@@ -125,30 +136,19 @@ public final class LinkUtils implements MTLog.Loggable {
 		return org.mtransit.android.commons.LinkUtils.open(activity, Uri.parse(url), label); // Intent(ACTION_VIEW) // open external web browser
 	}
 
-	public static boolean interceptIntent(@NonNull WebView webView, @NonNull String url) {
-		try {
-			Intent intent = Intent.parseUri(url, Intent.URI_INTENT_SCHEME);
-			if (intent != null) {
-				if (PackageManagerUtils.isAppInstalledDefault(webView.getContext(), intent)) { // Only works with apps pkg added to AndroidManifest.xml (API Level 30+)
-					org.mtransit.android.commons.LinkUtils.open(webView.getContext(), intent, null);
-					return true; // INTERCEPTED
-				} else {
-					final String fallbackUrl = intent.getStringExtra("browser_fallback_url");
-					if (fallbackUrl != null && !fallbackUrl.isEmpty()) {
-						webView.loadUrl(fallbackUrl);
-						return true; // INTERCEPTED
-					}
-				}
-			}
-		} catch (Exception e) {
-			MTLog.w(LOG_TAG, e, "Error while processing '%s'!", url);
-		}
-		return false; // not INTERCEPTED
+	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
+	public static boolean canIntercept(@NonNull String url) {
+		return StoreUtils.isStoreIntent(url)
+				|| LinkUtils.isEmailIntent(url)
+				|| LinkUtils.isPhoneNumberIntent(url)
+				|| LinkUtils.isPDFIntent(url)
+				|| LinkUtils.isYouTubeIntent(url)
+				;
 	}
 
 	public static boolean intercept(@NonNull Activity activity, @NonNull String url) {
 		if (StoreUtils.isStoreIntent(url)) {
-			org.mtransit.android.commons.LinkUtils.open(activity, Uri.parse(url), activity.getString(org.mtransit.android.commons.R.string.google_play));
+			org.mtransit.android.commons.LinkUtils.open(activity, Uri.parse(url), activity.getString(org.mtransit.android.commons.R.string.google_play_store));
 			return true; // intercepted
 		}
 		if (LinkUtils.isEmailIntent(url)) {
@@ -257,6 +257,7 @@ public final class LinkUtils implements MTLog.Loggable {
 		return false;
 	}
 
+	@SuppressWarnings("unused")
 	public static boolean isPDFIntent(@Nullable Uri uri) {
 		return isPDFIntent(uri == null ? null : uri.toString());
 	}

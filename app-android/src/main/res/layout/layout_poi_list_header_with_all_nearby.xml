@@ -1,25 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     style="@style/MTLayoutSection">
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/allBtn"
-        style="@style/MTButton.Header"
-        android:text="@string/all" />
+        style="@style/MTButton.Header.Icon"
+        android:minHeight="@dimen/baseline_32"
+        android:text="@string/all"
+        tools:backgroundTint="#009EE0" />
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/nearbyBtn"
-        style="@style/MTButton.Header.Middle"
+        style="@style/MTButton.Header.Icon.Middle"
         android:layout_marginStart="@dimen/button_padding"
         android:layout_toStartOf="@id/allBtn"
-        android:text="@string/nearby" />
+        android:text="@string/nearby"
+        app:icon="@drawable/ic_my_location_black_24dp" />
 
     <TextView
         android:id="@+id/name"
         style="@style/MTTextSectionTitle"
         android:layout_toStartOf="@id/nearbyBtn"
         tools:drawableStartCompat="@drawable/ic_directions_bus_black_24dp"
-        tools:text="Type Type Type Type Type Type Type Type" />
+        tools:text="Bus Stops" />
 
 </RelativeLayout>

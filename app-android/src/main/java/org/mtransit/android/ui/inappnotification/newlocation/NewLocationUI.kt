@@ -13,14 +13,14 @@ object NewLocationUI : InAppNotificationUI<NewLocationAwareFragment> {
 
     override fun onViewCreated(fragment: NewLocationAwareFragment) {
         fragment.viewModel.newLocationAvailable.observe(fragment.getViewLifecycleOwner()) { newLocationAvailable ->
-            showOrHideInAppNotification(fragment, newLocationAvailable == true)
+            showOrHideInAppNotification(fragment, show = newLocationAvailable == true)
         }
     }
 
     override fun getLabelText(fragment: NewLocationAwareFragment, context: Context) =
-        context.getText(R.string.new_location_in_app_notification_label)
+        context.getString(R.string.new_location_in_app_notification_label)
 
-    override fun getActionText(fragment: NewLocationAwareFragment, context: Context) = context.getText(R.string.new_location_in_app_notification_action)
+    override fun getActionText(fragment: NewLocationAwareFragment, context: Context) = context.getString(R.string.new_location_in_app_notification_action)
 
     override fun onActionClick(fragment: NewLocationAwareFragment) = View.OnLongClickListener {
         fragment.attachedViewModel?.initiateRefresh() == true

@@ -1,14 +1,35 @@
 package org.mtransit.android.data
 
 import android.content.Context
+import androidx.core.text.bold
+import androidx.core.text.buildSpannedString
+import androidx.core.text.scale
+import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.lifecycleScope
+import com.google.android.gms.maps.model.LatLng
+import kotlinx.coroutines.launch
 import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.commons.data.POI
+import org.mtransit.android.commons.data.POIStatus
+import org.mtransit.android.commons.data.RouteDirectionStop
+import org.mtransit.android.commons.data.ServiceUpdates
+import org.mtransit.android.commons.provider.status.StatusProviderContract
+import org.mtransit.android.datasource.DataSourcesRepository
+import org.mtransit.android.provider.FavoriteRepository
+import org.mtransit.android.provider.favorite.FavoritesUI.addOrRemoveFavoriteUI
 import org.mtransit.android.util.UIAccessibilityUtils
+import org.mtransit.android.util.UITimeUtils
+import android.location.Location as AndroidLocation
 
 @Suppress("unused")
 fun Iterable<POIManager>.toStringUUID(): String {
-    return this.joinToString {
-        it.poi.uuid
+    return this.joinToString { it.poi.uuid }
+}
+
+fun POIManager.addRemoveFavorite(viewLifecycleOwner: LifecycleOwner, activity: FragmentActivity, favoriteRepository: FavoriteRepository) {
+    viewLifecycleOwner.lifecycleScope.launch {
+        favoriteRepository.addOrRemoveFavoriteUI(activity, poi.uuid)
     }
 }
 
@@ -16,28 +37,124 @@ fun POI.getLabelDecorated(context: Context, isShowingAccessibilityInfo: Boolean)
     return UIAccessibilityUtils.decorate(context, this.label, isShowingAccessibilityInfo, UIAccessibilityUtils.ImageSize.LARGE, alignBottom = false)
 }
 
-fun <P : POI> P.toPOIM() = POIManager(this)
-
-fun POIManager.distanceToInMeters(other: POIManager): Float? {
-    return this.poi.distanceToInMeters(other.poi)
+fun <P : POI> P.toPOIM(
+    serviceUpdates: ServiceUpdates? = null,
+    status: POIStatus? = null
+) = POIManager(this).apply {
+    serviceUpdates?.let { setServiceUpdates(serviceUpdates) }
+    status?.let { setStatus(it) }
 }
 
-fun POI.distanceToInMeters(other: POI): Float? {
-    if (!this.hasLocation() || !other.hasLocation()) return null
-    return LocationUtils.distanceToInMeters(this.lat, this.lng, other.lat, other.lng)
+val POIManager.dstOrFavFolderId: Int get() = this.dstFavoriteFolderId ?: this.dataSourceTypeId
+
+val POIManager.dataSourceTypeId: Int get() = this.poi.dataSourceTypeId
+
+val POIManager.dataSourceType: DataSourceType? get() = this.poi.dataSourceType
+val POI.dataSourceType: DataSourceType? get() = this.dataSourceTypeId.let { DataSourceType.parseId(it) }
+
+val POIManager.location: AndroidLocation? get() = this.poi.location
+val POI.location: AndroidLocation? get() = if (this.hasLocation()) LocationUtils.getNewLocation(this.lat, this.lng) else null
+
+val POIManager.latLng: LatLng? get() = this.poi.latLng
+val POI.latLng: LatLng? get() = if (this.hasLocation()) LatLng(this.lat, this.lng) else null
+
+@Suppress("unused")
+fun POIManager.distanceToInMeters(other: POIManager) = this.poi.distanceToInMeters(other.poi)
+fun POI.distanceToInMeters(other: POI): Float? =
+    if (this.hasLocation() && other.hasLocation()) LocationUtils.distanceToInMeters(this.lat, this.lng, other.lat, other.lng) else null
+
+fun POIManager.bearingTo(other: POIManager?): Float? = this.poi.bearingTo(other?.poi)
+fun POI.bearingTo(other: POI?): Float? =
+    other?.location?.let { this.location?.bearingTo(it) }
+
+fun POI.getNewOneLineDescriptionForNews(dataSourcesRepository: DataSourcesRepository) =
+    getNewOneLineDescriptionForNews { dataSourcesRepository.getAgency(getAuthority()) }
+
+fun POI.getNewOneLineDescriptionForNews(agencyResolver: POIManager.AgencyResolver) = buildString {
+    if (this@getNewOneLineDescriptionForNews is RouteDirectionStop) {
+        append(route.shortestName)
+    }
+    agencyResolver.agency?.let {
+        if (isNotEmpty()) append(" - ")
+        append(it.shortName)
+    }
 }
 
+fun POI.getNewOneLineSubtitleForSchedule(context: Context?, agencyProperties: IAgencyUIProperties?) =
+    getNewOneLineSubtitleForSchedule(context) { agencyProperties }
+
+fun POI.getNewOneLineSubtitleForSchedule(context: Context?, agencyResolver: POIManager.AgencyResolver) = buildSpannedString {
+    if (this@getNewOneLineSubtitleForSchedule is RouteDirectionStop) {
+        bold {
+            append(route.shortestName)
+            context?.let { direction.getUIHeading(context, true) }?.takeIf { it.isNotBlank() }?.let { append(" ").append(it) } // includes '->'
+                ?: direction.heading?.takeIf { it.isNotBlank() }?.let { append(" ").append("->").append(it) }
+        }
+    }
+    agencyResolver.agency?.let {
+        if (isNotEmpty()) append(" ")
+        append("(")
+        append(it.shortName)
+        append(")")
+    }
+}
+
+fun POI.getNewOneLineTitleForSchedule() = buildSpannedString {
+    if (this@getNewOneLineTitleForSchedule is RouteDirectionStop) {
+        append(stop.name)
+        stop.code.takeIf { it.isNotBlank() }?.let {
+            append(" ")
+            scale(RouteDirectionStop.STOP_CODE_SIZE.sizeChange) {
+                append(it)
+            }
+        }
+    } else {
+        append(name)
+    }
+}
+
+val POIManager.distanceOrNull: Float? get() = this.distance.takeIf { it >= 0f }
+val POIManager.positiveDistanceOrNull: Float? get() = this.distance.takeIf { it > 0f }
+
+@Suppress("unused") // used for debug logs
 val POIManager.simpleDistanceString: String
-    get() = this.distance.takeIf { it >= 0f }?.let { "${it}m" } ?: "?m"
+    get() = this.distanceOrNull?.let { "${it}m" } ?: "?m"
 
-val POIManager.uuidAndDistance: String
-    get() = this.poi.uuid + " " + this.simpleDistanceString
+val POIManager.uuid: String get() = this.poi.uuid
 
+@Suppress("unused") // used for debug logs
 val POIManager.shortUUIDAndDistance: String
-    get() = this.poi.shortUUID + " " + this.simpleDistanceString
+    get() = "${this.poi.shortUUID} (${this.simpleDistanceString})"
 
-val POIManager.shortUUID: String
-    get() = this.poi.shortUUID
+@Suppress("unused") // used for debug logs
+val POIManager.shortUUID: String get() = this.poi.shortUUID
+val POI.shortUUID: String get() = "${this.shortAuthority}.${this.uuid.substring(this.authority.length + 1)}"
 
-val POI.shortUUID: String
-    get() = this.uuid.substring(this.authority.length + 1)
+@Suppress("unused") // used for debug logs
+val POI.shortAuthority: String get() = this.authority.toShortAuthority()
+
+val POI.isNoPickup: Boolean
+    get() = this is RouteDirectionStop && this.isNoPickup
+
+fun POI.isSameRoute(other: POI): Boolean {
+    if (other !is RouteDirectionStop || this !is RouteDirectionStop) return false
+    if (this.authority != other.authority) return false
+    return this.route.id == other.route.id
+}
+
+fun POI.isSameRouteDirection(other: POI): Boolean {
+    if (other !is RouteDirectionStop || this !is RouteDirectionStop) return false
+    if (this.authority != other.authority) return false
+    return this.route.id == other.route.id
+        && this.direction.id == other.direction.id
+}
+
+fun POIManager.makeStatusFilter(inFocus: Boolean? = null) =
+    StatusProviderContract.Filter.from(
+        poi = this.poi,
+        inFocus = inFocus,
+        scheduleBehindInMs = UITimeUtils.RECENT_IN_MILLIS,
+        scheduleMaxDataRequests = this.scheduleMaxDataRequests,
+        scheduleIncludeCancelledTimestamps = true,
+        getAppPkg = { (this.poi as? Module)?.getPkg() },
+    )

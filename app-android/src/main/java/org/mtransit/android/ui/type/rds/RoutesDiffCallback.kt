@@ -7,7 +7,7 @@ object RoutesDiffCallback : DiffUtil.ItemCallback<RouteManager>() {
 
     override fun areItemsTheSame(oldItem: RouteManager, newItem: RouteManager): Boolean {
         return oldItem.route.id == newItem.route.id
-                && oldItem.authority == newItem.authority
+            && oldItem.authority == newItem.authority
     }
 
     override fun areContentsTheSame(oldItem: RouteManager, newItem: RouteManager): Boolean {

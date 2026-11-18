@@ -3,20 +3,20 @@ package org.mtransit.android.data
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.RouteDirection
 import org.mtransit.android.commons.data.ServiceUpdate
-import org.mtransit.android.commons.provider.ServiceUpdateProviderContract
+import org.mtransit.android.commons.data.ServiceUpdates
+import org.mtransit.android.commons.data.orNewEmpty
+import org.mtransit.android.commons.provider.serviceupdate.ServiceUpdateProviderContract
 import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.task.ServiceUpdateLoader.ServiceUpdateLoaderListener
 import org.mtransit.android.task.serviceupdate.ServiceUpdatesHolder
 import org.mtransit.android.util.UITimeUtils
-import org.mtransit.commons.CollectionUtils
 import java.util.WeakHashMap
-import kotlin.time.Duration.Companion.minutes
 
 data class RouteDirectionManager(
     val authority: String,
     val routeDirection: RouteDirection,
-    private val serviceUpdates: MutableList<ServiceUpdate> = mutableListOf(),
-    private var lastFindServiceUpdateTimestampMs: Long = -1L,
+    private var serviceUpdates: ServiceUpdates? = null,
+    private var lastTriggerServiceUpdateRefreshMinTimestampMs: Long = -1L,
     private var inFocus: Boolean = false, // TODO?
 ) : ServiceUpdateLoaderListener, ServiceUpdatesHolder, MTLog.Loggable {
 
@@ -24,72 +24,56 @@ data class RouteDirectionManager(
         private val LOG_TAG: String = RouteDirectionManager::class.java.simpleName
     }
 
-    @Suppress("SENSELESS_COMPARISON")
-    override fun getLogTag(): String {
-        if (this.routeDirection != null) {
-            return LOG_TAG + "-" + this.routeDirection.uuid.removePrefix(IAgencyProperties.PKG_COMMON)
-        }
-        return LOG_TAG
-    }
+    override fun getLogTag() = LOG_TAG + "-" + this.routeDirection.uuid.removePrefix(IAgencyProperties.PKG_COMMON)
 
-    private val serviceUpdateLoaderListenersWR = WeakHashMap<ServiceUpdateLoaderListener, Void?>()
+    private val serviceUpdateLoaderListenersWR = WeakHashMap<ServiceUpdateLoaderListener, Any?>()
 
     override fun addServiceUpdateLoaderListener(serviceUpdateLoaderListener: ServiceUpdateLoaderListener) {
-        this.serviceUpdateLoaderListenersWR.put(serviceUpdateLoaderListener, null)
+        this.serviceUpdateLoaderListenersWR[serviceUpdateLoaderListener] = null
     }
 
-    override fun onServiceUpdatesLoaded(targetUUID: String, serviceUpdates: List<ServiceUpdate>?) {
+    override fun removeServiceUpdateLoaderListener(serviceUpdateLoaderListener: ServiceUpdateLoaderListener) {
+        this.serviceUpdateLoaderListenersWR.remove(serviceUpdateLoaderListener)
+    }
+
+    override fun onServiceUpdatesLoaded(targetUUID: String, serviceUpdates: ServiceUpdates) {
         setServiceUpdates(serviceUpdates)
     }
 
-    fun setServiceUpdates(newServiceUpdates: Collection<ServiceUpdate>?) {
-        if (this.serviceUpdates.isNotEmpty()) {
-            this.serviceUpdates.clear()
-        }
-        if (newServiceUpdates != null) {
-            this.serviceUpdates.addAll(newServiceUpdates)
-            CollectionUtils.sort(this.serviceUpdates, ServiceUpdate.HIGHER_SEVERITY_FIRST_COMPARATOR)
+    fun setServiceUpdates(newServiceUpdates: ServiceUpdates) {
+        if (newServiceUpdates == this.serviceUpdates) return
+        this.serviceUpdates = newServiceUpdates.apply {
+            sortWith(ServiceUpdate.HIGHER_SEVERITY_FIRST_COMPARATOR)
         }
     }
 
-    override fun getServiceUpdates(serviceUpdateLoader: ServiceUpdateLoader, ignoredUUIDsOrUnknown: Collection<String>?): List<ServiceUpdate> {
-        if (this.serviceUpdates.isEmpty() || this.lastFindServiceUpdateTimestampMs < 0L || this.inFocus || !areServiceUpdatesUseful) {
-            findServiceUpdates(serviceUpdateLoader, skipIfBusy = false)
+    override fun getServiceUpdates(serviceUpdateLoader: ServiceUpdateLoader, ignoredUUIDsOrUnknown: Collection<String>?): ServiceUpdates {
+        if (this.lastTriggerServiceUpdateRefreshMinTimestampMs != UITimeUtils.currentTimeToTheMinuteMillis()) { // fetch NOT already triggered
+            triggerServiceUpdatesRefresh(serviceUpdateLoader, skipIfBusy = false)
         }
-        if (ignoredUUIDsOrUnknown == null) return emptyList() // IF filter not ready DO wait for filter
+        ignoredUUIDsOrUnknown ?: return ServiceUpdates.newEmpty() // IF filter not ready DO wait for filter
         return this.serviceUpdates
-            .filter { !ignoredUUIDsOrUnknown.contains(it.targetUUID) }
+            ?.filter { !ignoredUUIDsOrUnknown.contains(it.targetUUID) }
+            ?: ServiceUpdates.newEmpty()
     }
 
-    private val areServiceUpdatesUseful: Boolean
-        get() = this.serviceUpdates.any { it.isUseful }
-
-    fun allowFindServiceUpdates() {
-        this.lastFindServiceUpdateTimestampMs -= 1.minutes.inWholeMilliseconds
+    fun allowTriggerServiceUpdatesRefresh() {
+        this.lastTriggerServiceUpdateRefreshMinTimestampMs = -1L
     }
 
-    private fun findServiceUpdates(
+    private fun triggerServiceUpdatesRefresh(
         serviceUpdateLoader: ServiceUpdateLoader,
-        skipIfBusy: Boolean
+        @Suppress("SameParameterValue") skipIfBusy: Boolean
     ): Boolean {
-        val findServiceUpdateTimestampMs = UITimeUtils.currentTimeToTheMinuteMillis() // rounded to MINUTES
-        var isNotSkipped = false
-        if (this.lastFindServiceUpdateTimestampMs != findServiceUpdateTimestampMs) { // IF not same minute as last findStatus() call DO
-            isNotSkipped = serviceUpdateLoader.findServiceUpdate(
-                this,
-                ServiceUpdateProviderContract.Filter(this.authority, this.routeDirection).apply {
-                    setInFocus(inFocus)
-                },
-                this.serviceUpdateLoaderListenersWR.keys,
-                skipIfBusy
-            )
-            if (isNotSkipped) {
-                this.lastFindServiceUpdateTimestampMs = findServiceUpdateTimestampMs
-            }
+        // IF not same minute as last triggerRefresh() call DO
+        val filter = ServiceUpdateProviderContract.Filter(this.authority, this.routeDirection)
+        val isNotSkipped = serviceUpdateLoader.triggerRefresh(this, filter, this.serviceUpdateLoaderListenersWR.keys, skipIfBusy)
+        if (isNotSkipped) {
+            this.lastTriggerServiceUpdateRefreshMinTimestampMs = UITimeUtils.currentTimeToTheMinuteMillis() // rounded to MINUTES
         }
         return isNotSkipped
     }
 }
 
-fun RouteDirection.toRouteDirectionM(authority: String, serviceUpdates: List<ServiceUpdate>? = null) =
-    RouteDirectionManager(authority, this, serviceUpdates.orEmpty().toMutableList())
+fun RouteDirection.toRouteDirectionM(authority: String, serviceUpdates: ServiceUpdates? = null) =
+    RouteDirectionManager(authority, this, serviceUpdates.orNewEmpty())

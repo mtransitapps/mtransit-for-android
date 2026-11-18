@@ -1,15 +1,17 @@
 package org.mtransit.android.util
 
 import android.os.Build
+import org.mtransit.commons.FeatureFlags
 
+@Suppress("SimplifyBooleanWithConstants", "KotlinConstantConditions")
 object UIFeatureFlags {
 
     const val F_HIDE_ONE_AGENCY_TYPE_TABS = false
 
     const val F_HOME_SCREEN_BROWSE_COLORS_COUNT = 1
 
-    @JvmField
     // val F_EDGE_TO_EDGE = false && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R // WIP
+    @JvmField
     val F_EDGE_TO_EDGE = true && Build.VERSION.SDK_INT >= 30 // WIP
 
     // !!! CAN NOT DRAW BEHIND NAVIGATION BAR AS LONG AS ANCHORED BOTTOM BANNER ADS IN ACTIVITY !!!
@@ -18,10 +20,6 @@ object UIFeatureFlags {
 
     const val F_APP_BAR_SCROLL_BEHAVIOR = false
     // const val F_APP_BAR_SCROLL_BEHAVIOR = true // WIP
-
-    // see R.boolean.f_predictive_back_gesture
-    const val F_PREDICTIVE_BACK_GESTURE = false
-    // const val F_PREDICTIVE_BACK_GESTURE = true // WIP (need to move Toolbar to ABFragment)
 
     // const val F_POI_STATUS_AVAILABILITY_DOTS = false
     const val F_POI_STATUS_AVAILABILITY_DOTS = true // WIP
@@ -38,4 +36,15 @@ object UIFeatureFlags {
     const val F_NEWS_THUMBNAIL_PLAY_BUTTON = false
     // const val F_NEWS_THUMBNAIL_PLAY_BUTTON = true // WIP
 
+    const val F_LOCALE_WEB_VIEW_FIX_IN_ACTIVITY = false // IN APPLICATION
+    // const val F_LOCALE_WEB_VIEW_FIX_IN_ACTIVITY = true // WIP
+
+    // const val F_CONSUME_VEHICLE_LOCATION = FeatureFlags.F_EXPORT_TRIP_ID && false
+    const val F_CONSUME_VEHICLE_LOCATION = FeatureFlags.F_EXPORT_TRIP_ID && true
+
+    const val F_SERVICE_UPDATE_ELLIPSIZE_IN_POI = false
+    // const val F_SERVICE_UPDATE_ELLIPSIZE_IN_POI = true // no need for now, better show horizontal pager like news
+
+    const val F_CLEAR_ALL_TASKS_ON_LEAVING_SCREEN = true
+    // const val F_CLEAR_ALL_TASKS_ON_LEAVING_SCREEN = false
 }

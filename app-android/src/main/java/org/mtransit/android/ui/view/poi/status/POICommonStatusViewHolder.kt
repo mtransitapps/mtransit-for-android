@@ -2,19 +2,21 @@ package org.mtransit.android.ui.view.poi.status
 
 import android.view.View
 import androidx.annotation.CallSuper
+import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
 import androidx.viewbinding.ViewBinding
 import org.mtransit.android.R
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.POI
 import org.mtransit.android.commons.data.POIStatus
+import org.mtransit.android.commons.data.ServiceUpdates
 import org.mtransit.android.data.POIManager
 
 interface POICommonStatusViewHolder<VB : ViewBinding?, STATUS : POIStatus?> {
 
     @CallSuper
-    fun bind(status: STATUS?, dataProvider: POIStatusDataProvider) {
-        statusV.isVisible = status != null
+    fun bind(status: STATUS?, dataProvider: POIStatusDataProvider, serviceUpdates: ServiceUpdates?) {
+        setStatusVisible(status != null)
     }
 
     fun setStatusVisible(visible: Boolean) {
@@ -26,23 +28,28 @@ interface POICommonStatusViewHolder<VB : ViewBinding?, STATUS : POIStatus?> {
     }
 
     fun showStatus() {
-        statusV.visibility = View.VISIBLE // NOT GONE!
+        statusV.isVisible = true // NOT GONE!
     }
 
     fun hideStatus() {
-        statusV.visibility = View.INVISIBLE // NOT GONE!
+        statusV.isInvisible = true // NOT GONE!
     }
 
     fun fetch(statusViewHolder: POICommonStatusViewHolder<*, *>?, poim: POIManager, dataProvider: POIStatusDataProvider): STATUS?
 
-    fun update(statusViewHolder: POICommonStatusViewHolder<*, *>?, status: POIStatus?, dataProvider: POIStatusDataProvider)
+    fun update(
+        statusViewHolder: POICommonStatusViewHolder<*, *>?,
+        status: POIStatus?,
+        dataProvider: POIStatusDataProvider,
+        serviceUpdates: ServiceUpdates?,
+    )
 
     fun fetchAndUpdate(statusViewHolder: POICommonStatusViewHolder<*, *>?, poim: POIManager, dataProvider: POIStatusDataProvider) {
         val status = fetch(statusViewHolder, poim, dataProvider)
-        update(statusViewHolder, status, dataProvider)
+        update(statusViewHolder, status, dataProvider, poim.serviceUpdatesOrNull)
     }
 
-    var uuid: String
+    var targetUUID: String
 
     val statusV: View
 
@@ -56,8 +63,13 @@ interface POICommonStatusViewHolder<VB : ViewBinding?, STATUS : POIStatus?> {
         fun bindStatusV(view: View): View = view.findViewById(R.id.status)
 
         @JvmStatic
-        fun updateView(statusViewHolder: POICommonStatusViewHolder<*, *>?, poiStatus: POIStatus, dataProvider: POIStatusDataProvider) {
-            statusViewHolder?.update(statusViewHolder, poiStatus, dataProvider)
+        fun updateView(
+            statusViewHolder: POICommonStatusViewHolder<*, *>?,
+            poiStatus: POIStatus,
+            dataProvider: POIStatusDataProvider,
+            serviceUpdates: ServiceUpdates?,
+        ) {
+            statusViewHolder?.update(statusViewHolder, poiStatus, dataProvider, serviceUpdates)
         }
 
         @JvmStatic
@@ -79,6 +91,5 @@ interface POICommonStatusViewHolder<VB : ViewBinding?, STATUS : POIStatus?> {
                 }
             }
         }
-
     }
 }

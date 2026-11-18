@@ -133,6 +133,9 @@ public final class FakeLocation {
 		// location = org.mtransit.android.commons.LocationUtils.getNewLocation(47.921233, -122.279350, 77F); // DEBUG (WA Everett Transit)
 		// location = org.mtransit.android.commons.LocationUtils.getNewLocation(48.462735, -123.009693, 77F); // DEBUG (WA Washington State Ferries)
 		//
+		// FRANCE
+		// location = org.mtransit.android.commons.LocationUtils.getNewLocation(42.6620618113269, 3.033850848089557, 77F); // DEBUG (FR - 66)
+		//
 		// OTHER
 		// location = org.mtransit.android.commons.LocationUtils.getNewLocation(0.0, 0.0); // DEBUG
 		// location = org.mtransit.android.commons.LocationUtils.getNewLocation(1.0, 1.0); // DEBUG

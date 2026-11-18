@@ -1,5 +1,8 @@
 package org.mtransit.android.data;
 
+import static org.mtransit.android.data.DataSourceTypeExtKt.getNearbyNameK;
+import static org.mtransit.android.data.DataSourceTypeExtKt.getPoiShortNameK;
+
 import android.content.Context;
 
 import androidx.annotation.DrawableRes;
@@ -12,15 +15,9 @@ import org.mtransit.android.R;
 import org.mtransit.android.commons.ComparatorUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.data.DataSourceTypeId;
-import org.mtransit.android.datasource.DataSourcesRepository;
 
 import java.lang.ref.WeakReference;
 import java.util.Comparator;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
-import dagger.hilt.android.qualifiers.ApplicationContext;
 
 @SuppressWarnings("WeakerAccess")
 public enum DataSourceType {
@@ -81,7 +78,7 @@ public enum DataSourceType {
 			R.string.agency_type_module_short_name, R.string.agency_type_module_all, //
 			R.drawable.ic_library_add_black_24dp, //
 			R.id.root_nav_module, //
-			true, true, true, false, false), //
+			true, true, true, false, true), //
 	TYPE_FAVORITE(DataSourceTypeId.FAVORITE, false,//
 			DataSourceStopType.FAVORITE,
 			R.string.agency_type_favorite_short_name, R.string.agency_type_favorite_all, //
@@ -105,6 +102,7 @@ public enum DataSourceType {
 	private final int id;
 	private final boolean extendedType;
 
+	@NonNull
 	private final DataSourceStopType stopType;
 
 	@StringRes
@@ -123,13 +121,15 @@ public enum DataSourceType {
 	private final boolean mapScreen;
 	private final boolean searchable;
 
-	DataSourceType(@DataSourceTypeId.DataSourceType int id,
-				   boolean extendedType,
-				   @NonNull DataSourceStopType stopType,
-				   @StringRes int shortNameResId, @StringRes int shortNamesResId,
-				   @DrawableRes int iconResId,
-				   @IdRes int navResId,
-				   boolean menuList, boolean homeScreen, boolean nearbyScreen, boolean mapScreen, boolean searchable) {
+	DataSourceType(
+			@DataSourceTypeId.DataSourceType int id,
+			boolean extendedType,
+			@NonNull DataSourceStopType stopType,
+			@StringRes int shortNameResId, @StringRes int shortNamesResId,
+			@DrawableRes int iconResId,
+			@IdRes int navResId,
+			boolean menuList, boolean homeScreen, boolean nearbyScreen, boolean mapScreen, boolean searchable
+	) {
 		if (id >= MAX_ID) {
 			throw new UnsupportedOperationException(String.format("Data source type ID '%s' must be lower than '%s'!", id, MAX_ID));
 		}
@@ -167,21 +167,18 @@ public enum DataSourceType {
 	}
 
 	@NonNull
+	public DataSourceStopType getStopType() {
+		return stopType;
+	}
+
+	@NonNull
 	public CharSequence getPoiShortName(@NonNull Context context) {
-		if (this.stopType == DataSourceStopType.PLACE) {
-			return context.getString(this.stopType.getStopsStringResId());
-		}
-		return context.getString(R.string.agency_type_stops_short_name,
-				context.getString(getShortNamesResId()),
-				context.getString(this.stopType.getStopsStringResId())
-		);
+		return getPoiShortNameK(this, context);
 	}
 
 	@NonNull
 	public CharSequence getNearbyName(@NonNull Context context) {
-		return context.getString(R.string.agency_type_stops_nearby,
-				context.getString(this.stopType.getStopsStringResId())
-		);
+		return getNearbyNameK(this, context);
 	}
 
 	@DrawableRes
@@ -289,53 +286,20 @@ public enum DataSourceType {
 		@Override
 		public int compare(@NonNull DataSourceType lType, @NonNull DataSourceType rType) {
 			final Context context = this.contextWR.get();
-			if (context == null) {
-				return ComparatorUtils.SAME;
-			}
-			if (lType.equals(rType)) {
-				return ComparatorUtils.SAME;
-			}
+			if (context == null) return ComparatorUtils.SAME;
+			if (lType.equals(rType)) return ComparatorUtils.SAME;
 			if (TYPE_MODULE.equals(lType)) {
 				return ComparatorUtils.AFTER;
 			} else if (TYPE_MODULE.equals(rType)) {
 				return ComparatorUtils.BEFORE;
-			} else if (TYPE_PLACE.equals(lType)) {
+			}
+			if (TYPE_PLACE.equals(lType)) {
 				return ComparatorUtils.AFTER;
 			} else if (TYPE_PLACE.equals(rType)) {
 				return ComparatorUtils.BEFORE;
 			}
 			final String lShortName = context.getString(lType.getShortNameResId());
 			final String rShortName = context.getString(rType.getShortNameResId());
-			return lShortName.compareTo(rShortName);
-		}
-	}
-
-	@Singleton
-	public static class POIManagerTypeShortNameComparator implements Comparator<POIManager> {
-
-		@NonNull
-		private final Context appContext;
-		@NonNull
-		private final DataSourcesRepository dataSourcesRepository;
-
-		@Inject
-		POIManagerTypeShortNameComparator(@NonNull @ApplicationContext Context appContext,
-										  @NonNull DataSourcesRepository dataSourcesRepository) {
-			this.appContext = appContext;
-			this.dataSourcesRepository = dataSourcesRepository;
-		}
-
-		@Override
-		public int compare(@NonNull POIManager lPoim, @NonNull POIManager rPoim) {
-			final AgencyProperties lAgency = this.dataSourcesRepository.getAgency(lPoim.poi.getAuthority());
-			final AgencyProperties rAgency = this.dataSourcesRepository.getAgency(rPoim.poi.getAuthority());
-			if (lAgency == null || rAgency == null) {
-				return 0;
-			}
-			final int lShortNameResId = lAgency.getSupportedType().getShortNameResId();
-			final int rShortNameResId = rAgency.getSupportedType().getShortNameResId();
-			final String lShortName = this.appContext.getString(lShortNameResId);
-			final String rShortName = this.appContext.getString(rShortNameResId);
 			return lShortName.compareTo(rShortName);
 		}
 	}

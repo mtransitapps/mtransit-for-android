@@ -23,12 +23,12 @@ import java.util.List;
 // based on Maciej Górski's Android Maps Extensions library (Apache License, Version 2.0)
 class GridClusteringStrategy implements ClusteringStrategy, MTLog.Loggable {
 
-	private static final String TAG = GridClusteringStrategy.class.getSimpleName();
+	private static final String LOG_TAG = GridClusteringStrategy.class.getSimpleName();
 
 	@NonNull
 	@Override
 	public String getLogTag() {
-		return TAG;
+		return LOG_TAG;
 	}
 
 	private static final boolean DEBUG_GRID = false;
@@ -38,6 +38,7 @@ class GridClusteringStrategy implements ClusteringStrategy, MTLog.Loggable {
 
 	private final boolean addMarkersDynamically;
 	private final double baseClusterSize;
+	@NonNull
 	private final IGoogleMap map;
 	private final ArrayMap<DelegatingMarker, ClusterMarker> markers;
 	private double clusterSize;
@@ -49,7 +50,7 @@ class GridClusteringStrategy implements ClusteringStrategy, MTLog.Loggable {
 	private final ClusterRefresher refresher;
 	private final ClusterOptionsProvider clusterOptionsProvider;
 
-	GridClusteringStrategy(ClusteringSettings settings, IGoogleMap map, List<DelegatingMarker> markers, ClusterRefresher refresher) {
+	GridClusteringStrategy(ClusteringSettings settings, @NonNull IGoogleMap map, List<DelegatingMarker> markers, ClusterRefresher refresher) {
 		this.clusterOptionsProvider = settings.getClusterOptionsProvider();
 		this.addMarkersDynamically = settings.isAddMarkersDynamically();
 		this.baseClusterSize = settings.getClusterSize();
@@ -77,7 +78,21 @@ class GridClusteringStrategy implements ClusteringStrategy, MTLog.Loggable {
 	}
 
 	@Override
-	public void onCameraChange(CameraPosition cameraPosition) {
+	public void onCameraMoveStarted(int reason) {
+		// do nothing
+	}
+
+	@Override
+	public void onCameraMove() {
+		onCameraChanged(this.map.getCameraPosition());
+	}
+
+	@Override
+	public void onCameraIdle() {
+
+	}
+
+	private void onCameraChanged(CameraPosition cameraPosition) {
 		oldZoom = zoom;
 		zoom = Math.round(cameraPosition.zoom);
 		double clusterSize = calculateClusterSize(zoom);
@@ -200,6 +215,7 @@ class GridClusteringStrategy implements ClusteringStrategy, MTLog.Loggable {
 
 	@Override
 	public float getMinZoomLevelNotClustered(IMarker marker) {
+		//noinspection SuspiciousMethodCalls DelegatingMarker implements IMarker
 		if (!markers.containsKey(marker)) {
 			throw new UnsupportedOperationException("marker is not visible or is a cluster");
 		}
@@ -311,9 +327,10 @@ class GridClusteringStrategy implements ClusteringStrategy, MTLog.Loggable {
 				cluster.removeVirtual();
 				continue;
 			}
-			ClusterKey[] clusterIds = new ClusterKey[ms.size()];
+			final int msSize = ms.size();
+			ClusterKey[] clusterIds = new ClusterKey[msSize];
 			boolean allSame = true;
-			for (int j = 0; j < ms.size(); j++) {
+			for (int j = 0; j < msSize; j++) {
 				clusterIds[j] = calculateClusterKey(ms.get(j).getClusterGroup(), ms.get(j).getPosition());
 				if (!clusterIds[j].equals(clusterIds[0])) {
 					allSame = false;
@@ -326,7 +343,7 @@ class GridClusteringStrategy implements ClusteringStrategy, MTLog.Loggable {
 				}
 			} else {
 				cluster.removeVirtual();
-				for (int j = 0; j < ms.size(); j++) {
+				for (int j = 0; j < msSize; j++) {
 					cluster = newClusters.get(clusterIds[j]);
 					if (cluster == null) {
 						cluster = new ClusterMarker(this);
@@ -432,7 +449,7 @@ class GridClusteringStrategy implements ClusteringStrategy, MTLog.Loggable {
 
 	com.google.android.gms.maps.model.Marker createMarker(@NonNull List<IMarker> markers, LatLng position) {
 		markerOptions.position(position);
-		ClusterOptions opts = clusterOptionsProvider.getClusterOptions(markers);
+		ClusterOptions opts = clusterOptionsProvider.getClusterOptions(markers, map.getCameraPosition().zoom);
 		markerOptions.icon(opts.getIcon());
 		markerOptions.alpha(opts.getAlpha());
 		markerOptions.anchor(opts.getAnchorU(), opts.getAnchorV());

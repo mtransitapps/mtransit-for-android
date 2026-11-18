@@ -8,14 +8,15 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatDelegate;
 
+import org.mtransit.android.common.repository.DefaultPreferenceRepository;
 import org.mtransit.android.commons.ColorUtils;
 import org.mtransit.android.commons.MTLog;
-import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.data.AppStatus;
 import org.mtransit.android.commons.data.AvailabilityPercent;
 import org.mtransit.android.data.UISchedule;
 import org.mtransit.android.dev.DemoModeManager;
 import org.mtransit.android.ui.schedule.ScheduleAdapter;
+import org.mtransit.android.ui.view.map.MapIcons;
 
 import java.util.Locale;
 
@@ -29,6 +30,7 @@ public final class NightModeUtils implements MTLog.Loggable {
 
 	private static final String LOG_TAG = NightModeUtils.class.getSimpleName();
 
+	@SuppressWarnings("unused")
 	@NonNull
 	public static String logUiMode(int uiMode) {
 		return String.format(Locale.ENGLISH,
@@ -52,7 +54,7 @@ public final class NightModeUtils implements MTLog.Loggable {
 	}
 
 	public static void setDefaultNightMode(@AppCompatDelegate.NightMode int mode) {
-		AppCompatDelegate.setDefaultNightMode(mode); // does NOT recreated because uiMode in configChanges AndroidManifest.xml
+		AppCompatDelegate.setDefaultNightMode(mode); // does NOT recreate because uiMode in configChanges AndroidManifest.xml
 	}
 
 	public static void recreate(@NonNull Activity activity) {
@@ -67,23 +69,22 @@ public final class NightModeUtils implements MTLog.Loggable {
 		UITimeUtils.resetColorCache();
 		AvailabilityPercent.resetColorCache();
 		ScheduleAdapter.resetColorCache();
-		MapUtils.resetColorCache();
+		MapIcons.resetColorCache();
 	}
 
 	@AppCompatDelegate.NightMode
-	public static int getDefaultNightMode(@NonNull Context context,
-										  @Nullable DemoModeManager demoModeManager) {
-		String themePref = PreferenceUtils.getPrefDefaultNN(context,
-				PreferenceUtils.PREFS_THEME, PreferenceUtils.PREFS_THEME_DEFAULT);
-		if (demoModeManager != null && demoModeManager.isFullDemo()) {
-			themePref = PreferenceUtils.PREFS_THEME_LIGHT; // light for screenshots (demo mode ON)
-		}
+	public static int getDefaultNightMode(
+			@NonNull Context context,
+			@Nullable DemoModeManager demoModeManager
+	) {
+		final String themePref = demoModeManager != null && demoModeManager.isFullDemo() ? DefaultPreferenceRepository.PREFS_THEME_LIGHT // light for screenshots (demo mode ON)
+				: DefaultPreferenceRepository.makePref(context).getString(DefaultPreferenceRepository.PREFS_THEME, DefaultPreferenceRepository.PREFS_THEME_DEFAULT);
 		switch (themePref) {
-		case PreferenceUtils.PREFS_THEME_LIGHT:
+		case DefaultPreferenceRepository.PREFS_THEME_LIGHT:
 			return AppCompatDelegate.MODE_NIGHT_NO;
-		case PreferenceUtils.PREFS_THEME_DARK:
+		case DefaultPreferenceRepository.PREFS_THEME_DARK:
 			return AppCompatDelegate.MODE_NIGHT_YES;
-		case PreferenceUtils.PREFS_THEME_SYSTEM_DEFAULT:
+		case DefaultPreferenceRepository.PREFS_THEME_SYSTEM_DEFAULT:
 		default:
 			return getDefault();
 		}

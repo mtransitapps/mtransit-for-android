@@ -7,8 +7,10 @@
 
     <Button
         android:id="@+id/moreBtn"
-        style="@style/MTButtonHeaderMoreBtn"
+        style="@style/MTButtonHeaderLight.Last"
+        android:contentDescription="@string/more"
         android:visibility="invisible"
+        app:icon="@drawable/ic_arrow_forward_24"
         tools:visibility="visible" />
 
     <TextView

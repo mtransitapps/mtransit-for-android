@@ -1,6 +1,5 @@
 package org.mtransit.android.ui.view;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
@@ -21,12 +20,12 @@ import org.mtransit.android.util.DegreeUtils;
 
 public class MTCompassView extends MTView {
 
-	private static final String TAG = MTCompassView.class.getSimpleName();
+	private static final String LOG_TAG = MTCompassView.class.getSimpleName();
 
 	@NonNull
 	@Override
 	public String getLogTag() {
-		return TAG;
+		return LOG_TAG;
 	}
 
 	private int headingInDegree = -1; // 0-360°
@@ -110,7 +109,7 @@ public class MTCompassView extends MTView {
 		// we want to cross between the inner circle and the quarter of the width or the circle
 		float innerCircleWidth = this.bounds.right - this.bounds.left;
 		float innerCircleRadius = innerCircleWidth / 2;
-		float x = this.bounds.left + -(innerCircleWidth / 4);
+		float x = this.bounds.left - (innerCircleWidth / 4);
 		float y = (float) Math.sqrt(Math.pow(innerCircleRadius, 2) - Math.pow(x, 2));
 		float innerCircleBottom = this.bounds.top + innerCircleRadius + y;
 		float arrowWidth = innerCircleRadius / 2;
@@ -138,7 +137,7 @@ public class MTCompassView extends MTView {
 		generateAndSetHeading(location, lastCompassInDegree, locationDeclination);
 	}
 
-	public void generateAndSetHeading(@Nullable Location location, int lastCompassInDegree, float locationDeclination) {
+	private void generateAndSetHeading(@Nullable Location location, int lastCompassInDegree, float locationDeclination) {
 		if (this.lat == null || this.lng == null || location == null) {
 			return;
 		}

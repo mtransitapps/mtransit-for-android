@@ -1,6 +1,7 @@
 package org.mtransit.android.datasource
 
 import android.content.Context
+import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
@@ -13,6 +14,7 @@ import org.mtransit.android.data.NewsProviderProperties
 import org.mtransit.android.data.ScheduleProviderProperties
 import org.mtransit.android.data.ServiceUpdateProviderProperties
 import org.mtransit.android.data.StatusProviderProperties
+import org.mtransit.android.data.VehicleLocationProviderProperties
 import org.mtransit.commons.sql.SQLUtils
 
 @Database(
@@ -21,9 +23,19 @@ import org.mtransit.commons.sql.SQLUtils
         StatusProviderProperties::class,
         ScheduleProviderProperties::class,
         ServiceUpdateProviderProperties::class,
+        VehicleLocationProviderProperties::class,
         NewsProviderProperties::class,
     ],
-    version = 5,
+    autoMigrations = [
+        /*
+         * ```sql
+         * CREATE TABLE IF NOT EXISTS `vehicle_location_provider_properties`
+         * (`authority` TEXT NOT NULL, `target_authority` TEXT NOT NULL, `pkg` TEXT NOT NULL, PRIMARY KEY(`authority`))
+         * ```
+         */
+        AutoMigration(from = 5, to = 6),
+    ],
+    version = 8,
     exportSchema = true
 )
 @TypeConverters(DataSourcesConverters::class)
@@ -36,6 +48,8 @@ abstract class DataSourcesDatabase : RoomDatabase() {
     abstract fun scheduleProviderPropertiesDao(): ScheduleProviderPropertiesDao
 
     abstract fun serviceUpdateProviderPropertiesDao(): ServiceUpdateProviderPropertiesDao
+
+    abstract fun vehicleLocationProviderPropertiesDao(): VehicleLocationProviderPropertiesDao
 
     abstract fun newsProviderPropertiesDao(): NewsProviderPropertiesDao
 
@@ -90,6 +104,24 @@ abstract class DataSourcesDatabase : RoomDatabase() {
                 MTLog.i(LOG_TAG, "DB migration from version 4 to 5... DONE")
             }
         }
+        private val MIGRATION_6_7 = object : Migration(6, 7) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                MTLog.i(LOG_TAG, "DB migration from version 6 to 7...")
+                db.execSQL(
+                    "ALTER TABLE agency_properties ADD COLUMN setup_required ${SQLUtils.INT} NOT NULL DEFAULT ${SQLUtils.BOOLEAN_FALSE}"
+                )
+                MTLog.i(LOG_TAG, "DB migration from version 6 to 7... DONE")
+            }
+        }
+        private val MIGRATION_7_8 = object : Migration(7, 8) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                MTLog.i(LOG_TAG, "DB migration from version 7 to 8...")
+                db.execSQL(
+                    "ALTER TABLE agency_properties ADD COLUMN tz ${SQLUtils.TXT} DEFAULT null"
+                )
+                MTLog.i(LOG_TAG, "DB migration from version 7 to 8... DONE")
+            }
+        }
 
         @Volatile
         private var instance: DataSourcesDatabase? = null
@@ -116,6 +148,9 @@ abstract class DataSourcesDatabase : RoomDatabase() {
                     MIGRATION_2_3,
                     MIGRATION_3_4,
                     MIGRATION_4_5,
+                    // MIGRATION_5_6, AutoMigration
+                    MIGRATION_6_7,
+                    MIGRATION_7_8,
                 )
                 .fallbackToDestructiveMigration(false)
                 .build()

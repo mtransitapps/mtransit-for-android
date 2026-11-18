@@ -8,6 +8,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresPermission;
 
 import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.LocationSource;
 import com.google.android.gms.maps.Projection;
 import com.google.android.gms.maps.UiSettings;
@@ -21,11 +22,11 @@ import java.util.List;
 @SuppressWarnings("unused")
 public interface ExtendedGoogleMap {
 
-	int MAP_TYPE_HYBRID = com.google.android.gms.maps.GoogleMap.MAP_TYPE_HYBRID;
-	int MAP_TYPE_NONE = com.google.android.gms.maps.GoogleMap.MAP_TYPE_NONE;
-	int MAP_TYPE_NORMAL = com.google.android.gms.maps.GoogleMap.MAP_TYPE_NORMAL;
-	int MAP_TYPE_SATELLITE = com.google.android.gms.maps.GoogleMap.MAP_TYPE_SATELLITE;
-	int MAP_TYPE_TERRAIN = com.google.android.gms.maps.GoogleMap.MAP_TYPE_TERRAIN;
+	int MAP_TYPE_HYBRID = GoogleMap.MAP_TYPE_HYBRID;
+	int MAP_TYPE_NONE = GoogleMap.MAP_TYPE_NONE;
+	int MAP_TYPE_NORMAL = GoogleMap.MAP_TYPE_NORMAL;
+	int MAP_TYPE_SATELLITE = GoogleMap.MAP_TYPE_SATELLITE;
+	int MAP_TYPE_TERRAIN = GoogleMap.MAP_TYPE_TERRAIN;
 
 	@Deprecated
 	Circle addCircle(CircleOptions circleOptions);
@@ -49,6 +50,7 @@ public interface ExtendedGoogleMap {
 
 	void clear();
 
+	@NonNull
 	CameraPosition getCameraPosition();
 
 	List<IMarker> getDisplayedMarkers();
@@ -108,9 +110,15 @@ public interface ExtendedGoogleMap {
 	)
 	void setMyLocationEnabled(boolean myLocationEnabled);
 
-	void setOnCameraChangeListener(OnCameraChangeListener onCameraChangeListener);
+	void setOnCameraMoveStartedListener(@Nullable GoogleMap.OnCameraMoveStartedListener listener);
+
+	void setOnCameraMoveListener(@Nullable GoogleMap.OnCameraMoveListener listener);
+
+	void setOnCameraIdleListener(@Nullable GoogleMap.OnCameraIdleListener listener);
 
 	void setOnInfoWindowClickListener(OnInfoWindowClickListener onInfoWindowClickListener);
+
+	void setOnInfoWindowCloseListener(OnInfoWindowCloseListener onInfoWindowCloseListener);
 
 	void setOnMapClickListener(OnMapClickListener onMapClickListener);
 
@@ -128,13 +136,15 @@ public interface ExtendedGoogleMap {
 
 	void setTrafficEnabled(boolean trafficEnabled);
 
+	void setTransitEnabled(boolean transitEnabled);
+
 	void snapshot(SnapshotReadyCallback callback);
 
 	void snapshot(SnapshotReadyCallback callback, Bitmap bitmap);
 
 	void stopAnimation();
 
-	interface CancelableCallback extends com.google.android.gms.maps.GoogleMap.CancelableCallback {
+	interface CancelableCallback extends GoogleMap.CancelableCallback {
 
 		@Override
 		void onCancel();
@@ -150,32 +160,43 @@ public interface ExtendedGoogleMap {
 		View getInfoWindow(IMarker marker);
 	}
 
-	// FIXME
-	@SuppressWarnings("deprecation")
-	interface OnCameraChangeListener extends com.google.android.gms.maps.GoogleMap.OnCameraChangeListener {
+	interface OnCameraMoveStartedListener extends GoogleMap.OnCameraMoveStartedListener {
+		@Override
+		void onCameraMoveStarted(int reason);
+	}
+
+	interface OnCameraMoveListener extends GoogleMap.OnCameraMoveListener {
+		@Override
+		void onCameraMove();
+	}
+
+	interface OnCameraIdleListener extends GoogleMap.OnCameraIdleListener {
 
 		@Override
-		void onCameraChange(@NonNull CameraPosition cameraPosition);
+		void onCameraIdle();
 	}
 
 	interface OnInfoWindowClickListener {
-
-		void onInfoWindowClick(IMarker marker);
+		void onInfoWindowClick(@Nullable IMarker marker);
 	}
 
-	interface OnMapClickListener extends com.google.android.gms.maps.GoogleMap.OnMapClickListener {
+	interface OnInfoWindowCloseListener {
+		void onInfoWindowClose(@Nullable IMarker marker);
+	}
+
+	interface OnMapClickListener extends GoogleMap.OnMapClickListener {
 
 		@Override
 		void onMapClick(@NonNull LatLng position);
 	}
 
-	interface OnMapLoadedCallback extends com.google.android.gms.maps.GoogleMap.OnMapLoadedCallback {
+	interface OnMapLoadedCallback extends GoogleMap.OnMapLoadedCallback {
 
 		@Override
 		void onMapLoaded();
 	}
 
-	interface OnMapLongClickListener extends com.google.android.gms.maps.GoogleMap.OnMapLongClickListener {
+	interface OnMapLongClickListener extends GoogleMap.OnMapLongClickListener {
 
 		@Override
 		void onMapLongClick(@NonNull LatLng position);
@@ -188,20 +209,20 @@ public interface ExtendedGoogleMap {
 
 	interface OnMarkerDragListener {
 
-		void onMarkerDragStart(IMarker marker);
+		void onMarkerDragStart(@NonNull IMarker marker);
 
-		void onMarkerDrag(IMarker marker);
+		void onMarkerDrag(@NonNull IMarker marker);
 
-		void onMarkerDragEnd(IMarker marker);
+		void onMarkerDragEnd(@NonNull IMarker marker);
 	}
 
-	interface OnMyLocationButtonClickListener extends com.google.android.gms.maps.GoogleMap.OnMyLocationButtonClickListener {
+	interface OnMyLocationButtonClickListener extends GoogleMap.OnMyLocationButtonClickListener {
 
 		@Override
 		boolean onMyLocationButtonClick();
 	}
 
-	interface SnapshotReadyCallback extends com.google.android.gms.maps.GoogleMap.SnapshotReadyCallback {
+	interface SnapshotReadyCallback extends GoogleMap.SnapshotReadyCallback {
 
 		@Override
 		void onSnapshotReady(@Nullable Bitmap snapshot);

@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.liveData
 import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
@@ -15,21 +16,29 @@ import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.Direction
 import org.mtransit.android.commons.data.Route
 import org.mtransit.android.commons.data.RouteDirection
+import org.mtransit.android.data.AgencyProperties
+import org.mtransit.android.data.POIManager
 import org.mtransit.android.data.toRouteDirectionM
 import org.mtransit.android.data.toRouteM
 import org.mtransit.android.datasource.DataSourceRequestManager
+import org.mtransit.android.datasource.DataSourcesRepository
+import org.mtransit.android.datasource.POIRepository
 import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.task.serviceupdate.ServiceUpdatesHolder
 import org.mtransit.android.ui.view.common.Event
-import org.mtransit.android.ui.view.common.PairMediatorLiveData
-import org.mtransit.android.ui.view.common.TripleMediatorLiveData
+import org.mtransit.android.ui.view.common.MediatorLiveData2
+import org.mtransit.android.ui.view.common.MediatorLiveData4
 import org.mtransit.android.ui.view.common.getLiveDataDistinct
+import org.mtransit.android.user.UserPrefManager
 import javax.inject.Inject
 
 @HiltViewModel
 class ServiceUpdatesViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    private val dataSourceRequestManager: DataSourceRequestManager,
+    userPrefManager: UserPrefManager,
+    dataSourceRequestManager: DataSourceRequestManager,
+    private val dataSourcesRepository: DataSourcesRepository,
+    poiRepository: POIRepository,
 ) : ViewModel(), MTLog.Loggable {
     companion object {
         private val LOG_TAG: String = ServiceUpdatesViewModel::class.java.simpleName
@@ -37,56 +46,84 @@ class ServiceUpdatesViewModel @Inject constructor(
         internal const val EXTRA_AUTHORITY = "extra_authority"
         internal const val EXTRA_ROUTE_ID = "extra_route_id"
         internal const val EXTRA_DIRECTION_ID = "extra_direction_id"
+        internal const val EXTRA_POI_UUID = "extra_poi_uuid"
     }
 
     override fun getLogTag() = LOG_TAG
 
-    private val _authority = savedStateHandle.getLiveDataDistinct<String>(EXTRA_AUTHORITY)
-    private val _routeId = savedStateHandle.getLiveDataDistinct<Long>(EXTRA_ROUTE_ID)
+    private val authority = savedStateHandle.getLiveDataDistinct<String>(EXTRA_AUTHORITY)
+    private val routeId = savedStateHandle.getLiveDataDistinct<Long>(EXTRA_ROUTE_ID)
+    private val poiUuid = savedStateHandle.getLiveDataDistinct<String?>(EXTRA_POI_UUID)
 
-    private val _directionId = savedStateHandle.getLiveDataDistinct<Long?>(EXTRA_DIRECTION_ID)
+    private val directionId = savedStateHandle.getLiveDataDistinct<Long?>(EXTRA_DIRECTION_ID)
 
-    private val _route: LiveData<Route?> = PairMediatorLiveData(_authority, _routeId).switchMap { (authority, routeId) ->
-        liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
-            authority ?: return@liveData
-            routeId ?: return@liveData
-            emit(dataSourceRequestManager.findRDSRoute(authority, routeId))
-        }
+    val agency: LiveData<AgencyProperties?> = authority.switchMap { authority ->
+        this.dataSourcesRepository.readingAgency(authority) // #onModulesUpdated // UPDATE-ABLE
     }
 
-    private val _direction: LiveData<Direction?> = PairMediatorLiveData(_authority, _directionId).switchMap { (authority, directionId) ->
-        liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
-            authority ?: return@liveData
-            directionId ?: return@liveData
-            emit(dataSourceRequestManager.findRDSDirection(authority, directionId))
+    private val route: LiveData<Route?> = MediatorLiveData2(authority, routeId)
+        .switchMap { (authority, routeId) ->
+            liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
+                authority ?: return@liveData
+                routeId ?: return@liveData
+                emit(dataSourceRequestManager.findRDSRoute(authority, routeId))
+            }
         }
-    }
 
-    val holder: LiveData<ServiceUpdatesHolder> = TripleMediatorLiveData(_authority, _route, _direction).switchMap { (authority, route, direction) ->
-        liveData(viewModelScope.coroutineContext) {
-            authority ?: return@liveData
-            route ?: return@liveData
-            val holder: ServiceUpdatesHolder = direction?.let {
-                RouteDirection(route, it).toRouteDirectionM(authority)
-            } ?: route.toRouteM(authority)
-            emit(
-                holder
-                    .apply {
-                        addServiceUpdateLoaderListener(serviceUpdateLoaderListener)
-                    }
-            )
+    private val direction: LiveData<Direction?> = MediatorLiveData2(authority, directionId)
+        .switchMap { (authority, directionId) ->
+            liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
+                authority ?: return@liveData
+                directionId ?: return@liveData
+                emit(dataSourceRequestManager.findRDSDirection(authority, directionId))
+            }
         }
-    }
+
+    private val poim: LiveData<POIManager?> = MediatorLiveData2(agency, poiUuid)
+        .switchMap { (agency, poiUuid) ->
+            liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
+                agency ?: return@liveData
+                poiUuid ?: return@liveData
+                emitSource(
+                    poiRepository.readingPOIM(agency, poiUuid, currentValue = poim.value, onDataSourceRemoved = {
+                        // do nothing
+                    })
+                )
+            }
+        }
+
+    val holder: LiveData<ServiceUpdatesHolder> = MediatorLiveData4(authority, route, direction, poim)
+        .switchMap { (authority, route, direction, poim) ->
+            liveData(viewModelScope.coroutineContext) {
+                authority ?: return@liveData
+                val holder: ServiceUpdatesHolder = if (poim != null) {
+                    poim
+                } else {
+                    route ?: return@liveData
+                    direction?.let {
+                        RouteDirection(route, it).toRouteDirectionM(authority)
+                    } ?: route.toRouteM(authority)
+                }
+                emit(
+                    holder
+                        .apply {
+                            addServiceUpdateLoaderListener(serviceUpdateLoaderListener)
+                        }
+                )
+            }
+        }
 
     private val _serviceUpdateLoadedEvent = MutableLiveData<Event<String>>()
     val serviceUpdateLoadedEvent: LiveData<Event<String>> = _serviceUpdateLoadedEvent
 
     private var serviceUpdateLoadedJob: Job? = null
 
-    private val serviceUpdateLoaderListener = ServiceUpdateLoader.ServiceUpdateLoaderListener { targetUUID, serviceUpdates ->
+    private val serviceUpdateLoaderListener = ServiceUpdateLoader.ServiceUpdateLoaderListener { targetUUID, _ ->
         serviceUpdateLoadedJob?.cancel()
         serviceUpdateLoadedJob = viewModelScope.launch {
             _serviceUpdateLoadedEvent.postValue(Event(targetUUID))
         }
     }
+
+    val useInternalWebBrowserPref: LiveData<Boolean> = userPrefManager.useInternalWebBrowser.distinctUntilChanged()
 }

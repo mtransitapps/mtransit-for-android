@@ -28,6 +28,8 @@ data class AgencyProperties(
     val longName: String, // unused?
     @ColumnInfo(name = "color_int")
     override val colorInt: Int? = null,
+    @ColumnInfo(name = "tz")
+    override val timeZoneId: String? = null,
     @Embedded(prefix = "area")
     override val area: Area,
     @ColumnInfo(name = "pkg")
@@ -40,6 +42,8 @@ data class AgencyProperties(
     val isInstalled: Boolean = true, // #onModulesUpdated
     @ColumnInfo(name = "is_enabled")
     override val isEnabled: Boolean = true, // #onModulesUpdated
+    @ColumnInfo(name = "setup_required")
+    val setupRequired: Boolean = false,
     @ColumnInfo(name = "is_rts") // do not change to avoid breaking compat w/ old modules
     override val isRDS: Boolean = false,
     @ColumnInfo(name = "logo")
@@ -68,12 +72,14 @@ data class AgencyProperties(
         shortName: String,
         longName: String,
         color: String? = null,
+        timeZoneId: String? = null,
         area: Area,
         pkg: String,
         longVersionCode: Long,
         availableVersionCode: Int,
         isInstalled: Boolean,
         isEnabled: Boolean,
+        setupRequired: Boolean = false,
         isRDS: Boolean = false,
         logo: JPaths? = null,
         maxValidSec: Int = -1,
@@ -84,27 +90,34 @@ data class AgencyProperties(
         faresWebFr: String? = null,
         extendedType: DataSourceType? = null,
     ) : this(
-        id,
-        type,
-        shortName,
-        longName,
-        color?.let { ColorUtils.parseColor(it) },
-        area,
-        pkg,
-        longVersionCode,
-        availableVersionCode,
-        isInstalled,
-        isEnabled,
-        isRDS,
-        logo,
-        maxValidSec,
-        trigger,
-        contactUsWeb.takeIf { it?.isNotBlank() == true }, // ignore empty
-        contactUsWebFr.takeIf { it?.isNotBlank() == true }, // ignore empty
-        faresWeb.takeIf { it?.isNotBlank() == true }, // ignore empty
-        faresWebFr.takeIf { it?.isNotBlank() == true }, // ignore empty
-        extendedType,
+        id = id,
+        type = type,
+        shortName = shortName,
+        longName = longName,
+        colorInt = color?.let { ColorUtils.parseColor(it) },
+        timeZoneId = timeZoneId,
+        area = area,
+        pkg = pkg,
+        longVersionCode = longVersionCode,
+        availableVersionCode = availableVersionCode,
+        isInstalled = isInstalled,
+        isEnabled = isEnabled,
+        setupRequired = setupRequired,
+        isRDS = isRDS,
+        logo = logo,
+        maxValidSec = maxValidSec,
+        trigger = trigger,
+        contactUsWeb = contactUsWeb.takeIf { it?.isNotBlank() == true }, // ignore empty
+        contactUsWebFr = contactUsWebFr.takeIf { it?.isNotBlank() == true }, // ignore empty
+        faresWeb = faresWeb.takeIf { it?.isNotBlank() == true }, // ignore empty
+        faresWebFr = faresWebFr.takeIf { it?.isNotBlank() == true }, // ignore empty
+        extendedType = extendedType,
     )
+
+    companion object {
+        private val MIN_NUMBER_OF_DAYS_OF_SCHEDULE = TimeUnit.DAYS.toDays(7L)
+        private const val ALWAYS_SHOW_UPDATE_LAYOUT = true
+    }
 
     @Ignore
     override val authority = id
@@ -135,12 +148,16 @@ data class AgencyProperties(
             this.maxValidSec
         }
 
-    override fun shouldShowUpdateLayout(): Boolean {
-        if (TimeUnit.MILLISECONDS.toDays(maxValidMs - TimeUtils.currentTimeMillis()) > TimeUnit.DAYS.toDays(7L)) {
-            return false // SKIP (more than 7 days left of schedule)
+    override val shouldShowUpdateLayout: Boolean
+        get() {
+            @Suppress("SimplifyBooleanWithConstants")
+            if (!ALWAYS_SHOW_UPDATE_LAYOUT
+                && TimeUnit.MILLISECONDS.toDays(maxValidMs - TimeUtils.currentTimeMillis()) > MIN_NUMBER_OF_DAYS_OF_SCHEDULE
+            ) {
+                return false // SKIP (more than 7 days left of schedule)
+            }
+            return updateAvailable
         }
-        return updateAvailable
-    }
 
     override fun isInArea(area: Area?): Boolean {
         return IAgencyNearbyProperties.isInArea(this, area)

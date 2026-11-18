@@ -13,7 +13,7 @@ import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.data.DataSourceTypeId;
 import org.mtransit.android.commons.data.DefaultPOI;
 import org.mtransit.android.commons.data.POI;
-import org.mtransit.android.commons.provider.POIProviderContract;
+import org.mtransit.android.commons.provider.poi.POIProviderContract;
 
 @SuppressWarnings("WeakerAccess")
 public class TextMessage extends DefaultPOI {
@@ -23,7 +23,7 @@ public class TextMessage extends DefaultPOI {
 	@NonNull
 	@Override
 	public String getLogTag() {
-		return LOG_TAG;
+		return LOG_TAG + "-" + this.messageId;
 	}
 
 	public static final String AUTHORITY = "org.mtransit.android.message";
@@ -31,9 +31,8 @@ public class TextMessage extends DefaultPOI {
 	private final long messageId;
 
 	public TextMessage(long messageId, @DataSourceTypeId.DataSourceType int dataSourceTypeId, @NonNull String message) {
-		super(AUTHORITY, -1, dataSourceTypeId, POI.ITEM_VIEW_TYPE_TEXT_MESSAGE, POI.ITEM_STATUS_TYPE_NONE, POI.ITEM_ACTION_TYPE_NONE);
+		super(AUTHORITY, -1, dataSourceTypeId, POI.ITEM_VIEW_TYPE_TEXT_MESSAGE, POI.ITEM_STATUS_TYPE_NONE, POI.ITEM_ACTION_TYPE_NONE, 0.0d, 0.0d, message);
 		this.messageId = messageId;
-		setName(message);
 	}
 
 	@Discouraged(message = "only useful for DB, use getMessageId() instead")
@@ -73,7 +72,7 @@ public class TextMessage extends DefaultPOI {
 	@Override
 	public String getUUID() {
 		if (this.uuid == null) {
-			this.uuid = POI.POIUtils.getUUID(getAuthority(), getMessageId());
+			this.uuid = POI.POIUtils.makeUUID(getAuthority(), getMessageId());
 		}
 		return this.uuid;
 	}

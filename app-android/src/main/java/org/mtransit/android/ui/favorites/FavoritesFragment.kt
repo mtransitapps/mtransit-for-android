@@ -1,58 +1,65 @@
-@file:JvmName("FavoritesFragment") // ANALYTICS
 package org.mtransit.android.ui.favorites
 
 import android.app.PendingIntent
 import android.content.Context
-import android.location.Location
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
-import androidx.core.os.bundleOf
-import androidx.core.view.MenuHost
+import androidx.annotation.MainThread
 import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Lifecycle
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
-import org.mtransit.android.common.repository.DefaultPreferenceRepository
-import org.mtransit.android.common.repository.LocalPreferenceRepository
+import org.mtransit.android.ad.IAdManager
+import org.mtransit.android.ad.IAdScreenActivity
+import org.mtransit.android.analytics.IAnalyticsManager
+import org.mtransit.android.billing.IBillingManager
 import org.mtransit.android.data.POIArrayAdapter
+import org.mtransit.android.data.POIManager
+import org.mtransit.android.data.setPoisUpdateDistanceAndClosest
 import org.mtransit.android.databinding.FragmentFavoritesBinding
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
-import org.mtransit.android.provider.FavoriteManager
-import org.mtransit.android.provider.FavoriteManager.FavoriteUpdateListener
+import org.mtransit.android.device.DevicePrefManager
+import org.mtransit.android.provider.FavoriteRepository
+import org.mtransit.android.provider.favorite.FavoritesUI.showAddFolderDialog
 import org.mtransit.android.provider.sensor.MTSensorManager
 import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.task.StatusLoader
 import org.mtransit.android.ui.MTActivityWithLocation
 import org.mtransit.android.ui.MTActivityWithLocation.DeviceLocationListener
+import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.applyStatusBarsInsetsEdgeToEdge
 import org.mtransit.android.ui.empty.EmptyLayoutUtils.updateEmptyLayout
 import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAwareFragment
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledUI
-import org.mtransit.android.ui.main.NextMainViewModel
+import org.mtransit.android.ui.main.next.NextMainViewModel
+import org.mtransit.android.ui.news.NewsListDetailFragment
 import org.mtransit.android.ui.setUpListEdgeToEdge
-import org.mtransit.android.ui.view.common.EventObserver
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
+import org.mtransit.android.ui.view.common.observeEvent
+import org.mtransit.android.ui.view.listfooter.DefaultPOIListFooterManager
+import org.mtransit.android.user.UserManager
+import org.mtransit.android.user.UserPrefManager
 import org.mtransit.commons.FeatureFlags
 import javax.inject.Inject
+import android.location.Location as AndroidLocation
 
 @AndroidEntryPoint
-class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
+class FavoritesFragment :
+    ABFragment(R.layout.fragment_favorites),
     DeviceLocationListener,
-    FavoriteUpdateListener,
     ModuleDisabledAwareFragment,
     MenuProvider {
 
     companion object {
-        private val LOG_TAG = FavoritesFragment::class.java.simpleName
+        private val LOG_TAG: String = FavoritesFragment::class.java.simpleName
 
         const val TRACKING_SCREEN_NAME = "Favorites"
 
@@ -62,13 +69,12 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
         }
 
         @JvmStatic
-        fun newInstanceArgs() = bundleOf(
-        )
+        fun newInstanceArgs() = Bundle()
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
-    override fun getScreenName(): String = TRACKING_SCREEN_NAME
+    override val screenName = TRACKING_SCREEN_NAME
 
     override val viewModel by viewModels<FavoritesViewModel>()
     override val attachedViewModel
@@ -84,16 +90,16 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
     lateinit var dataSourcesRepository: DataSourcesRepository
 
     @Inject
-    lateinit var defaultPrefRepository: DefaultPreferenceRepository
-
-    @Inject
-    lateinit var localPreferenceRepository: LocalPreferenceRepository
+    lateinit var userPrefManager: UserPrefManager
 
     @Inject
     lateinit var poiRepository: POIRepository
 
     @Inject
-    lateinit var favoriteManager: FavoriteManager
+    lateinit var devicePrefManager: DevicePrefManager
+
+    @Inject
+    lateinit var favoriteRepository: FavoriteRepository
 
     @Inject
     lateinit var statusLoader: StatusLoader
@@ -101,35 +107,68 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
     @Inject
     lateinit var serviceUpdateLoader: ServiceUpdateLoader
 
+    @Inject
+    lateinit var adManager: IAdManager
+
+    @Inject
+    lateinit var analyticsManager: IAnalyticsManager
+
+    @Inject
+    lateinit var billingManager: IBillingManager
+
+    @Inject
+    lateinit var userManager: UserManager
+
     private var binding: FragmentFavoritesBinding? = null
+
+    private val poiListFooterManager by lazy {
+        DefaultPOIListFooterManager(
+            adManager = adManager,
+            analyticsManager = analyticsManager,
+            dataSourcesRepository = dataSourcesRepository,
+            getFragment = { this },
+            getShowLoading = { attachedViewModel?.favoritePOIs?.value == null },
+            getHideText = {
+                val favoritePOIs = attachedViewModel?.favoritePOIs?.value
+                    ?: return@DefaultPOIListFooterManager false
+                val minListItemToNotHide = context?.let { DefaultPOIListFooterManager.getMinListItemToNotHide(it) }
+                    ?: return@DefaultPOIListFooterManager false
+                val dst = favoritePOIs.map { it.poi.dataSourceTypeId }.distinct()
+                val listItemCount = favoritePOIs.size + dst.size
+                listItemCount < minListItemToNotHide
+            },
+        )
+    }
 
     private val listAdapter: POIArrayAdapter by lazy {
         POIArrayAdapter(
             this,
             this.sensorManager,
             this.dataSourcesRepository,
-            this.defaultPrefRepository,
-            this.localPreferenceRepository,
+            this.userPrefManager,
+            this.devicePrefManager,
             this.poiRepository,
-            this.favoriteManager,
+            this.favoriteRepository,
             this.statusLoader,
-            this.serviceUpdateLoader
+            this.serviceUpdateLoader,
+            this.analyticsManager,
         ).apply {
             logTag = this@FavoritesFragment.logTag
             setShowFavorite(false) // all items in this screen are favorites
-            setFavoriteUpdateListener(this@FavoritesFragment)
-            setShowTypeHeader(POIArrayAdapter.TYPE_HEADER_ALL_NEARBY)
+            setShowTypeSectionHeader(POIArrayAdapter.SECTION_TYPE_HEADER_ALL_NEARBY)
+            setTimeChangedListener { this@FavoritesFragment.onTimeChanged() }
+            setShowFooter(true)
+            setFooterManager(poiListFooterManager)
         }
     }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        this.listAdapter.setActivity(this)
+        this.listAdapter.setFragment(this)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        (requireActivity() as MenuHost).addMenuProvider(this, viewLifecycleOwner, Lifecycle.State.RESUMED)
         binding = FragmentFavoritesBinding.bind(view).apply {
             applyStatusBarsInsetsEdgeToEdge() // not drawing behind status bar
             listLayout.list.apply {
@@ -137,53 +176,64 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
                 listAdapter.setListView(this)
                 setUpListEdgeToEdge()
             }
-            screenToolbarLayout.apply {
-                setupScreenToolbar(this)
-            }
+            setupScreenToolbar(screenToolbarLayout.screenToolbarLayout, screenToolbarLayout.screenToolbar)
         }
+        listAdapter.onCreateView(viewLifecycleOwner)
         viewModel.oneAgency.observe(viewLifecycleOwner) { oneAgency ->
             updateEmptyLayout(pkg = oneAgency?.pkg)
         }
         viewModel.hasFavoritesAgencyDisabled.observe(viewLifecycleOwner) { hasFavoritesAgencyDisabled ->
             updateEmptyLayout(hasFavoritesAgencyDisabled = hasFavoritesAgencyDisabled)
         }
-        viewModel.favoritePOIs.observe(viewLifecycleOwner) { favoritePOIS ->
-            listAdapter.setPois(favoritePOIS)
-            listAdapter.updateDistanceNowAsync(viewModel.deviceLocation.value)
+        viewModel.favoritePOIs.observe(viewLifecycleOwner) { favoritePOIS -> // w/o distance
+            listAdapter.setPoisUpdateDistanceAndClosest(favoritePOIS, viewModel.deviceLocation.value)
             updateEmptyLayout(empty = favoritePOIS.isNullOrEmpty())
-            binding?.apply {
-                when {
-                    favoritePOIS == null -> { // LOADING
-                        listLayout.isVisible = false
-                        emptyLayout.isVisible = false
-                        loadingLayout.isVisible = true
-                    }
-
-                    favoritePOIS.isEmpty() -> { // EMPTY
-                        loadingLayout.isVisible = false
-                        listLayout.isVisible = false
-                        emptyLayout.isVisible = true
-                    }
-
-                    else -> { // LIST
-                        loadingLayout.isVisible = false
-                        emptyLayout.isVisible = false
-                        listLayout.isVisible = true
-                    }
-                }
-            }
+            setupView(favoritePOIS)
         }
         viewModel.deviceLocation.observe(viewLifecycleOwner) { deviceLocation ->
             listAdapter.setLocation(deviceLocation)
         }
+        DefaultPOIListFooterManager.observe(viewLifecycleOwner, viewModel.favoritePOIs, billingManager, dataSourcesRepository, userManager) {
+            listAdapter.notifyDataSetChanged(false)
+        }
         ModuleDisabledUI.onViewCreated(this)
         if (FeatureFlags.F_NAVIGATION) {
-            nextMainViewModel.scrollToTopEvent.observe(viewLifecycleOwner, EventObserver { scroll ->
+            nextMainViewModel.scrollToTopEvent.observeEvent(viewLifecycleOwner) { scroll ->
                 if (scroll) {
                     binding?.listLayout?.list?.setSelection(0)
                 }
-            })
+            }
         }
+    }
+
+    private fun setupView(favoritePOIS: List<POIManager>? = attachedViewModel?.favoritePOIs?.value) = binding?.apply {
+        when {
+            favoritePOIS == null -> { // LOADING
+                listLayout.isVisible = false
+                emptyLayout.isVisible = false
+
+                loadingLayout.isVisible = true
+            }
+
+            favoritePOIS.isEmpty() -> { // EMPTY
+                loadingLayout.isVisible = false
+                listLayout.isVisible = false
+
+                emptyLayout.isVisible = true
+            }
+
+            else -> { // LIST
+                loadingLayout.isVisible = false
+                emptyLayout.isVisible = false
+
+                listLayout.isVisible = true
+            }
+        }
+    }
+
+    @MainThread
+    private fun onTimeChanged() {
+        (activity as? IAdScreenActivity)?.let { adManager.onTimeChanged(it) }
     }
 
     private fun updateEmptyLayout(
@@ -206,13 +256,10 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
         }
     }
 
-    override fun onFavoriteUpdated() {
-        attachedViewModel?.onFavoriteUpdated()
-    }
-
     override fun onResume() {
         super.onResume()
-        listAdapter.onResume(this, viewModel.deviceLocation.value)
+        binding?.apply { onResumeToolbar(screenToolbarLayout.screenToolbarLayout, screenToolbarLayout.screenToolbar) }
+        listAdapter.onVisible(this, viewModel.deviceLocation.value)
         (activity as? MTActivityWithLocation)?.let { onLocationSettingsResolution(it.lastLocationSettingsResolution) }
         (activity as? MTActivityWithLocation)?.let { onDeviceLocationChanged(it.lastLocation) }
         if (FeatureFlags.F_NAVIGATION) {
@@ -222,14 +269,14 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
 
     override fun onPause() {
         super.onPause()
-        listAdapter.onPause()
+        listAdapter.onInvisible()
     }
 
     override fun onLocationSettingsResolution(resolution: PendingIntent?) {
         attachedViewModel?.onLocationSettingsResolution(resolution)
     }
 
-    override fun onDeviceLocationChanged(newLocation: Location?) {
+    override fun onDeviceLocationChanged(newLocation: AndroidLocation?) {
         attachedViewModel?.onDeviceLocationChanged(newLocation)
     }
 
@@ -240,7 +287,16 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
         return when (menuItem.itemId) {
             R.id.menu_add_favorite_folder -> {
-                this.favoriteManager.showAddFolderDialog(requireActivity(), this, null, null)
+                analyticsManager.trackButtonClick("toolbar_add_fav_folder", this)
+                activity?.let {
+                    favoriteRepository.showAddFolderDialog(it)
+                }
+                true // handled
+            }
+
+            R.id.menu_show_news -> {
+                analyticsManager.trackButtonClick("toolbar_show_news", this)
+                (activity as? MainActivity)?.addFragmentToStack(NewsListDetailFragment.newInstance())
                 true // handled
             }
 

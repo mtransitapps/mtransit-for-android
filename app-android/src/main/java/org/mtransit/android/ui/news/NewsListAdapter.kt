@@ -22,17 +22,14 @@ import org.mtransit.android.commons.data.News
 import org.mtransit.android.data.AuthorityAndUuid
 import org.mtransit.android.data.authorWithUserName
 import org.mtransit.android.data.authorityAndUuidT
-import org.mtransit.android.data.authorityT
-import org.mtransit.android.data.getAuthority
-import org.mtransit.android.data.getUuid
 import org.mtransit.android.data.hasVideo
-import org.mtransit.android.data.uuidT
 import org.mtransit.android.databinding.LayoutNewListMomentSeparatorBinding
 import org.mtransit.android.databinding.LayoutNewsListItemBinding
 import org.mtransit.android.ui.view.common.ImageManager
 import org.mtransit.android.ui.view.common.StickyHeaderItemDecorator
+import org.mtransit.android.ui.view.common.clearImageAndHide
+import org.mtransit.android.ui.view.common.loadImageAndShow
 import org.mtransit.android.util.UITimeUtils
-import org.mtransit.android.util.UITimeUtils.TimeChangedReceiver
 import java.util.Locale
 
 class NewsListAdapter(
@@ -45,7 +42,7 @@ class NewsListAdapter(
     MTLog.Loggable {
 
     companion object {
-        private val LOG_TAG = NewsListAdapter::class.java.simpleName
+        private val LOG_TAG: String = NewsListAdapter::class.java.simpleName
 
         @Retention(AnnotationRetention.SOURCE)
         @IntDef(ITEM_VIEW_TYPE_MOMENT_SEPARATORS, ITEM_VIEW_TYPE_NEWS)
@@ -71,13 +68,17 @@ class NewsListAdapter(
         }
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     private val hasSeparator = !horizontal
 
     private val momentToNewsList = mutableListOf<Pair<Long, MutableList<News>>>()
 
-    private val timeChangedReceiver = TimeChangedReceiver { resetNowToTheMinute() }
+    private val timeChangedListener = UITimeUtils.TimeChangedReceiver.TimeChangedListener {
+        resetNowToTheMinute()
+    }
+
+    private val timeChangedReceiver = UITimeUtils.TimeChangedReceiver(timeChangedListener) // need to create an object because of WeakReference
 
     private var timeChangedReceiverEnabled = false
 
@@ -112,11 +113,11 @@ class NewsListAdapter(
         }
     }
 
-    fun onResume(context: IContext) {
+    fun onVisible(context: IContext) {
         enableTimeChangedReceiver(context)
     }
 
-    fun onPause(context: IContext) {
+    fun onInvisible(context: IContext) {
         disableTimeChangedReceiver(context)
     }
 
@@ -153,9 +154,8 @@ class NewsListAdapter(
         notifyDataSetChanged()
     }
 
-    override fun getItemCount(): Int {
-        return this.momentToNewsList.sumOf { (_, newsList) -> (if (hasSeparator) 1 else 0) + newsList.size }
-    }
+    override fun getItemCount() =
+        this.momentToNewsList.sumOf { (_, newsList) -> (if (hasSeparator) 1 else 0) + newsList.size }
 
     @NewsItemViewType
     override fun getItemViewType(position: Int): Int {
@@ -175,31 +175,25 @@ class NewsListAdapter(
         throw RuntimeException("View type not found at $position! (index:$index)")
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, @NewsItemViewType viewType: Int): RecyclerView.ViewHolder {
-        return when (viewType) {
+    override fun onCreateViewHolder(parent: ViewGroup, @NewsItemViewType viewType: Int) =
+        when (viewType) {
             ITEM_VIEW_TYPE_MOMENT_SEPARATORS -> MomentSeparatorViewHolder.from(parent)
             ITEM_VIEW_TYPE_NEWS -> NewsListItemViewHolder.from(parent)
             else -> throw RuntimeException("Unexpected view type $viewType!")
         }
-    }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        when (getItemViewType(position)) {
-            ITEM_VIEW_TYPE_MOMENT_SEPARATORS -> {
-                (holder as? MomentSeparatorViewHolder)?.bind(
-                    geMomentItem(position),
-                )
-            }
-
-            ITEM_VIEW_TYPE_NEWS -> {
-                val newsArticle = getNewsItem(position)
-                val selected = isSelected(newsArticle)
-                (holder as? NewsListItemViewHolder)?.bind(
-                    imageManager, position, itemCount, newsArticle, selected, minLines, horizontal,
-                    getTimeFormatter(holder.context),
-                    onClick
-                )
-            }
+        when (holder) {
+            is MomentSeparatorViewHolder -> holder.bind(geMomentItem(position))
+            is NewsListItemViewHolder ->
+                getNewsItem(position).let { newsArticle ->
+                    val selected = isSelected(newsArticle)
+                    holder.bind(
+                        imageManager, position, itemCount, newsArticle, selected, minLines, horizontal,
+                        getTimeFormatter(holder.context),
+                        onClick
+                    )
+                }
 
             else -> throw RuntimeException("Unexpected view to bind $position!")
         }
@@ -218,7 +212,6 @@ class NewsListAdapter(
         }
         return null
     }
-
 
     private fun getNewsItem(position: Int): News? {
         var index = 0
@@ -240,12 +233,8 @@ class NewsListAdapter(
         }
         val oldAuthorityAndUuid = this.selectedArticleAuthorityAndUuid
         this.selectedArticleAuthorityAndUuid = newAuthorityAndUuid
-        getNewsItemPosition(newAuthorityAndUuid)?.let {
-            notifyItemChanged(it)
-        }
-        getNewsItemPosition(oldAuthorityAndUuid)?.let {
-            notifyItemChanged(it)
-        }
+        newAuthorityAndUuid?.let { getNewsItemPosition(it) }?.let { notifyItemChanged(it) }
+        oldAuthorityAndUuid?.let { getNewsItemPosition(it) }?.let { notifyItemChanged(it) }
     }
 
     private fun isSelected(newsArticle: News?): Boolean {
@@ -256,21 +245,18 @@ class NewsListAdapter(
         return this.selectedArticleAuthorityAndUuid == authorityAndUuid
     }
 
-    fun getNewsItemPosition(authorityAndUuid: AuthorityAndUuid?): Int? {
-        authorityAndUuid?.let {
-            var index = 0
-            this.momentToNewsList.forEach { (_, newsList) ->
-                if (hasSeparator) {
-                    index++ // moment separator
-                }
-                newsList.indexOfFirst {
-                    it.authorityT == authorityAndUuid.getAuthority()
-                            && it.uuidT == authorityAndUuid.getUuid()
-                }.takeIf { it >= 0 }?.let {
-                    return index + it
-                }
-                index += newsList.size
+    fun getNewsItemPosition(authorityAndUuid: AuthorityAndUuid): Int? {
+        var index = 0
+        this.momentToNewsList.forEach { (_, newsList) ->
+            if (hasSeparator) {
+                index++ // moment separator
             }
+            newsList.indexOfFirst {
+                it.authorityAndUuidT == authorityAndUuid
+            }.takeIf { it >= 0 }?.let {
+                return index + it
+            }
+            index += newsList.size
         }
         MTLog.d(this, "getItemPosition() > No news article for '$authorityAndUuid'!")
         return null
@@ -290,7 +276,7 @@ class NewsListAdapter(
 
     override fun getHeaderPositionForItem(itemPosition: Int): Int {
         if (!hasSeparator) {
-            throw RuntimeException("Header ID disabled in non vertical!")
+            throw RuntimeException("Header ID disabled in non-vertical!")
         }
         var index = 0
         this.momentToNewsList.forEach { (_, newsList) ->
@@ -390,25 +376,21 @@ class NewsListAdapter(
                     )
                 }
                 authorIcon.apply {
-                    isVisible = if (newsArticle.hasAuthorPictureURL()) {
-                        imageManager.loadInto(context, newsArticle.authorPictureURL, this)
-                        true
+                    if (newsArticle.hasAuthorPictureURL()) {
+                        loadImageAndShow(imageManager, newsArticle.authorPictureURL)
                     } else {
-                        imageManager.clear(context, this)
-                        false
+                        clearImageAndHide(imageManager)
                     }
                 }
                 thumbnail.apply {
-                    isVisible = if (newsArticle.hasValidImageUrls()) {
-                        imageManager.loadInto(context, newsArticle.firstValidImageUrl, this)
-                        true
+                    if (newsArticle.hasValidImageUrls()) {
+                        loadImageAndShow(imageManager, newsArticle.firstValidImageUrl)
                     } else {
-                        imageManager.clear(context, this)
-                        false
+                        clearImageAndHide(imageManager)
                     }
                 }
                 thumbnailGallery.isVisible = newsArticle.imageURLsCount > 1
-                        && !newsArticle.hasVideo // UI does NOT support video + images gallery
+                    && !newsArticle.hasVideo // UI does NOT support video + images gallery
                 thumbnailVideo.isVisible = newsArticle.hasVideo
                 date.apply {
                     text = if (horizontal || UITimeUtils.isToday(newsArticle.createdAtInMs)) {

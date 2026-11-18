@@ -1,36 +1,32 @@
 package org.mtransit.android.provider;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 
 import androidx.annotation.NonNull;
 
-import org.mtransit.android.commons.PreferenceUtils;
+import org.mtransit.android.commons.PackageManagerUtils;
 import org.mtransit.android.commons.SqlUtils;
-import org.mtransit.android.commons.provider.MTSQLiteOpenHelper;
-import org.mtransit.android.commons.provider.POIProvider;
-import org.mtransit.android.commons.provider.StatusProvider;
+import org.mtransit.android.commons.provider.common.MTSQLiteOpenHelper;
+import org.mtransit.android.commons.provider.poi.POIProvider;
+import org.mtransit.android.commons.provider.status.StatusProvider;
 
 @SuppressWarnings("WeakerAccess")
 public class ModuleDbHelper extends MTSQLiteOpenHelper {
 
-	private static final String TAG = ModuleDbHelper.class.getSimpleName();
+	private static final String LOG_TAG = ModuleDbHelper.class.getSimpleName();
 
 	@NonNull
 	@Override
 	public String getLogTag() {
-		return TAG;
+		return LOG_TAG;
 	}
 
 	/**
 	 * Override if multiple {@link ModuleDbHelper} implementations in same app.
 	 */
 	protected static final String DB_NAME = "module.db";
-
-	/**
-	 * Override if multiple {@link ModuleDbHelper} in same app.
-	 */
-	public static final int DB_VERSION = 92;
 
 	/**
 	 * Override if multiple {@link ModuleDbHelper} implementations in same app.
@@ -42,13 +38,17 @@ public class ModuleDbHelper extends MTSQLiteOpenHelper {
 	public static final String T_MODULE_K_TARGET_TYPE_ID = POIProvider.POIDbHelper.getFkColumnName("targetTypeId");
 	public static final String T_MODULE_K_COLOR = POIProvider.POIDbHelper.getFkColumnName("color");
 	public static final String T_MODULE_K_LOCATION = POIProvider.POIDbHelper.getFkColumnName("location");
+	public static final String T_MODULE_K_REPO = POIProvider.POIDbHelper.getFkColumnName("repo");
+	public static final String T_MODULE_K_STORE = POIProvider.POIDbHelper.getFkColumnName("store");
 	public static final String T_MODULE_K_NAME_FR = POIProvider.POIDbHelper.getFkColumnName("name_fr");
-	private static final String T_MODULE_SQL_CREATE = POIProvider.POIDbHelper.getSqlCreateBuilder(T_MODULE) //
-			.appendColumn(T_MODULE_K_PKG, SqlUtils.TXT) //
-			.appendColumn(T_MODULE_K_TARGET_TYPE_ID, SqlUtils.INT) //
-			.appendColumn(T_MODULE_K_COLOR, SqlUtils.TXT) //
-			.appendColumn(T_MODULE_K_LOCATION, SqlUtils.TXT) //
-			.appendColumn(T_MODULE_K_NAME_FR, SqlUtils.TXT) //
+	private static final String T_MODULE_SQL_CREATE = POIProvider.POIDbHelper.getSqlCreateBuilder(T_MODULE)
+			.appendColumn(T_MODULE_K_PKG, SqlUtils.TXT)
+			.appendColumn(T_MODULE_K_TARGET_TYPE_ID, SqlUtils.INT)
+			.appendColumn(T_MODULE_K_COLOR, SqlUtils.TXT)
+			.appendColumn(T_MODULE_K_LOCATION, SqlUtils.TXT)
+			.appendColumn(T_MODULE_K_REPO, SqlUtils.TXT)
+			.appendColumn(T_MODULE_K_STORE, SqlUtils.TXT)
+			.appendColumn(T_MODULE_K_NAME_FR, SqlUtils.TXT)
 			.build();
 	private static final String T_MODULE_SQL_DROP = SqlUtils.getSQLDropIfExistsQuery(T_MODULE);
 
@@ -56,19 +56,25 @@ public class ModuleDbHelper extends MTSQLiteOpenHelper {
 	private static final String T_MODULE_STATUS_SQL_CREATE = StatusProvider.StatusDbHelper.getSqlCreateBuilder(T_MODULE_STATUS).build();
 	private static final String T_MODULE_STATUS_SQL_DROP = SqlUtils.getSQLDropIfExistsQuery(T_MODULE_STATUS);
 
+	private static int dbVersion = -1;
+
 	/**
 	 * Override if multiple {@link ModuleDbHelper} in same app.
 	 */
-	public static int getDbVersion() {
-		return DB_VERSION;
+	public static int getDbVersion(@NonNull Context context) {
+		if (dbVersion < 0) {
+			// use app version code as DB version (can only update w/ new app release) (fallback to 1 if PM error)
+			dbVersion = Math.max(1, PackageManagerUtils.getAppVersionCode(context));
+		}
+		return dbVersion;
 	}
 
 	@NonNull
-	private final Context context;
+	private final SharedPreferences storage;
 
-	public ModuleDbHelper(@NonNull Context context) {
-		super(context, DB_NAME, null, getDbVersion());
-		this.context = context;
+	public ModuleDbHelper(@NonNull Context context, @NonNull SharedPreferences storage) {
+		super(context, DB_NAME, null, getDbVersion(context));
+		this.storage = storage;
 	}
 
 	@Override
@@ -83,6 +89,11 @@ public class ModuleDbHelper extends MTSQLiteOpenHelper {
 		initAllDbTables(db);
 	}
 
+	@Override
+	public void onDowngrade(@NonNull SQLiteDatabase db, int oldVersion, int newVersion) {
+		onUpgradeMT(db, oldVersion, newVersion);
+	}
+
 	@SuppressWarnings("unused")
 	public boolean isDbExist(@NonNull Context context) {
 		return SqlUtils.isDbExist(context, DB_NAME);
@@ -91,6 +102,8 @@ public class ModuleDbHelper extends MTSQLiteOpenHelper {
 	private void initAllDbTables(@NonNull SQLiteDatabase db) {
 		db.execSQL(T_MODULE_SQL_CREATE);
 		db.execSQL(T_MODULE_STATUS_SQL_CREATE);
-		PreferenceUtils.savePrefLclSync(this.context, PREF_KEY_LAST_UPDATE_MS, 0L);
+		storage.edit()
+				.remove(PREF_KEY_LAST_UPDATE_MS)
+				.apply();
 	}
 }

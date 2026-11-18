@@ -15,7 +15,7 @@ workflows:
             branches:
                 only:
                     - master
-                    - /^mm\/.*/ # starts with "mm/"
+                    # - /^mm\/.*/ # starts with "mm/"
                     # - TODO other branch?
 jobs:
   mt-job:
@@ -43,6 +43,7 @@ jobs:
       GRADLE_OPTS: -Xmx5432m -Dorg.gradle.jvmargs="-Xms1g -Xmx5432m -XX:+UseParallelGC -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8"
       TERM: xterm-256color
       TZ: "America/Toronto"
+      GIT_LFS_SKIP_SMUDGE: "1"
     steps:
       - run:
           name: APT install - gawk & libxml2-utils
@@ -57,37 +58,37 @@ jobs:
           command: echo y | sdkmanager "build-tools;36.0.0" "platform-tools" "platforms;android-36"
       - checkout
       - run:
-          name: checkout_submodules.sh permissions
-          command: sudo chmod +x checkout_submodules.sh
+          name: sh/git/submodules_init.sh permissions
+          command: sudo chmod +x sh/git/submodules_init.sh
       - run:
           name: Checkout submodules
-          command: ./checkout_submodules.sh
-    #   - run:
-    #       name: commons/sync.sh permissions
-    #       command: sudo chmod +x commons/sync.sh
-    #   - run:
-    #       name: Sync files
-    #       command: ./commons/sync.sh
+          command: ./sh/git/submodules_init.sh
       - run:
-          name: commons/code_setup.sh permissions
-          command: sudo chmod +x commons/code_setup.sh
+          name: commons/sh/git_setup.sh permissions
+          command: sudo chmod +x commons/sh/git_setup.sh
       - run:
-          name: Sync files
-          command: ./commons/code_setup.sh
+          name: git setup
+          command: ./commons/sh/git_setup.sh
+      - run:
+          name: commons/sh/shared_setup.sh permissions
+          command: sudo chmod +x commons/sh/shared_setup.sh
+      - run:
+          name: shared setup
+          command: ./commons/sh/shared_setup.sh
       - android/restore_build_cache:
           cache_prefix: android-build-cache
       - restore_cache:
           key: gradle-wrapper-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
       - run:
           name: Generate gradle cache key
-          command: ./init_cache_key.sh
+          command: ./sh/ci/init_cache_key.sh
       - restore_cache:
           keys:
             - gradle-cache-{{ checksum "gradle_cache_key_checksum.txt" }}
             - gradle-cache- # fallback to using the latest cache if no exact match is found
       - run:
           name: Build
-          command: ./build.sh
+          command: ./sh/ci/build.sh
       - save_cache:
           paths:
             - ~/.gradle/caches/
@@ -114,7 +115,7 @@ jobs:
           path: app-android/build/outputs/bundle
           destination: bundles
       - store_artifacts:
-          path: commons-android/build/reports
+          path: commons-android/shared-android/build/reports
           destination: commons-android-reports
       - run:
           name: Save test results for all Gradle modules

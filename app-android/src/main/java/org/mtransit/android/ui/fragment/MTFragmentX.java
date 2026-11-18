@@ -1,5 +1,6 @@
 package org.mtransit.android.ui.fragment;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -28,6 +29,7 @@ import org.mtransit.android.ui.view.common.IFragment;
 /**
  * NO LOGIC HERE, just logs.
  */
+@SuppressLint("DeprecatedCall")
 @SuppressWarnings("deprecation")
 public abstract class MTFragmentX extends Fragment implements IFragment, MTLog.Loggable {
 

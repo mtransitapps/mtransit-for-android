@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation,UnusedResources,InconsistentArrays,TypographyDashes">
-    <integer name="rss_db_version">6</integer>
     <string name="rss_target_for_poi_authority" />
     <string-array name="rss_feeds">
         <item>https://mtransitapps.github.io/news/rss-en.xml</item>

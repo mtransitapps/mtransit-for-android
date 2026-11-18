@@ -26,7 +26,7 @@ class MTTabLayoutMediator @JvmOverloads constructor(
 ) : MTLog.Loggable {
 
     companion object {
-        private val LOG_TAG = MTTabLayoutMediator::class.java.simpleName
+        private val LOG_TAG: String = MTTabLayoutMediator::class.java.simpleName
 
         /**
          * see [ViewPager2.setCurrentItem]
@@ -35,8 +35,7 @@ class MTTabLayoutMediator @JvmOverloads constructor(
         private const val MAX_SMOOTH_SCROLL_DIFF = 2
     }
 
-    override fun getLogTag(): String = LOG_TAG
-
+    override fun getLogTag() = LOG_TAG
 
     private var adapter: RecyclerView.Adapter<*>? = null
 
@@ -166,9 +165,13 @@ class MTTabLayoutMediator @JvmOverloads constructor(
             val tabLayout = tabLayoutRef.get()
             if (tabLayout != null && tabLayout.selectedTabPosition != position && position < tabLayout.tabCount) {
                 // Select the tab, only updating the indicator if we're not being dragged/settled (since onPageScrolled will handle that).
-                val updateIndicator = (scrollState == ViewPager2.SCROLL_STATE_IDLE
-                        || (scrollState == ViewPager2.SCROLL_STATE_SETTLING
-                        && previousScrollState == ViewPager2.SCROLL_STATE_IDLE))
+                val updateIndicator = (
+                    scrollState == ViewPager2.SCROLL_STATE_IDLE
+                        || (
+                            scrollState == ViewPager2.SCROLL_STATE_SETTLING
+                                && previousScrollState == ViewPager2.SCROLL_STATE_IDLE
+                            )
+                    )
                 tabLayout.selectTab(tabLayout.getTabAt(position), updateIndicator)
             }
         }
@@ -177,8 +180,6 @@ class MTTabLayoutMediator @JvmOverloads constructor(
             scrollState = ViewPager2.SCROLL_STATE_IDLE
             previousScrollState = ViewPager2.SCROLL_STATE_IDLE
         }
-
-
     }
 
     /**

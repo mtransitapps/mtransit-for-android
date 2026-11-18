@@ -1,39 +1,55 @@
-@file:JvmName("AgencyPOIsFragment") // ANALYTICS
 package org.mtransit.android.ui.type.poi
 
 import android.content.Context
 import android.content.res.ColorStateList
 import android.os.Bundle
 import android.view.View
-import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
+import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.gms.maps.model.LatLng
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
-import org.mtransit.android.common.repository.DefaultPreferenceRepository
-import org.mtransit.android.common.repository.LocalPreferenceRepository
+import org.mtransit.android.ad.IAdManager
+import org.mtransit.android.ad.IAdScreenActivity
+import org.mtransit.android.analytics.IAnalyticsManager
+import org.mtransit.android.billing.IBillingManager
+import org.mtransit.android.data.IAgencyUIProperties
 import org.mtransit.android.data.POIArrayAdapter
 import org.mtransit.android.data.POIManager
+import org.mtransit.android.data.setPoisUpdateDistanceAndClosest
 import org.mtransit.android.databinding.FragmentAgencyPoisBinding
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
-import org.mtransit.android.provider.FavoriteManager
+import org.mtransit.android.device.DevicePrefManager
+import org.mtransit.android.provider.FavoriteRepository
 import org.mtransit.android.provider.permission.LocationPermissionProvider
 import org.mtransit.android.provider.sensor.MTSensorManager
 import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.task.StatusLoader
+import org.mtransit.android.ui.common.twoPane
 import org.mtransit.android.ui.empty.EmptyLayoutUtils.updateEmptyLayout
+import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.fragment.MTFragmentX
 import org.mtransit.android.ui.setNavBarProtectionEdgeToEdge
 import org.mtransit.android.ui.setUpFabEdgeToEdge
 import org.mtransit.android.ui.setUpListEdgeToEdge
 import org.mtransit.android.ui.setUpMapEdgeToEdge
 import org.mtransit.android.ui.type.AgencyTypeViewModel
+import org.mtransit.android.ui.view.MapViewConfig
 import org.mtransit.android.ui.view.MapViewController
-import org.mtransit.android.ui.view.MapViewController.POIMarker
+import org.mtransit.android.ui.view.clearSelectedPlaceMarker
 import org.mtransit.android.ui.view.common.context
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
+import org.mtransit.android.ui.view.listfooter.DefaultPOIListFooterManager
+import org.mtransit.android.ui.view.listfooter.DefaultPOIListFooterManager.Companion.canShowRewardedAd
+import org.mtransit.android.ui.view.listfooter.DefaultPOIListFooterManager.Companion.computeWidth
+import org.mtransit.android.ui.view.map.MapListener
+import org.mtransit.android.ui.view.map.MapMarkerProvider
+import org.mtransit.android.ui.view.onSelectedPlaceLocation
+import org.mtransit.android.user.UserManager
+import org.mtransit.android.user.UserPrefManager
 import org.mtransit.android.util.LinkUtils
 import javax.inject.Inject
 
@@ -41,23 +57,40 @@ import javax.inject.Inject
 class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
 
     companion object {
-        private val LOG_TAG = AgencyPOIsFragment::class.java.simpleName
+        private val LOG_TAG: String = AgencyPOIsFragment::class.java.simpleName
+
+        @JvmStatic
+        fun newInstance(agency: IAgencyUIProperties, optMapCameraPosition: CameraPosition? = null, optSelectedUuid: String? = null) =
+            newInstance(
+                agency.authority,
+                agency.colorInt,
+                optMapCameraPosition?.target?.latitude,
+                optMapCameraPosition?.target?.longitude,
+                optMapCameraPosition?.zoom,
+                optSelectedUuid,
+            )
 
         @JvmStatic
         fun newInstance(
             agencyAuthority: String,
             optColorInt: Int? = null,
-        ): AgencyPOIsFragment {
-            return AgencyPOIsFragment().apply {
-                arguments = bundleOf(
-                    AgencyPOIsViewModel.EXTRA_AGENCY_AUTHORITY to agencyAuthority,
-                    AgencyPOIsViewModel.EXTRA_COLOR_INT to optColorInt,
-                )
+            optMapLat: Double? = null,
+            optMapLng: Double? = null,
+            optMapZoom: Float? = null,
+            optSelectedUuid: String? = null,
+        ) = AgencyPOIsFragment().apply {
+            arguments = Bundle().apply {
+                putString(AgencyPOIsViewModel.EXTRA_AGENCY_AUTHORITY, agencyAuthority)
+                optColorInt?.let { putInt(AgencyPOIsViewModel.EXTRA_COLOR_INT, it) }
+                optMapLat?.let { putDouble(AgencyPOIsViewModel.EXTRA_SELECTED_MAP_CAMERA_POSITION_LAT, it) }
+                optMapLng?.let { putDouble(AgencyPOIsViewModel.EXTRA_SELECTED_MAP_CAMERA_POSITION_LNG, it) }
+                optMapZoom?.let { putFloat(AgencyPOIsViewModel.EXTRA_SELECTED_MAP_CAMERA_POSITION_ZOOM, it) }
+                putString(AgencyPOIsViewModel.EXTRA_SELECTED_UUID, optSelectedUuid)
             }
         }
 
-        private const val TOP_PADDING_SP = 0
-        private const val BOTTOM_PADDING_SP = 56
+        private const val TOP_PADDING_DP = 0
+        private const val BOTTOM_PADDING_DP = 56
     }
 
     private var theLogTag: String = LOG_TAG
@@ -81,16 +114,16 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
     lateinit var dataSourcesRepository: DataSourcesRepository
 
     @Inject
-    lateinit var defaultPrefRepository: DefaultPreferenceRepository
+    lateinit var userPrefManager: UserPrefManager
 
     @Inject
-    lateinit var localPreferenceRepository: LocalPreferenceRepository
+    lateinit var devicePrefManager: DevicePrefManager
 
     @Inject
     lateinit var poiRepository: POIRepository
 
     @Inject
-    lateinit var favoriteManager: FavoriteManager
+    lateinit var favoriteRepository: FavoriteRepository
 
     @Inject
     lateinit var statusLoader: StatusLoader
@@ -99,52 +132,97 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
     lateinit var serviceUpdateLoader: ServiceUpdateLoader
 
     @Inject
+    lateinit var adManager: IAdManager
+
+    @Inject
+    lateinit var analyticsManager: IAnalyticsManager
+
+    @Inject
+    lateinit var billingManager: IBillingManager
+
+    @Inject
     lateinit var locationPermissionProvider: LocationPermissionProvider
 
-    private val mapMarkerProvider = object : MapViewController.MapMarkerProvider {
+    @Inject
+    lateinit var userManager: UserManager
 
-        override fun getPOMarkers(): Collection<POIMarker>? = null
+    private val mapListener = object : MapListener {
 
-        override fun getPOIs(): Collection<POIManager>? {
-            if (!listAdapter.isInitialized) {
-                return null
-            }
-            val pois = mutableSetOf<POIManager>()
-            for (i in 0 until listAdapter.poisCount) {
-                listAdapter.getItem(i)?.let { pois.add(it) }
-            }
-            return pois
+        override fun onMapClick(position: LatLng) {
+            viewModel.onLocationSelected(null) // clear selection
         }
 
-        override fun getClosestPOI() = listAdapter.closestPOI
+        override fun onMapLongClick(position: LatLng) {
+            viewModel.onLocationSelected(position)
+        }
+    }
+
+    private val mapMarkerProvider = object : MapMarkerProvider {
+
+        override val pois: Collection<POIManager>?
+            get() {
+                if (!listAdapter.isInitialized) return null
+                return buildList {
+                    for (i in 0 until listAdapter.poisCount) {
+                        listAdapter.getItem(i)?.let { add(it) }
+                    }
+                }
+            }
+
+        override val closestPOI: POIManager? get() = listAdapter.closestPOI
 
         override fun getPOI(uuid: String?) = listAdapter.getItem(uuid)
     }
 
-    @Suppress("DeprecatedCall")
     private val mapViewController: MapViewController by lazy {
         MapViewController(
             logTag,
-            mapMarkerProvider,
-            null, // DO NOTHING (map click, camera change)
-            true,
-            true,
-            true,
-            false,
-            false,
-            false,
-            TOP_PADDING_SP,
-            BOTTOM_PADDING_SP,
-            false,
-            true,
-            false,
-            true,
-            false,
-            this.dataSourcesRepository
+            MapViewConfig(
+                markerProvider = mapMarkerProvider,
+                mapListener = mapListener,
+                mapToolbarEnabled = false,
+                myLocationEnabled = true,
+                myLocationButtonEnabled = true,
+                indoorLevelPickerEnabled = false,
+                trafficEnabled = false,
+                indoorEnabled = false,
+                paddingTopDp = TOP_PADDING_DP,
+                paddingBottomDp = BOTTOM_PADDING_DP,
+                followingDevice = false,
+                hasButtons = true,
+                clusteringEnabled = false,
+                showAllMarkersWhenReady = true,
+                markerLabelShowExtra = false,
+                autoClickInfoWindow = true,
+            )
         ).apply {
-            setAutoClickInfoWindow(true)
-            setLocationPermissionGranted(locationPermissionProvider.allRequiredPermissionsGranted(requireContext()))
+            setLocationPermissionGranted(locationPermissionProvider.allRequiredPermissionsGranted())
         }
+    }
+
+    private val poiListFooterManager by lazy {
+        DefaultPOIListFooterManager(
+            adManager = adManager,
+            analyticsManager = analyticsManager,
+            dataSourcesRepository = dataSourcesRepository,
+            getFragment = { parentFragment as? ABFragment },
+            getShowLoading = { attachedViewModel?.poiList?.value == null },
+            getHideText = {
+                val poiList = attachedViewModel?.poiList?.value
+                    ?: return@DefaultPOIListFooterManager false
+                val minListItemToNotHide = context?.let { DefaultPOIListFooterManager.getMinListItemToNotHide(it) }
+                    ?: return@DefaultPOIListFooterManager false
+                val listItemCount = 1 + // for tabs
+                    poiList.size
+                listItemCount < minListItemToNotHide
+            },
+            getTextHorizontalMargin = {
+                binding?.let {
+                    it.computeWidth(it.fabListMap, it.fabFares)
+                } ?: 0
+            },
+            canShowRewardedAd = { adManager.canShowRewardedAd() && binding?.fabFares?.isVisible == false },
+        )
     }
 
     private val listAdapter: POIArrayAdapter by lazy {
@@ -152,16 +230,19 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
             this,
             this.sensorManager,
             this.dataSourcesRepository,
-            this.defaultPrefRepository,
-            this.localPreferenceRepository,
+            this.userPrefManager,
+            this.devicePrefManager,
             this.poiRepository,
-            this.favoriteManager,
+            this.favoriteRepository,
             this.statusLoader,
-            this.serviceUpdateLoader
+            this.serviceUpdateLoader,
+            this.analyticsManager
         ).apply {
             logTag = this@AgencyPOIsFragment.logTag
             setPois(attachedViewModel?.poiList?.value)
             setLocation(attachedParentViewModel?.deviceLocation?.value)
+            setShowFooter(true)
+            setFooterManager(poiListFooterManager)
         }
     }
 
@@ -181,9 +262,7 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
             }
             fabListMap?.apply {
                 setOnClickListener {
-                    if (context.resources.getBoolean(R.bool.two_pane)) { // LARGE SCREEN
-                        return@setOnClickListener
-                    }
+                    if (context.twoPane) return@setOnClickListener // LARGE SCREEN
                     viewModel.saveShowingListInsteadOfMap(viewModel.showingListInsteadOfMap.value == false) // switching
                 }
                 setUpFabEdgeToEdge(
@@ -191,14 +270,13 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
                     originalMarginBottomDimenRes = R.dimen.fab_mini_margin_bottom,
                 )
             }
-            fabFares.apply {
-                setUpFabEdgeToEdge(
-                    originalMarginEndDimenRes = R.dimen.fab_mini_margin_end_above_fab,
-                    originalMarginBottomDimenRes = R.dimen.fab_mini_margin_bottom,
-                )
-            }
-            map.setUpMapEdgeToEdge(mapViewController, TOP_PADDING_SP, BOTTOM_PADDING_SP)
+            fabFares.setUpFabEdgeToEdge(
+                originalMarginEndDimenRes = R.dimen.fab_mini_margin_end_not_last,
+                originalMarginBottomDimenRes = R.dimen.fab_mini_margin_bottom,
+            )
+            map.setUpMapEdgeToEdge(mapViewController, TOP_PADDING_DP, BOTTOM_PADDING_DP)
         }
+        listAdapter.onCreateView(viewLifecycleOwner)
         viewModel.colorInt.observe(viewLifecycleOwner) { colorInt ->
             colorInt?.let {
                 binding?.apply {
@@ -213,6 +291,9 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
                 }
             }
         }
+        viewModel.useInternalWebBrowserPref.observe(viewLifecycleOwner) {
+            // DO NOTHING
+        }
         viewModel.agency.observe(viewLifecycleOwner) { agency ->
             theLogTag = agency?.shortName?.let { "${LOG_TAG}-$it" } ?: LOG_TAG
             listAdapter.logTag = this@AgencyPOIsFragment.logTag
@@ -222,7 +303,7 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
                     isVisible = true
                     setOnClickListener {
                         activity?.let { activity ->
-                            LinkUtils.open(view, activity, url, getString(R.string.fares), true)
+                            LinkUtils.open(view, activity, url, getString(R.string.fares), true, viewModel.useInternalWebBrowserPref.value)
                         }
                     }
                 } ?: run {
@@ -238,23 +319,54 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
         viewModel.showingListInsteadOfMap.observe(viewLifecycleOwner) { showingListInsteadOfMap ->
             showingListInsteadOfMap?.let { listInsteadOfMap ->
                 updateFabListMapUI(listInsteadOfMap)
-                if (context?.resources?.getBoolean(R.bool.two_pane) == true // LARGE SCREEN
-                    || !listInsteadOfMap // MAP
-                ) {
+                if (viewModel.mapVisible(context)) {
+                    applySelectedUUIDChanged()
                     mapViewController.onResume()
                 } else { // LIST
                     mapViewController.onPause()
                 }
             }
             switchView(showingListInsteadOfMap)
+            (activity as? IAdScreenActivity)?.let { adManager.onResumeScreen(it) }
         }
         viewModel.poiList.observe(viewLifecycleOwner) { poiList ->
-            listAdapter.setPois(poiList)
-            listAdapter.updateDistanceNowAsync(parentViewModel.deviceLocation.value)
-            mapViewController.notifyMarkerChanged(mapMarkerProvider)
+            listAdapter.setPoisUpdateDistanceAndClosest(poiList, parentViewModel.deviceLocation.value)
+            mapViewController.notifyPOIMarkersChanged()
             switchView()
             binding?.emptyLayout?.updateEmptyLayout(poiList.isEmpty(), viewModel.agency.value?.pkg, activity)
         }
+        DefaultPOIListFooterManager.observe(viewLifecycleOwner, viewModel.poiList, billingManager, dataSourcesRepository, userManager) {
+            this.listAdapter.notifyDataSetChanged(false)
+        }
+        viewModel.selectedMapCameraPosition.observe(viewLifecycleOwner) { selectedMapCameraPosition ->
+            selectedMapCameraPosition?.let { cameraPosition ->
+                mapViewController.setShowAllMarkersWhenReady(false)
+                mapViewController.setInitialCameraPosition(cameraPosition)
+                viewModel.onSelectedMapCameraPositionSet()
+            }
+        }
+        viewModel.selectedUUID.observe(viewLifecycleOwner) { selectedUUID ->
+            if (viewModel.mapVisible(context)) {
+                applySelectedUUIDChanged(selectedUUID)
+            }
+        }
+        viewModel.selectedLocation.observe(viewLifecycleOwner) { newSelectedLocation ->
+            newSelectedLocation?.let { mapViewController.onSelectedPlaceLocation(it, null) }
+                ?: run { mapViewController.clearSelectedPlaceMarker() }
+        }
+        viewModel.selectedAddress.observe(viewLifecycleOwner) { address ->
+            viewModel.selectedLocation.value?.let {
+                mapViewController.onSelectedPlaceLocation(it, address)
+            }
+        }
+    }
+
+    private fun applySelectedUUIDChanged(
+        selectedUUID: String? = viewModel.selectedUUID.value,
+    ) {
+        selectedUUID ?: return
+        mapViewController.setInitialSelectedUUID(selectedUUID)
+        viewModel.onSelectedStopUuidSet()
     }
 
     private fun updateFabListMapUI(showingListInsteadOfMap: Boolean? = viewModel.showingListInsteadOfMap.value) {
@@ -295,7 +407,7 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
                 loadingLayout.isVisible = false
                 emptyLayout.isVisible = false
 
-                if (context.resources.getBoolean(R.bool.two_pane)) { // LARGE SCREEN
+                if (context.twoPane) { // LARGE SCREEN
                     listLayout.isVisible = true
                     mapViewController.showMap(view)
                 } else if (showingListInsteadOfMap) { // LIST
@@ -312,9 +424,9 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
     override fun onAttach(context: Context) {
         super.onAttach(context)
         mapViewController.apply {
-            setDataSourcesRepository(dataSourcesRepository)
+            setDI(dataSourcesRepository, devicePrefManager)
             onAttach(requireActivity())
-            setLocationPermissionGranted(locationPermissionProvider.allRequiredPermissionsGranted(context))
+            setLocationPermissionGranted(locationPermissionProvider.allRequiredPermissionsGranted())
         }
     }
 
@@ -330,20 +442,28 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
 
     override fun onResume() {
         super.onResume()
-        if (context?.resources?.getBoolean(R.bool.two_pane) == true // LARGE SCREEN
-            || viewModel.showingListInsteadOfMap.value == false // MAP
-        ) {
+        if (viewModel.mapVisible(context)) {
             mapViewController.onResume()
         }
-        listAdapter.onResume(this, parentViewModel.deviceLocation.value)
+        listAdapter.onVisible(this, parentViewModel.deviceLocation.value)
         updateFabListMapUI()
         switchView()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        mapViewController.onStart()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        mapViewController.onStop()
     }
 
     override fun onPause() {
         super.onPause()
         mapViewController.onPause()
-        listAdapter.onPause()
+        listAdapter.onInvisible()
     }
 
     override fun onLowMemory() {
@@ -365,4 +485,9 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois) {
     }
 
     override fun <T : View?> findViewById(id: Int) = this.view?.findViewById<T>(id)
+
+    @Suppress("unused")
+    fun AgencyPOIsViewModel.listVisible(context: Context?): Boolean = context.twoPane || showingListInsteadOfMap.value == true
+
+    fun AgencyPOIsViewModel.mapVisible(context: Context?): Boolean = context.twoPane || showingListInsteadOfMap.value == false
 }

@@ -14,7 +14,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.mtransit.android.commons.MTLog;
-import org.mtransit.android.util.MapUtils;
+import org.mtransit.android.ui.view.map.MapIcons;
 
 import java.lang.ref.WeakReference;
 
@@ -35,11 +35,11 @@ public class LazyMarker implements MTLog.Loggable {
 	}
 
 	@Nullable
-	private Marker marker;
+	private Marker marker; // or AdvancedMarker
 	// @Nullable
 	private GoogleMap map;
 	// @Nullable
-	private MarkerOptions markerOptions;
+	private MarkerOptions markerOptions; // or AdvancedMarkerOptions
 	@Nullable
 	private OnMarkerCreateListener listener;
 
@@ -48,19 +48,23 @@ public class LazyMarker implements MTLog.Loggable {
 	}
 
 	public LazyMarker(@NonNull GoogleMap map, @NonNull MarkerOptions options, @Nullable OnMarkerCreateListener listener) {
-		this(map, options, null, null, null, null, null, listener);
+		this(map, options, null, null, null, null, null, null, null, listener);
 	}
 
-	public LazyMarker(@NonNull GoogleMap map,
-					  @NonNull MarkerOptions options,
-					  @Nullable Integer optionsColor,
-					  @Nullable Integer optionsSecondaryColor,
-					  @Nullable Integer optionsDefaultColor,
-					  @Nullable Integer optionsIconResId,
-					  @Nullable Context optionsContext,
-					  @Nullable OnMarkerCreateListener listener) {
+	public LazyMarker(
+			@NonNull GoogleMap map,
+			@NonNull MarkerOptions options,
+			@Nullable @ColorInt Integer optionsColor,
+			@Nullable @ColorInt Integer optionsSecondaryColor,
+			@Nullable @ColorInt Integer optionsDefaultColor,
+			@Nullable @DrawableRes Integer optionsIconResId,
+			@Nullable Integer optionsTargetSize,
+			@Nullable Boolean optionsIconReplaceColor,
+			@Nullable Context optionsContext,
+			@Nullable OnMarkerCreateListener listener
+	) {
 		if (options.isVisible()) {
-			createMarker(map, options, optionsColor, optionsSecondaryColor, optionsDefaultColor, optionsIconResId, optionsContext, listener);
+			createMarker(map, options, optionsColor, optionsSecondaryColor, optionsDefaultColor, optionsIconResId, optionsTargetSize, optionsIconReplaceColor, optionsContext, listener);
 		} else {
 			this.map = map;
 			this.markerOptions = copy(options);
@@ -68,6 +72,8 @@ public class LazyMarker implements MTLog.Loggable {
 			this.markerOptionsSecondaryColor = optionsSecondaryColor;
 			this.markerOptionsDefaultColor = optionsDefaultColor;
 			this.markerOptionsIconResId = optionsIconResId;
+			this.markerOptionsTargetSize = optionsTargetSize;
+			this.markerOptionsIconReplaceColor = optionsIconReplaceColor;
 			this.markerOptionsContextWR = new WeakReference<>(optionsContext);
 			this.listener = listener;
 		}
@@ -107,6 +113,14 @@ public class LazyMarker implements MTLog.Loggable {
 			return marker.getRotation();
 		} else {
 			return markerOptions.getRotation();
+		}
+	}
+
+	public float getZIndex() {
+		if (marker != null) {
+			return marker.getZIndex();
+		} else {
+			return markerOptions.getZIndex();
 		}
 	}
 
@@ -177,11 +191,21 @@ public class LazyMarker implements MTLog.Loggable {
 			markerOptionsSecondaryColor = null;
 			markerOptionsDefaultColor = null;
 			markerOptionsIconResId = null;
+			markerOptionsTargetSize = null;
+			markerOptionsIconReplaceColor = null;
 			if (markerOptionsContextWR != null) {
 				markerOptionsContextWR.clear();
 				markerOptionsContextWR = null;
 			}
 			listener = null;
+		}
+	}
+
+	public void setZIndex(float zIndex) {
+		if (marker != null) {
+			marker.setZIndex(zIndex);
+		} else {
+			markerOptions.zIndex(zIndex);
 		}
 	}
 
@@ -228,6 +252,8 @@ public class LazyMarker implements MTLog.Loggable {
 		markerOptionsSecondaryColor = null;
 		markerOptionsDefaultColor = null;
 		markerOptionsIconResId = null;
+		markerOptionsTargetSize = null;
+		markerOptionsIconReplaceColor = null;
 		if (markerOptionsContextWR != null) {
 			markerOptionsContextWR.clear();
 			markerOptionsContextWR = null;
@@ -237,6 +263,10 @@ public class LazyMarker implements MTLog.Loggable {
 	@DrawableRes
 	@Nullable
 	private Integer markerOptionsIconResId = null;
+	@Nullable
+	private Integer markerOptionsTargetSize = null;
+	@Nullable
+	private Boolean markerOptionsIconReplaceColor = null;
 	@ColorInt
 	@Nullable
 	private Integer markerOptionsColor = null;
@@ -249,17 +279,29 @@ public class LazyMarker implements MTLog.Loggable {
 	@Nullable
 	private WeakReference<Context> markerOptionsContextWR = null;
 
-	public void setIcon(@Nullable Context context,
-						@DrawableRes @Nullable Integer iconResId,
-						@ColorInt @Nullable Integer color,
-						@ColorInt @Nullable Integer secondaryColor,
-						@ColorInt @Nullable Integer defaultColor) {
+	public void setIcon(
+			@Nullable Context context,
+			@DrawableRes @Nullable Integer iconResId,
+			@Nullable Integer targetSize,
+			@Nullable Boolean replaceColor,
+			@ColorInt @Nullable Integer color,
+			@ColorInt @Nullable Integer secondaryColor,
+			@ColorInt @Nullable Integer defaultColor
+	) {
 		if (marker != null) {
-			if (iconResId != null && color != null) {
-				marker.setIcon(MapUtils.getIcon(context, iconResId, color, false));
+			final Integer iconColor = color != null ? color
+					: secondaryColor != null ? secondaryColor
+					: defaultColor;
+			if (iconResId != null && replaceColor != null && iconColor != null) { // context optional for cache hit
+				final BitmapDescriptor icon = MapIcons.getIcon(context, iconResId, iconColor, replaceColor, targetSize);
+				if (icon != null) {
+					marker.setIcon(icon);
+				}
 			}
 		} else {
 			markerOptionsIconResId = iconResId;
+			markerOptionsTargetSize = targetSize;
+			markerOptionsIconReplaceColor = replaceColor;
 			markerOptionsColor = color;
 			markerOptionsSecondaryColor = secondaryColor;
 			markerOptionsDefaultColor = defaultColor;
@@ -344,18 +386,23 @@ public class LazyMarker implements MTLog.Loggable {
 	@NonNull
 	private Marker createMarkerIfNecessary() {
 		if (marker == null) {
-			final Context markerOptionsContext = markerOptionsContextWR == null ? null : markerOptionsContextWR.get();
-			createMarker(map,
+			createMarker(
+					map,
 					markerOptions,
 					markerOptionsColor,
 					markerOptionsSecondaryColor,
 					markerOptionsDefaultColor,
 					markerOptionsIconResId,
-					markerOptionsContext,
-					listener);
+					markerOptionsTargetSize,
+					markerOptionsIconReplaceColor,
+					markerOptionsContextWR == null ? null : markerOptionsContextWR.get(),
+					listener
+			);
 			map = null;
 			markerOptions = null;
 			markerOptionsIconResId = null;
+			markerOptionsTargetSize = null;
+			markerOptionsIconReplaceColor = null;
 			if (markerOptionsContextWR != null) {
 				markerOptionsContextWR.clear();
 				markerOptionsContextWR = null;
@@ -365,18 +412,26 @@ public class LazyMarker implements MTLog.Loggable {
 		return marker;
 	}
 
-	private void createMarker(@NonNull GoogleMap map,
-							  @NonNull MarkerOptions options,
-							  @ColorInt Integer markerOptionsColor,
-							  @ColorInt Integer markerOptionsSecondaryColor,
-							  @ColorInt Integer markerOptionsDefaultColor,
-							  @DrawableRes Integer markerOptionsIconResId,
-							  @Nullable Context markerOptionsContext,
-							  @Nullable OnMarkerCreateListener listener) {
-		if (markerOptionsDefaultColor != null && markerOptionsIconResId != null && markerOptionsContext != null) {
-			final int color = markerOptionsColor == null ? markerOptionsSecondaryColor == null ? markerOptionsDefaultColor : markerOptionsSecondaryColor
-					: markerOptionsColor;
-			options.icon(MapUtils.getIcon(markerOptionsContext, markerOptionsIconResId, color, false));
+	private void createMarker(
+			@NonNull GoogleMap map,
+			@NonNull MarkerOptions options,
+			@Nullable @ColorInt Integer color,
+			@Nullable @ColorInt Integer secondaryColor,
+			@Nullable @ColorInt Integer defaultColor,
+			@Nullable @DrawableRes Integer iconResId,
+			@Nullable Integer targetSize,
+			@Nullable Boolean replaceColor,
+			@Nullable Context context,
+			@Nullable OnMarkerCreateListener listener
+	) {
+		final Integer iconColor = color != null ? color
+				: secondaryColor != null ? secondaryColor
+				: defaultColor;
+		if (iconResId != null && replaceColor != null && iconColor != null) { // context optional for cache hit
+			final BitmapDescriptor icon = MapIcons.getIcon(context, iconResId, iconColor, replaceColor, targetSize);
+			if (icon != null) {
+				options.icon(icon);
+			}
 		}
 		marker = map.addMarker(options);
 		if (listener != null) {
@@ -386,7 +441,7 @@ public class LazyMarker implements MTLog.Loggable {
 
 	@NonNull
 	private static MarkerOptions copy(@NonNull MarkerOptions options) {
-		MarkerOptions copy = new MarkerOptions();
+		final MarkerOptions copy = new MarkerOptions();
 		copy.alpha(options.getAlpha());
 		copy.anchor(options.getAnchorU(), options.getAnchorV());
 		copy.draggable(options.isDraggable());

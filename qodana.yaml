@@ -1,0 +1,11 @@
+####################################################################################################################
+# WARNING: Do not store sensitive information in this file, as its contents will be included in the Qodana report. #
+####################################################################################################################
+
+version: "1.0"
+# https://hub.docker.com/r/jetbrains/qodana-jvm-android/tags
+linter: jetbrains/qodana-jvm-android:2026.1
+profile:
+  name: qodana.recommended
+include:
+  - name: CheckDependencyLicenses

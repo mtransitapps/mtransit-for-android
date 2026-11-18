@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -8,8 +8,6 @@
     <include
         android:id="@id/loading_layout"
         layout="@layout/layout_loading_large"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
         android:visibility="gone"
         tools:visibility="visible" />
     <!-- LIST / GRID -->
@@ -20,7 +18,6 @@
         android:clipToPadding="false"
         android:fastScrollAlwaysVisible="false"
         android:fastScrollEnabled="false"
-        android:paddingBottom="@dimen/list_view_item_height"
         android:scrollbarStyle="insideOverlay"
         android:visibility="visible"
         tools:listitem="@layout/layout_rds_route_item"
@@ -28,8 +25,8 @@
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_fares"
-        style="@style/MTFabMiniBottomEnd"
-        android:layout_marginEnd="@dimen/fab_mini_margin_end_above_fab"
+        style="@style/MTFabMiniBottomEndNotLast"
+        android:layout_toStartOf="@id/fab_list_grid"
         android:contentDescription="@string/menu_action_fares"
         android:src="@drawable/ic_payments_black_24"
         android:visibility="gone"
@@ -50,10 +47,8 @@
     <include
         android:id="@id/empty_layout"
         layout="@layout/layout_empty"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
         android:visibility="gone"
-        tools:visibility="visible" />
+        tools:visibility="gone" />
 
     <include layout="@layout/layout_shadow" />
-</FrameLayout>
+</RelativeLayout>

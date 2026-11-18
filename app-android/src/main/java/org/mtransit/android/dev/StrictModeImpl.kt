@@ -13,18 +13,14 @@ class StrictModeImpl @Inject constructor(
 ) : IStrictMode {
 
     override fun setup() {
-        if (BuildConfig.STRICT_MODE_OFF) {
-            return
-        }
-        if (!BuildConfig.DEBUG) {
-            return
-        }
+        if (BuildConfig.STRICT_MODE_OFF) return
+        if (!BuildConfig.DEBUG) return
         StrictMode.setThreadPolicy(
             StrictMode.ThreadPolicy.Builder()
                 .detectDiskReads()
                 .detectDiskWrites()
                 .detectNetwork()
-                // .detectCustomSlowCalls() // CustomViolation: gcore.dynamite com.google.android.gms.dynamite.DynamiteModule...
+                // .detectCustomSlowCalls() // CustomViolation: g core.dynamite com.google.android.gms.dynamite.DynamiteModule...
                 .apply {
                     this.detectResourceMismatches()
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -69,7 +65,7 @@ class StrictModeImpl @Inject constructor(
                         this.detectCredentialProtectedWhileLocked()
                     }
                     // if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                    // this.detectIncorrectContextUse() // disabled becayse Ads SDK
+                    // this.detectIncorrectContextUse() // disabled because Ads SDK
                     // }
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                         this.detectUnsafeIntentLaunch()

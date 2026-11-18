@@ -1,29 +1,30 @@
-@file:JvmName("SearchFragment") // ANALYTICS
 package org.mtransit.android.ui.search
 
 import android.app.PendingIntent
 import android.content.Context
-import android.location.Location
 import android.os.Bundle
 import android.view.View
 import android.widget.AdapterView
 import android.widget.AdapterView.OnItemSelectedListener
 import android.widget.SearchView.OnQueryTextListener
-import androidx.core.os.bundleOf
+import androidx.activity.OnBackPressedCallback
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
-import org.mtransit.android.common.repository.DefaultPreferenceRepository
-import org.mtransit.android.common.repository.LocalPreferenceRepository
+import org.mtransit.android.ad.IAdManager
+import org.mtransit.android.ad.IAdScreenActivity
+import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.commons.ToastUtils
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.POIArrayAdapter
 import org.mtransit.android.data.POIArrayAdapter.TypeHeaderButtonsClickListener
+import org.mtransit.android.data.setPoisUpdateDistanceAndClosest
 import org.mtransit.android.databinding.FragmentSearchBinding
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
-import org.mtransit.android.provider.FavoriteManager
+import org.mtransit.android.device.DevicePrefManager
+import org.mtransit.android.provider.FavoriteRepository
 import org.mtransit.android.provider.sensor.MTSensorManager
 import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.task.StatusLoader
@@ -36,16 +37,19 @@ import org.mtransit.android.ui.setUpListEdgeToEdge
 import org.mtransit.android.ui.view.MTSearchView
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
+import org.mtransit.android.user.UserPrefManager
 import javax.inject.Inject
+import android.location.Location as AndroidLocation
 
 @AndroidEntryPoint
-class SearchFragment : ABFragment(R.layout.fragment_search),
+class SearchFragment :
+    ABFragment(R.layout.fragment_search),
     DeviceLocationListener,
     TypeHeaderButtonsClickListener,
     OnItemSelectedListener {
 
     companion object {
-        private val LOG_TAG = SearchFragment::class.java.simpleName
+        private val LOG_TAG: String = SearchFragment::class.java.simpleName
 
         private const val TRACKING_SCREEN_NAME = "Search"
 
@@ -56,24 +60,20 @@ class SearchFragment : ABFragment(R.layout.fragment_search),
             optTypeIdFilter: Int? = null,
         ): SearchFragment {
             return SearchFragment().apply {
-                arguments = bundleOf(
-                    SearchViewModel.EXTRA_QUERY to (optQuery?.trim() ?: SearchViewModel.EXTRA_QUERY_DEFAULT),
-                    SearchViewModel.EXTRA_TYPE_FILTER to optTypeIdFilter,
-                )
+                arguments = Bundle().apply {
+                    putString(SearchViewModel.EXTRA_QUERY, optQuery?.trim() ?: SearchViewModel.EXTRA_QUERY_DEFAULT)
+                    optTypeIdFilter?.let { putInt(SearchViewModel.EXTRA_TYPE_FILTER, it) }
+                }
             }
         }
-
-        @Suppress("SpellCheckingInspection")
-        private const val DEV_QUERY = "MTDEV"
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
-    override fun getScreenName(): String = TRACKING_SCREEN_NAME
+    override val screenName = TRACKING_SCREEN_NAME
 
     private val viewModel by viewModels<SearchViewModel>()
-    private val attachedViewModel
-        get() = if (isAttached()) viewModel else null
+    private val attachedViewModel get() = if (isAttached()) viewModel else null
 
     @Inject
     lateinit var sensorManager: MTSensorManager
@@ -82,16 +82,16 @@ class SearchFragment : ABFragment(R.layout.fragment_search),
     lateinit var dataSourcesRepository: DataSourcesRepository
 
     @Inject
-    lateinit var defaultPrefRepository: DefaultPreferenceRepository
+    lateinit var userPrefManager: UserPrefManager
 
     @Inject
-    lateinit var localPreferenceRepository: LocalPreferenceRepository
+    lateinit var devicePrefManager: DevicePrefManager
 
     @Inject
     lateinit var poiRepository: POIRepository
 
     @Inject
-    lateinit var favoriteManager: FavoriteManager
+    lateinit var favoriteRepository: FavoriteRepository
 
     @Inject
     lateinit var statusLoader: StatusLoader
@@ -100,7 +100,10 @@ class SearchFragment : ABFragment(R.layout.fragment_search),
     lateinit var serviceUpdateLoader: ServiceUpdateLoader
 
     @Inject
-    lateinit var lclPrefRepository: LocalPreferenceRepository
+    lateinit var adManager: IAdManager
+
+    @Inject
+    lateinit var analyticsManager: IAnalyticsManager
 
     private var binding: FragmentSearchBinding? = null
 
@@ -109,16 +112,18 @@ class SearchFragment : ABFragment(R.layout.fragment_search),
             this,
             this.sensorManager,
             this.dataSourcesRepository,
-            this.defaultPrefRepository,
-            this.localPreferenceRepository,
+            this.userPrefManager,
+            this.devicePrefManager,
             this.poiRepository,
-            this.favoriteManager,
+            this.favoriteRepository,
             this.statusLoader,
-            this.serviceUpdateLoader
+            this.serviceUpdateLoader,
+            this.analyticsManager
         ).apply {
             logTag = this@SearchFragment.logTag
             setOnTypeHeaderButtonsClickListener(this@SearchFragment)
             setPois(emptyList()) // empty search = no result
+            setTimeChangedListener { this@SearchFragment.onTimeChanged() }
         }
     }
 
@@ -126,7 +131,13 @@ class SearchFragment : ABFragment(R.layout.fragment_search),
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        this.listAdapter.setActivity(this)
+        this.listAdapter.setFragment(this)
+    }
+
+    private val onBackPressedCallback = object : OnBackPressedCallback(enabled = false) {
+        override fun handleOnBackPressed() {
+            onUpBackPressed()
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -142,10 +153,13 @@ class SearchFragment : ABFragment(R.layout.fragment_search),
                 onItemSelectedListener = this@SearchFragment
                 adapter = typeFilterAdapter
             }
-            screenToolbarLayout.apply {
-                setupScreenToolbar(this)
-            }
+            setupScreenToolbar(screenToolbarLayout.screenToolbarLayout, screenToolbarLayout.screenToolbar)
+            requireActivity().onBackPressedDispatcher.addCallback(
+                viewLifecycleOwner,
+                onBackPressedCallback,
+            )
         }
+        this.listAdapter.onCreateView(viewLifecycleOwner)
         viewModel.query.observe(viewLifecycleOwner) { query ->
             binding?.apply {
                 emptyLayout.isVisible = false // hide by default
@@ -173,8 +187,7 @@ class SearchFragment : ABFragment(R.layout.fragment_search),
             }
         }
         viewModel.searchResults.observe(viewLifecycleOwner) { searchResults ->
-            listAdapter.setPois(searchResults)
-            listAdapter.updateDistanceNowAsync(viewModel.deviceLocation.value)
+            listAdapter.setPoisUpdateDistanceAndClosest(searchResults, viewModel.deviceLocation.value)
             binding?.apply {
                 loadingLayout.isVisible = false
                 if (searchResults.isNullOrEmpty()) { // SHOW EMPTY
@@ -184,6 +197,9 @@ class SearchFragment : ABFragment(R.layout.fragment_search),
                     emptyLayout.isVisible = false
                     listLayout.isVisible = true
                 }
+            }
+            if (!searchResults.isNullOrEmpty()) {
+                (activity as? IAdScreenActivity)?.let { adManager.onResumeScreen(it) }
             }
         }
         viewModel.deviceLocation.observe(viewLifecycleOwner) { deviceLocation ->
@@ -197,12 +213,43 @@ class SearchFragment : ABFragment(R.layout.fragment_search),
                 setSelection(typeFilterAdapter.getPosition(dst))
                 isVisible = dst != null
             }
-            listAdapter.setShowTypeHeader(if (dst == null) POIArrayAdapter.TYPE_HEADER_MORE else POIArrayAdapter.TYPE_HEADER_NONE)
+            listAdapter.setShowTypeSectionHeader(if (dst == null) POIArrayAdapter.SECTION_TYPE_HEADER_MORE else POIArrayAdapter.SECTION_TYPE_HEADER_NONE)
+            onBackPressedCallback.isEnabled = dst != null
         }
-        viewModel.searchHasFocus.observe(viewLifecycleOwner) { searchHasFocus ->
+        viewModel.searchHasFocus.observe(viewLifecycleOwner) {
             binding?.screenToolbarLayout?.screenToolbar?.let { updateScreenToolbarCustomView(it) }
         }
+        viewModel.devEnabled.observe(viewLifecycleOwner) { devEnabled ->
+            if (lastDevEnabled != null && lastDevEnabled != devEnabled) {
+                ToastUtils.makeTextAndShow(requireContext(), "DEV MODE: $devEnabled")
+            }
+            lastDevEnabled = devEnabled
+        }
     }
+
+    override fun onScreenToolbarNavigationClick(v: View) {
+        analyticsManager.trackButtonClick("up_icon", this)
+        if (onUpBackPressed()) {
+            return // handled
+        }
+        super.onScreenToolbarNavigationClick(v)
+    }
+
+    private fun onUpBackPressed(): Boolean {
+        attachedViewModel?.let { viewModel ->
+            if (viewModel.typeFilter.value != null) {
+                viewModel.setTypeFilter(null)
+                return true // handled
+            }
+        }
+        return false // not handled
+    }
+
+    private fun onTimeChanged() {
+        (activity as? IAdScreenActivity)?.let { adManager.onTimeChanged(it) }
+    }
+
+    private var lastDevEnabled: Boolean? = null
 
     override fun onTypeHeaderButtonClick(buttonId: Int, type: DataSourceType): Boolean {
         if (buttonId == TypeHeaderButtonsClickListener.BUTTON_MORE) {
@@ -224,39 +271,32 @@ class SearchFragment : ABFragment(R.layout.fragment_search),
 
     override fun onResume() {
         super.onResume()
-        listAdapter.onResume(this, viewModel.deviceLocation.value)
+        binding?.apply { onResumeToolbar(screenToolbarLayout.screenToolbarLayout, screenToolbarLayout.screenToolbar) }
+        listAdapter.onVisible(this, viewModel.deviceLocation.value)
+        viewModel.onScreenVisible()
         (activity as? MTActivityWithLocation)?.let { onLocationSettingsResolution(it.lastLocationSettingsResolution) }
         (activity as? MTActivityWithLocation)?.let { onDeviceLocationChanged(it.lastLocation) }
-        viewModel.onScreenVisible()
         binding?.screenToolbarLayout?.screenToolbar?.let { updateScreenToolbarCustomView(it) }
     }
 
     override fun onPause() {
         super.onPause()
-        listAdapter.onPause()
         binding?.screenToolbarLayout?.screenToolbar?.let { resetScreenToolbarCustomView(it) }
+        listAdapter.onInvisible()
     }
 
     override fun onLocationSettingsResolution(resolution: PendingIntent?) {
         attachedViewModel?.onLocationSettingsResolution(resolution)
     }
 
-    override fun onDeviceLocationChanged(newLocation: Location?) {
+    override fun onDeviceLocationChanged(newLocation: AndroidLocation?) {
         attachedViewModel?.onDeviceLocationChanged(newLocation)
     }
-
-    private var devEnabled: Boolean? = null
 
     fun setSearchQuery(
         query: String?,
         @Suppress("unused") alreadyInSearchView: Boolean,
     ) {
-        if (DEV_QUERY == query) {
-            devEnabled = devEnabled != true // flip
-            lclPrefRepository.saveAsync(LocalPreferenceRepository.PREFS_LCL_DEV_MODE_ENABLED, devEnabled)
-            ToastUtils.makeTextAndShowCentered(context, "DEV MODE: $devEnabled")
-            return
-        }
         viewModel.onNewQuery(query)
     }
 

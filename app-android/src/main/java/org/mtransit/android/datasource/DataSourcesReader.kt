@@ -4,17 +4,18 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.content.pm.ProviderInfo
 import android.os.Bundle
-import androidx.annotation.WorkerThread
 import androidx.core.content.edit
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import org.mtransit.android.BuildConfig
+import kotlinx.coroutines.yield
 import org.mtransit.android.analytics.AnalyticsUserProperties
 import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.common.repository.LocalPreferenceRepository
+import org.mtransit.android.commons.Constants
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.TimeUtils
+import org.mtransit.android.commons.TimeUtilsK
 import org.mtransit.android.commons.getAllInstalledProvidersWithMetaData
 import org.mtransit.android.commons.getAppLongVersionCode
 import org.mtransit.android.commons.getInstalledProviderWithMetaData
@@ -22,6 +23,10 @@ import org.mtransit.android.commons.getInstalledProvidersWithMetaData
 import org.mtransit.android.commons.isAppEnabled
 import org.mtransit.android.commons.isAppInstalled
 import org.mtransit.android.commons.isKeyMT
+import org.mtransit.android.commons.millisToInstant
+import org.mtransit.android.commons.toDateTimeLog
+import org.mtransit.android.commons.toDurationLog
+import org.mtransit.android.commons.toMillis
 import org.mtransit.android.data.AgencyProperties
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.IAgencyProperties
@@ -29,9 +34,12 @@ import org.mtransit.android.data.NewsProviderProperties
 import org.mtransit.android.data.ScheduleProviderProperties
 import org.mtransit.android.data.ServiceUpdateProviderProperties
 import org.mtransit.android.data.StatusProviderProperties
+import org.mtransit.android.data.VehicleLocationProviderProperties
+import org.mtransit.android.util.UIFeatureFlags
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.time.Duration.Companion.hours
 import org.mtransit.android.commons.R as commonsR
 
 @Singleton
@@ -47,93 +55,104 @@ class DataSourcesReader @Inject constructor(
     companion object {
         private val LOG_TAG: String = DataSourcesReader::class.java.simpleName
 
+        private fun skipNotSupportedPkg(pkg: String) =
+            (SUPPORTED_APPS_PKG.isNotEmpty() && !SUPPORTED_APPS_PKG.contains(pkg))
+                || NOT_SUPPORTED_APPS_PKG.contains(pkg)
+
+        private val SUPPORTED_APPS_PKG: List<String> = if (Constants.IS_DEBUG_BUILD) {
+            listOf(
+                // "INSERT_PKG_HERE",
+                // "org.mtransit.android.debug.favorite",
+                // "org.mtransit.android.debug.provider.module",
+                // "org.mtransit.android.debug.provider.place",
+            )
+        } else {
+            emptyList()
+        }
+
         @Suppress("SpellCheckingInspection")
-        private val NOT_SUPPORTED_APPS_PKG: List<String> = if (BuildConfig.DEBUG) listOf(
-            "org.mtransit.android.ca_deux_montagnes_mrcdm_bus.debug", // not supported anymore
-            "org.mtransit.android.ca_fort_erie_transit_bus.debug", // not supported anymore
-            "org.mtransit.android.ca_haut_st_laurent_cithsl_bus.debug", // not supported anymore
-            "org.mtransit.android.ca_joliette_ctjm_bus.debug", // not supported anymore
-            "org.mtransit.android.ca_lanaudiere_crtl_bus.debug", // not supported anymore
-            "org.mtransit.android.ca_le_richelain_roussillon_lrrs_bus.debug", // never published
-            "org.mtransit.android.ca_maritime_bus.debug", // not supported anymore
-            "org.mtransit.android.ca_montreal_amt_bus", // not supported anymore
-            "org.mtransit.android.ca_roussillon_citrous_bus.debug", // not supported anymore
-            "org.mtransit.android.ca_ottawa_oc_transpo_train.debug", // migrated to v2
-            "org.mtransit.android.ca_quebec_rtc_bus.debug", // migrated to v2
-            "org.mtransit.android.ca_vancouver_translink_ferry.debug", // migrated to v2
-            "org.mtransit.android.ca_west_coast_express_bus.debug", // not supported anymore
-            "org.mtransit.android.us_washington_state_ferry.debug", // not supported anymore
-            // DEBUG
-            // "org.mtransit.android.ca_chambly_richelieu_carignan_citcrc_bus.debug", // FIXME DEBUG
-            // "org.mtransit.android.ca_gatineau_sto_bus.debug", // FIXME DEBUG
-            // "org.mtransit.android.ca_edmonton_ets_train.debug", // FIXME DEBUG
-            // "org.mtransit.android.ca_l_assomption_mrclasso_bus.debug", // FIXME DEBUG
-            // "org.mtransit.android.ca_la_presqu_ile_citpi_bus.debug", // FIXME DEBUG
-            // "org.mtransit.android.ca_laurentides_citla_bus.debug", // FIXME DEBUG
-            // "org.mtransit.android.ca_laval_stl_bus.debug", // FIXME DEBUG
-            // "org.mtransit.android.ca_le_richelain_citlr_bus.debug", // FIXME DEBUG
-            // "org.mtransit.android.ca_les_moulins_mrclm_bus.debug", // FIXME DEBUG
-            // "org.mtransit.android.ca_longueuil_rtl_bus.debug", // FIXME DEBUG
-            // "org.mtransit.android.ca_montreal_amt_train.debug", // FIXME DEBUG
-            // "org.mtransit.android.ca_montreal_bixi_bike.debug", // FIXME DEBUG
-            // "org.mtransit.android.ca_montreal_rem_light_rail.debug", // FIXME DEBUG
-            // "org.mtransit.android.ca_montreal_stm_bus.debug", // FIXME DEBUG
-            // "org.mtransit.android.ca_montreal_stm_subway.debug", // FIXME DEBUG
-            // "org.mtransit.android.ca_quebec_a_velo_bike.debug", // FIXME DEBUG
-            // "org.mtransit.android.ca_quebec_orleans_express_bus.debug", // FIXME DEBUG
-            // "org.mtransit.android.ca_quebec_rtc_bus2.debug", // FIXME DEBUG
-            // "org.mtransit.android.ca_richelieu_citvr_bus.debug", // FIXME DEBUG
-            // "org.mtransit.android.ca_sherbrooke_sts_bus.debug", // FIXME DEBUG
-            // "org.mtransit.android.ca_sorel_varennes_citsv_bus.debug", // FIXME DEBUG
-            // "org.mtransit.android.ca_ste_julie_omitsju_bus.debug", // FIXME DEBUG
-            // "org.mtransit.android.ca_sud_ouest_citso_bus.debug", // FIXME DEBUG
-            // "org.mtransit.android.ca_via_rail_train.debug", // FIXME DEBUG
-            // DEBUG
-        ) else listOf(
-            "org.mtransit.android.ca_deux_montagnes_mrcdm_bus", // not supported anymore
-            "org.mtransit.android.ca_fort_erie_transit_bus", // not supported anymore
-            "org.mtransit.android.ca_haut_st_laurent_cithsl_bus", // not supported anymore
-            "org.mtransit.android.ca_joliette_ctjm_bus", // not supported anymore
-            "org.mtransit.android.ca_lanaudiere_crtl_bus", // not supported anymore
-            "org.mtransit.android.ca_le_richelain_roussillon_lrrs_bus", // never published
-            "org.mtransit.android.ca_maritime_bus", // not supported anymore
-            "org.mtransit.android.ca_montreal_amt_bus", // not supported anymore
-            "org.mtransit.android.ca_ottawa_oc_transpo_train", // migrated to v2
-            "org.mtransit.android.ca_roussillon_citrous_bus", // not supported anymore
-            "org.mtransit.android.ca_quebec_rtc_bus", // migrated to v2
-            "org.mtransit.android.ca_vancouver_translink_ferry", // migrated to v2
-            "org.mtransit.android.ca_west_coast_express_bus", // not supported anymore
-            "org.mtransit.android.us_washington_state_ferry", // not supported anymore
-        )
+        private val NOT_SUPPORTED_APPS_PKG: List<String> = if (Constants.IS_DEBUG_BUILD) {
+            listOf(
+                "org.mtransit.android.ca_chilliwack_transit_system_bus.debug", // merged into ca_central_fraser_valley_transit_system_bus
+                "org.mtransit.android.ca_deux_montagnes_mrcdm_bus.debug", // not supported anymore
+                "org.mtransit.android.ca_fort_erie_transit_bus.debug", // not supported anymore
+                "org.mtransit.android.ca_fraser_valley_express_bus.debug", // merged into ca_central_fraser_valley_transit_system_bus
+                "org.mtransit.android.ca_haut_st_laurent_cithsl_bus.debug", // not supported anymore
+                "org.mtransit.android.ca_joliette_ctjm_bus.debug", // not supported anymore
+                "org.mtransit.android.ca_lanaudiere_crtl_bus.debug", // not supported anymore
+                "org.mtransit.android.ca_le_richelain_roussillon_lrrs_bus.debug", // never published
+                "org.mtransit.android.ca_maritime_bus.debug", // not supported anymore
+                "org.mtransit.android.ca_montreal_amt_bus", // not supported anymore
+                "org.mtransit.android.ca_roussillon_citrous_bus.debug", // not supported anymore
+                "org.mtransit.android.ca_ottawa_oc_transpo_train.debug", // migrated to v2
+                "org.mtransit.android.ca_quebec_rtc_bus.debug", // migrated to v2
+                "org.mtransit.android.ca_vancouver_translink_ferry.debug", // migrated to v2
+                "org.mtransit.android.ca_west_coast_express_bus.debug", // not supported anymore
+                "org.mtransit.android.us_washington_state_ferry.debug", // not supported anymore
+                // DEBUG
+                // "org.mtransit.android.ca_chambly_richelieu_carignan_citcrc_bus.debug", // FIXME DEBUG
+                // "org.mtransit.android.ca_gatineau_sto_bus.debug", // FIXME DEBUG
+                // "org.mtransit.android.ca_edmonton_ets_bus.debug", // FIXME DEBUG
+                // "org.mtransit.android.ca_edmonton_ets_train.debug", // FIXME DEBUG
+                // "org.mtransit.android.ca_l_assomption_mrclasso_bus.debug", // FIXME DEBUG
+                // "org.mtransit.android.ca_la_presqu_ile_citpi_bus.debug", // FIXME DEBUG
+                // "org.mtransit.android.ca_laurentides_citla_bus.debug", // FIXME DEBUG
+                // "org.mtransit.android.ca_laval_stl_bus.debug", // FIXME DEBUG
+                // "org.mtransit.android.ca_le_richelain_citlr_bus.debug", // FIXME DEBUG
+                // "org.mtransit.android.ca_les_moulins_mrclm_bus.debug", // FIXME DEBUG
+                // "org.mtransit.android.ca_longueuil_rtl_bus.debug", // FIXME DEBUG
+                // "org.mtransit.android.ca_montreal_amt_train.debug", // FIXME DEBUG
+                // "org.mtransit.android.ca_montreal_bixi_bike.debug", // FIXME DEBUG
+                // "org.mtransit.android.ca_montreal_rem_light_rail.debug", // FIXME DEBUG
+                // "org.mtransit.android.ca_montreal_stm_bus.debug", // FIXME DEBUG
+                // "org.mtransit.android.ca_montreal_stm_subway.debug", // FIXME DEBUG
+                // "org.mtransit.android.ca_quebec_a_velo_bike.debug", // FIXME DEBUG
+                // "org.mtransit.android.ca_quebec_orleans_express_bus.debug", // FIXME DEBUG
+                // "org.mtransit.android.ca_quebec_rtc_bus2.debug", // FIXME DEBUG
+                // "org.mtransit.android.ca_richelieu_citvr_bus.debug", // FIXME DEBUG
+                // "org.mtransit.android.ca_sherbrooke_sts_bus.debug", // FIXME DEBUG
+                // "org.mtransit.android.ca_sorel_varennes_citsv_bus.debug", // FIXME DEBUG
+                // "org.mtransit.android.ca_ste_julie_omitsju_bus.debug", // FIXME DEBUG
+                // "org.mtransit.android.ca_sud_ouest_citso_bus.debug", // FIXME DEBUG
+                // "org.mtransit.android.ca_via_rail_train.debug", // FIXME DEBUG
+                // DEBUG
+            )
+        } else {
+            listOf(
+                "org.mtransit.android.ca_chilliwack_transit_system_bus", // merged into ca_central_fraser_valley_transit_system_bus
+                "org.mtransit.android.ca_deux_montagnes_mrcdm_bus", // not supported anymore
+                "org.mtransit.android.ca_fort_erie_transit_bus", // not supported anymore
+                "org.mtransit.android.ca_fraser_valley_express_bus", // merged into ca_central_fraser_valley_transit_system_bus
+                "org.mtransit.android.ca_haut_st_laurent_cithsl_bus", // not supported anymore
+                "org.mtransit.android.ca_joliette_ctjm_bus", // not supported anymore
+                "org.mtransit.android.ca_lanaudiere_crtl_bus", // not supported anymore
+                "org.mtransit.android.ca_le_richelain_roussillon_lrrs_bus", // never published
+                "org.mtransit.android.ca_maritime_bus", // not supported anymore
+                "org.mtransit.android.ca_montreal_amt_bus", // not supported anymore
+                "org.mtransit.android.ca_ottawa_oc_transpo_train", // migrated to v2
+                "org.mtransit.android.ca_roussillon_citrous_bus", // not supported anymore
+                "org.mtransit.android.ca_quebec_rtc_bus", // migrated to v2
+                "org.mtransit.android.ca_vancouver_translink_ferry", // migrated to v2
+                "org.mtransit.android.ca_west_coast_express_bus", // not supported anymore
+                "org.mtransit.android.us_washington_state_ferry", // not supported anymore
+            )
+        }
 
         private const val PREFS_LCL_AVAILABLE_VERSION_LAST_CHECK_IN_MS = "pLclAvailableVersionLastCheck"
-
         private val MIN_DURATION_BETWEEN_APP_VERSION_CHECK_IN_MS = TimeUnit.HOURS.toMillis(6L)
+
+        private const val PREFS_LCL_SETUP_REQUIRED_LAST_CHECK_IN_MS = "pLclSetupRequiredLastCheck"
+        private val MIN_DURATION_BETWEEN_SETUP_REQUIRED_CHECK = 12.hours
     }
 
-    override fun getLogTag(): String = LOG_TAG
-
-    @get:WorkerThread
-    @set:WorkerThread
-    private var hasSeenDisabledModule: Boolean = LocalPreferenceRepository.PREF_USER_SEEN_APP_DISABLED_DEFAULT
-        get() = lclPrefRepository.getValue(
-            LocalPreferenceRepository.PREF_USER_SEEN_APP_DISABLED,
-            LocalPreferenceRepository.PREF_USER_SEEN_APP_DISABLED_DEFAULT
-        )
-        set(value) {
-            if (hasSeenDisabledModule != value) {
-                lclPrefRepository.pref.edit {
-                    putBoolean(LocalPreferenceRepository.PREF_USER_SEEN_APP_DISABLED, value)
-                }
-                field = value
-            }
-        }
+    override fun getLogTag() = LOG_TAG
 
     private val agencyProviderMetaData by lazy { appContext.getString(commonsR.string.agency_provider) }
 
     private val statusProviderMetaData by lazy { appContext.getString(commonsR.string.status_provider) }
     private val scheduleProviderMetaData by lazy { appContext.getString(commonsR.string.schedule_provider) }
     private val serviceUpdateProviderMetaData by lazy { appContext.getString(commonsR.string.service_update_provider) }
+    private val vehicleLocationProviderMetaData by lazy { appContext.getString(commonsR.string.vehicle_location_provider) }
     private val newsProviderMetaData by lazy { appContext.getString(commonsR.string.news_provider) }
 
     private val agencyProviderTypeMetaData by lazy { appContext.getString(commonsR.string.agency_provider_type) }
@@ -142,63 +161,52 @@ class DataSourcesReader @Inject constructor(
     private val statusProviderTargetMetaData by lazy { appContext.getString(commonsR.string.status_provider_target) }
     private val scheduleProviderTargetMetaData by lazy { appContext.getString(commonsR.string.schedule_provider_target) }
     private val serviceUpdateProviderTargetMetaData by lazy { appContext.getString(commonsR.string.service_update_provider_target) }
+    private val vehicleLocationProviderTargetMetaData by lazy { appContext.getString(commonsR.string.vehicle_location_provider_target) }
     private val newsProviderTargetMetaData by lazy { appContext.getString(commonsR.string.news_provider_target) }
 
     fun isAProvider(pkg: String?, agencyOnly: Boolean = false): Boolean {
-        if (pkg.isNullOrBlank()) {
-            return false
-        }
-        if (NOT_SUPPORTED_APPS_PKG.contains(pkg)) {
-            MTLog.d(this, "isAProvider() > SKIP not supported '$pkg .")
+        if (pkg.isNullOrBlank()) return false
+        if (skipNotSupportedPkg(pkg)) {
+            MTLog.d(this, "isAProvider() > SKIP not supported '$pkg'.")
             return false
         }
         pm.getInstalledProvidersWithMetaData(pkg)?.forEach { providerInfo ->
             val providerMetaData: Bundle = providerInfo.metaData ?: return@forEach
-            if (providerMetaData.isKeyMT(agencyProviderMetaData)) {
-                return true
-            }
-            if (agencyOnly) {
-                return false
-            }
-            if (providerMetaData.isKeyMT(statusProviderMetaData)) {
-                return true
-            }
-            if (providerMetaData.isKeyMT(scheduleProviderMetaData)) {
-                return true
-            }
-            if (providerMetaData.isKeyMT(serviceUpdateProviderMetaData)) {
-                return true
-            }
+            if (providerMetaData.isKeyMT(agencyProviderMetaData)) return true
+            if (agencyOnly) return false
+            if (providerMetaData.isKeyMT(statusProviderMetaData)) return true
+            if (providerMetaData.isKeyMT(scheduleProviderMetaData)) return true
+            if (providerMetaData.isKeyMT(serviceUpdateProviderMetaData)) return true
+            @Suppress("SimplifyBooleanWithConstants")
+            if (UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION && providerMetaData.isKeyMT(vehicleLocationProviderMetaData)) return true
             @Suppress("RedundantIf")
-            if (providerMetaData.isKeyMT(newsProviderMetaData)) {
-                return true
-            }
+            if (providerMetaData.isKeyMT(newsProviderMetaData)) return true
             return false
         }
         return false
     }
 
-    suspend fun update(forcePkg: String? = null): Boolean {
+    internal suspend fun update(forcePkg: String? = null) = withContext(Dispatchers.IO) {
         var updated = false
-        withContext(Dispatchers.IO) {
-            MTLog.d(this@DataSourcesReader, "update() > updated: $updated")
-            updateKnownActiveDataSources(forcePkg) { updated = true }
-            MTLog.d(this@DataSourcesReader, "update() > updated: $updated")
-            updateReInstalledReEnabledDataSources(forcePkg) { updated = true }
-            MTLog.d(this@DataSourcesReader, "update() > updated: $updated")
-            lookForNewDataSources(forcePkg) { updated = true }
-            MTLog.d(this@DataSourcesReader, "update() > updated: $updated")
-            refreshAvailableVersions(skipTimeCheck = false, forceAppUpdateRefresh = true) { updated = true }
-            MTLog.d(this@DataSourcesReader, "update() > updated: $updated")
-            if (updated) {
-                analyticsManager.setUserProperty(
-                    AnalyticsUserProperties.MODULES_COUNT,
-                    dataSourcesDatabase.agencyPropertiesDao().getAllAgenciesInclNotInstalled().size
-                )
-            }
+        MTLog.d(this@DataSourcesReader, "update($forcePkg) > updateKnownActiveDataSources()... - updated: $updated")
+        updateKnownActiveDataSources(forcePkg) { updated = true }
+        MTLog.d(this@DataSourcesReader, "update($forcePkg) > updateReInstalledReEnabledDataSources()... - updated: $updated")
+        updateReInstalledReEnabledDataSources(forcePkg) { updated = true }
+        MTLog.d(this@DataSourcesReader, "update($forcePkg) > lookForNewDataSources()... - updated: $updated")
+        lookForNewDataSources(forcePkg) { updated = true }
+        MTLog.d(this@DataSourcesReader, "update($forcePkg) > refreshAvailableVersions()... - updated: $updated")
+        refreshAvailableVersions(forcePkg, skipTimeCheck = false, forceAppUpdateRefresh = true) { updated = true }
+        MTLog.d(this@DataSourcesReader, "update($forcePkg) > refreshSetupRequired()... - updated: $updated")
+        refreshSetupRequired(forcePkg, skipTimeCheck = false) { updated = true }
+        if (updated) {
+            MTLog.d(this@DataSourcesReader, "update($forcePkg) > analyticsManager.setUserProperty()... - updated: $updated")
+            analyticsManager.setUserProperty(
+                AnalyticsUserProperties.MODULES_COUNT,
+                dataSourcesDatabase.agencyPropertiesDao().getAllAgenciesInclNotInstalled().size
+            )
         }
-        MTLog.d(this, "update() > $updated")
-        return updated
+        MTLog.d(this@DataSourcesReader, "update($forcePkg) > DONE - updated: $updated")
+        return@withContext updated
     }
 
     internal suspend fun refreshAvailableVersions(
@@ -207,7 +215,7 @@ class DataSourcesReader @Inject constructor(
         forceAppUpdateRefresh: Boolean = false,
         markUpdated: () -> Unit,
     ) {
-        val lastCheckInMs = lclPrefRepository.getValue(PREFS_LCL_AVAILABLE_VERSION_LAST_CHECK_IN_MS, -1L)
+        val lastCheckInMs = lclPrefRepository.pref.getLong(PREFS_LCL_AVAILABLE_VERSION_LAST_CHECK_IN_MS, -1L)
         val shortTimeAgo = TimeUtils.currentTimeMillis() - MIN_DURATION_BETWEEN_APP_VERSION_CHECK_IN_MS
         if (!skipTimeCheck && shortTimeAgo < lastCheckInMs) {
             val timeLapsedInHours = TimeUnit.MILLISECONDS.toHours(TimeUtils.currentTimeMillis() - lastCheckInMs)
@@ -216,9 +224,10 @@ class DataSourcesReader @Inject constructor(
         }
         var updated = false
         dataSourcesDatabase.agencyPropertiesDao().getAllEnabledAgencies().filter { forcePkg == null || forcePkg == it.pkg }.forEach { agencyProperties ->
+            yield() // stop if canceled
             val pkg = agencyProperties.pkg
             val authority = agencyProperties.authority
-            if (NOT_SUPPORTED_APPS_PKG.contains(pkg)) {
+            if (skipNotSupportedPkg(pkg)) {
                 MTLog.d(this, "refreshAvailableVersions > SKIP not supported '$pkg .")
                 return@forEach // skip not supported
             }
@@ -231,20 +240,64 @@ class DataSourcesReader @Inject constructor(
                 markUpdated()
                 updated = true
             }
-            this.dataSourceRequestManager.findAgencyAvailableVersionCode(authority, forceAppUpdateRefresh, forcePkg != null)?.let { newAvailableVersionCode ->
-                if (agencyProperties.availableVersionCode != newAvailableVersionCode) {
-                    MTLog.d(this, "Agency '$authority' > new version available: r$newAvailableVersionCode.")
-                    dataSourcesDatabase.agencyPropertiesDao().update(
-                        agencyProperties.copy(availableVersionCode = newAvailableVersionCode)
-                    )
-                    markUpdated()
-                    updated = true
+            this.dataSourceRequestManager.findAgencyAvailableVersionCode(agencyProperties, forceAppUpdateRefresh, forcePkg != null)
+                ?.let { newAvailableVersionCode ->
+                    if (agencyProperties.availableVersionCode != newAvailableVersionCode) {
+                        MTLog.d(this, "Agency '$authority' > new version available: r$newAvailableVersionCode.")
+                        dataSourcesDatabase.agencyPropertiesDao().update(
+                            agencyProperties.copy(availableVersionCode = newAvailableVersionCode)
+                        )
+                        markUpdated()
+                        updated = true
+                    }
                 }
-            }
         }
         if (!skipTimeCheck || updated) {
-            lclPrefRepository.saveAsync(PREFS_LCL_AVAILABLE_VERSION_LAST_CHECK_IN_MS, TimeUtils.currentTimeMillis())
+            lclPrefRepository.pref.edit { putLong(PREFS_LCL_AVAILABLE_VERSION_LAST_CHECK_IN_MS, TimeUtils.currentTimeMillis()) }
         }
+    }
+
+    internal suspend fun refreshSetupRequired(
+        forcePkg: String? = null,
+        skipTimeCheck: Boolean = false,
+        markUpdated: () -> Unit,
+    ): Boolean {
+        val now = TimeUtilsK.currentInstant()
+        if (!skipTimeCheck) {
+            val lastCheck = lclPrefRepository.pref.getLong(PREFS_LCL_SETUP_REQUIRED_LAST_CHECK_IN_MS, -1L).millisToInstant()
+            if (now < lastCheck + MIN_DURATION_BETWEEN_SETUP_REQUIRED_CHECK) {
+                MTLog.d(this, "refreshSetupRequired() > SKIP (last successful refresh too recent: ${(now - lastCheck).toDurationLog()} ago)")
+                return false
+            } else {
+                MTLog.d(this, "refreshSetupRequired() > do not skip (last check too old: ${(now - lastCheck).toDurationLog()} ago)")
+            }
+        }
+        var updated = false
+        dataSourcesDatabase.agencyPropertiesDao().getAllEnabledAgencies()
+            .filter { forcePkg == null || forcePkg == it.pkg }
+            .forEach { agencyProperties ->
+                yield() // stop if canceled #SplashScreen
+                val pkg = agencyProperties.pkg
+                if (skipNotSupportedPkg(pkg)) {
+                    MTLog.d(this, "refreshSetupRequired > SKIP not supported '$pkg .")
+                    return@forEach // skip not supported
+                }
+                this.dataSourceRequestManager.findAgencySetupRequired(agencyProperties)?.let { newSetupRequired ->
+                    if (agencyProperties.setupRequired != newSetupRequired) {
+                        MTLog.d(this, "Agency '${agencyProperties.authority}' > new setup required: $newSetupRequired.")
+                        dataSourcesDatabase.agencyPropertiesDao().update(
+                            agencyProperties.copy(setupRequired = newSetupRequired)
+                        )
+                        markUpdated()
+                        updated = true
+                    }
+                }
+            }
+        if (!skipTimeCheck || updated) { // store last check (if time checked) OR if updated
+            MTLog.d(this, "refreshSetupRequired() > last updated now: ${now.toDateTimeLog()}")
+            lclPrefRepository.pref.edit { putLong(PREFS_LCL_SETUP_REQUIRED_LAST_CHECK_IN_MS, now.toMillis()) }
+        }
+        return updated
     }
 
     private suspend fun lookForNewDataSources(
@@ -255,14 +308,14 @@ class DataSourcesReader @Inject constructor(
         val knownStatusProviderProperties = dataSourcesDatabase.statusProviderPropertiesDao().getAllStatusProvider()
         val knownScheduleProviderProperties = dataSourcesDatabase.scheduleProviderPropertiesDao().getAllScheduleProvider()
         val knownServiceUpdateProviderProperties = dataSourcesDatabase.serviceUpdateProviderPropertiesDao().getAllServiceUpdateProvider()
+        val knownVehicleLocationProviderProperties = dataSourcesDatabase.vehicleLocationProviderPropertiesDao().getAllVehicleLocationProvider()
         val knownNewsProviderProperties = dataSourcesDatabase.newsProviderPropertiesDao().getAllNewsProvider()
         @Suppress("DEPRECATION") // DO request all PKG providers info
         pm.getAllInstalledProvidersWithMetaData().forEach pkg@{ packageInfo ->
+            yield() // stop if canceled
             val pkg = packageInfo.packageName
-            if (!pm.isAppEnabled(pkg)) {
-                return@pkg // skip unknown disabled (processed before)
-            }
-            if (NOT_SUPPORTED_APPS_PKG.contains(pkg)) {
+            if (!pm.isAppEnabled(pkg)) return@pkg // skip unknown disabled (processed before)
+            if (skipNotSupportedPkg(pkg)) {
                 MTLog.d(this, "lookForNewDataSources() > SKIP not supported '$pkg .")
                 return@pkg // skip not supported
             }
@@ -291,7 +344,7 @@ class DataSourcesReader @Inject constructor(
                             val validTargetAuthority = targetAuthority.takeIf { it.isNotEmpty() }
                                 ?: pkgProviders.singleOrNull { it.metaData.isKeyMT(agencyProviderMetaData) }?.authority
                                     .orEmpty() // will never be visible!
-                            MTLog.d(this, "Status provider '${providerAuthority}' added (target: '$validTargetAuthority').")
+                            MTLog.d(this, "Status provider '$providerAuthority' added (target: '$validTargetAuthority').")
                             dataSourcesDatabase.statusProviderPropertiesDao().insert(
                                 StatusProviderProperties(providerAuthority, validTargetAuthority, pkg)
                             )
@@ -306,7 +359,7 @@ class DataSourcesReader @Inject constructor(
                             val validTargetAuthority = targetAuthority.takeIf { it.isNotEmpty() }
                                 ?: pkgProviders.singleOrNull { it.metaData.isKeyMT(agencyProviderMetaData) }?.authority
                                     .orEmpty() // will never be visible!
-                            MTLog.d(this, "Schedule provider '${providerAuthority}' added (target: '$validTargetAuthority').")
+                            MTLog.d(this, "Schedule provider '$providerAuthority' added (target: '$validTargetAuthority').")
                             dataSourcesDatabase.scheduleProviderPropertiesDao().insert(
                                 ScheduleProviderProperties(providerAuthority, validTargetAuthority, pkg)
                             )
@@ -321,11 +374,28 @@ class DataSourcesReader @Inject constructor(
                             val validTargetAuthority = targetAuthority.takeIf { it.isNotEmpty() }
                                 ?: pkgProviders.singleOrNull { it.metaData.isKeyMT(agencyProviderMetaData) }?.authority
                                     .orEmpty() // will never be visible!
-                            MTLog.d(this, "Service Update provider '${providerAuthority}' added (target: '$validTargetAuthority').")
+                            MTLog.d(this, "Service Update provider '$providerAuthority' added (target: '$validTargetAuthority').")
                             dataSourcesDatabase.serviceUpdateProviderPropertiesDao().insert(
                                 ServiceUpdateProviderProperties(providerAuthority, validTargetAuthority, pkg)
                             )
                             markUpdated()
+                        }
+                    }
+                }
+                // VEHICLE LOCATION
+                if (UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) {
+                    if (providerMetaData.isKeyMT(vehicleLocationProviderMetaData)) {
+                        if (knownVehicleLocationProviderProperties.none { it.authority == providerAuthority }) {
+                            providerMetaData.getString(vehicleLocationProviderTargetMetaData)?.let { targetAuthority ->
+                                val validTargetAuthority = targetAuthority.takeIf { it.isNotEmpty() }
+                                    ?: pkgProviders.singleOrNull { it.metaData.isKeyMT(agencyProviderMetaData) }?.authority
+                                        .orEmpty()
+                                MTLog.d(this, "Vehicle Location provider '$providerAuthority' added (target: '$validTargetAuthority').")
+                                dataSourcesDatabase.vehicleLocationProviderPropertiesDao().insert(
+                                    VehicleLocationProviderProperties(providerAuthority, validTargetAuthority, pkg)
+                                )
+                                markUpdated()
+                            }
                         }
                     }
                 }
@@ -353,8 +423,9 @@ class DataSourcesReader @Inject constructor(
     ) { // UPDATE NOT-VISIBLE KNOWN DATA SOURCES (uninstalled | disabled & check version)
         // AGENCY: only apply to agency (other properties are deleted when uninstalled/disabled)
         dataSourcesDatabase.agencyPropertiesDao().getAllNotInstalledOrNotEnabledAgencies().forEach { agencyProperties ->
+            yield() // stop if canceled
             val pkg = agencyProperties.pkg
-            if (NOT_SUPPORTED_APPS_PKG.contains(pkg)) {
+            if (skipNotSupportedPkg(pkg)) {
                 agencyProperties.let {
                     MTLog.d(this, "Agency '${agencyProperties.authority}' not supported (removed).")
                     dataSourcesDatabase.agencyPropertiesDao().delete(it)
@@ -401,18 +472,20 @@ class DataSourcesReader @Inject constructor(
         val knownStatusProviderProperties = dataSourcesDatabase.statusProviderPropertiesDao().getAllStatusProvider()
         val knownScheduleProviderProperties = dataSourcesDatabase.scheduleProviderPropertiesDao().getAllScheduleProvider()
         val knownServiceUpdateProviderProperties = dataSourcesDatabase.serviceUpdateProviderPropertiesDao().getAllServiceUpdateProvider()
+        val knownVehicleLocationProviderProperties = dataSourcesDatabase.vehicleLocationProviderPropertiesDao().getAllVehicleLocationProvider()
         val knownNewsProviderProperties = dataSourcesDatabase.newsProviderPropertiesDao().getAllNewsProvider()
-        // AGENCY (only one properties kept in cache even when uninstalled/disabled to save refreshing data)
+        // AGENCY (only 1 property kept in cache even when uninstalled/disabled to save refreshing data)
         dataSourcesDatabase.agencyPropertiesDao().getAllEnabledAgencies().forEach { agencyProperties ->
+            yield() // stop if canceled
             val pkg = agencyProperties.pkg
             val authority = agencyProperties.authority
-            if (NOT_SUPPORTED_APPS_PKG.contains(pkg)) {
+            if (skipNotSupportedPkg(pkg)) {
                 agencyProperties.let {
                     MTLog.d(this, "Agency '$authority' not supported (removed).")
                     dataSourcesDatabase.agencyPropertiesDao().delete(it)
                     markUpdated()
                 }
-                MTLog.d(this, "updateKnownActiveDataSources > SKIP not supported '$pkg .")
+                MTLog.d(this, "updateKnownActiveDataSources() > SKIP not supported '$pkg .")
                 return@forEach // skip not supported
             }
             if (!pm.isAppInstalled(pkg)) { // APP UNINSTALLED
@@ -420,7 +493,9 @@ class DataSourcesReader @Inject constructor(
                 return@forEach
             }
             if (!pm.isAppEnabled(pkg)) { // APP DISABLED #DontKillMyApp
-                hasSeenDisabledModule = true
+                lclPrefRepository.pref.edit {
+                    putBoolean(LocalPreferenceRepository.PREF_USER_SEEN_APP_DISABLED, true)
+                }
                 updateDisabledAgencyProperties(agencyProperties, authority, markUpdated)
                 return@forEach
             }
@@ -450,6 +525,12 @@ class DataSourcesReader @Inject constructor(
         // SERVICE UPDATE
         knownServiceUpdateProviderProperties.forEach { serviceUpdateProviderProperties ->
             refreshServiceUpdateProviderProperties(serviceUpdateProviderProperties, markUpdated)
+        }
+        // VEHICLE LOCATION
+        if (UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) {
+            knownVehicleLocationProviderProperties.forEach { vehicleLocationProviderProperties ->
+                refreshVehicleLocationProviderProperties(vehicleLocationProviderProperties, markUpdated)
+            }
         }
         // NEWS
         knownNewsProviderProperties.forEach { newsProviderProperties ->
@@ -553,7 +634,7 @@ class DataSourcesReader @Inject constructor(
     private suspend fun refreshStatusProviderProperties(statusProviderProperties: StatusProviderProperties, markUpdated: () -> Unit) {
         val pkg = statusProviderProperties.pkg
         val authority = statusProviderProperties.authority
-        if (NOT_SUPPORTED_APPS_PKG.contains(pkg)) {
+        if (skipNotSupportedPkg(pkg)) {
             MTLog.d(this, "Status '$authority' not supported")
             dataSourcesDatabase.statusProviderPropertiesDao().delete(statusProviderProperties)
             markUpdated()
@@ -594,7 +675,7 @@ class DataSourcesReader @Inject constructor(
     private suspend fun refreshScheduleProviderProperties(scheduleProviderProperties: ScheduleProviderProperties, markUpdated: () -> Unit) {
         val pkg = scheduleProviderProperties.pkg
         val authority = scheduleProviderProperties.authority
-        if (NOT_SUPPORTED_APPS_PKG.contains(pkg)) {
+        if (skipNotSupportedPkg(pkg)) {
             MTLog.d(this, "Schedule '$authority' not supported")
             dataSourcesDatabase.scheduleProviderPropertiesDao().delete(scheduleProviderProperties)
             markUpdated()
@@ -635,7 +716,7 @@ class DataSourcesReader @Inject constructor(
     private suspend fun refreshServiceUpdateProviderProperties(serviceUpdateProviderProperties: ServiceUpdateProviderProperties, markUpdated: () -> Unit) {
         val pkg = serviceUpdateProviderProperties.pkg
         val authority = serviceUpdateProviderProperties.authority
-        if (NOT_SUPPORTED_APPS_PKG.contains(pkg)) {
+        if (skipNotSupportedPkg(pkg)) {
             MTLog.d(this, "Service Update '$authority' not supported")
             dataSourcesDatabase.serviceUpdateProviderPropertiesDao().delete(serviceUpdateProviderProperties)
             markUpdated()
@@ -673,10 +754,55 @@ class DataSourcesReader @Inject constructor(
         }
     }
 
+    private suspend fun refreshVehicleLocationProviderProperties(
+        vehicleLocationProviderProperties: VehicleLocationProviderProperties,
+        markUpdated: () -> Unit
+    ) {
+        if (!UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) return
+        val pkg = vehicleLocationProviderProperties.pkg
+        val authority = vehicleLocationProviderProperties.authority
+        if (skipNotSupportedPkg(pkg)) {
+            MTLog.d(this, "Vehicle Location '$authority' not supported")
+            dataSourcesDatabase.vehicleLocationProviderPropertiesDao().delete(vehicleLocationProviderProperties)
+            markUpdated()
+            return
+        }
+        if (!pm.isAppInstalled(pkg)
+            || !pm.isAppEnabled(pkg)
+        ) {
+            MTLog.d(this, "Vehicle Location '$authority' removed (uninstalled | disabled)")
+            dataSourcesDatabase.vehicleLocationProviderPropertiesDao().delete(vehicleLocationProviderProperties)
+            markUpdated()
+            return
+        }
+        val provider = pm.getInstalledProviderWithMetaData(pkg, authority)
+        val providerMetadata = provider?.metaData
+        if (providerMetadata == null) {
+            MTLog.d(this, "Vehicle Location '$authority' removed (no provider metadata)")
+            dataSourcesDatabase.vehicleLocationProviderPropertiesDao().delete(vehicleLocationProviderProperties)
+            markUpdated()
+            return
+        }
+        val newTargetAuthority = providerMetadata.getString(vehicleLocationProviderTargetMetaData)
+        if (newTargetAuthority == null) {
+            MTLog.d(this, "Vehicle Location '$authority' removed (invalid target authority)")
+            dataSourcesDatabase.vehicleLocationProviderPropertiesDao().delete(vehicleLocationProviderProperties)
+            markUpdated()
+            return
+        }
+        if (newTargetAuthority != vehicleLocationProviderProperties.targetAuthority) {
+            MTLog.d(this, "Vehicle Location '$authority' updated")
+            dataSourcesDatabase.vehicleLocationProviderPropertiesDao().update(
+                vehicleLocationProviderProperties.copy(targetAuthority = newTargetAuthority)
+            )
+            markUpdated()
+        }
+    }
+
     private suspend fun refreshNewsProviderProperties(newsProviderProperties: NewsProviderProperties, markUpdated: () -> Unit) {
         val pkg = newsProviderProperties.pkg
         val authority = newsProviderProperties.authority
-        if (NOT_SUPPORTED_APPS_PKG.contains(pkg)) {
+        if (skipNotSupportedPkg(pkg)) {
             MTLog.d(this, "News '$authority' not supported")
             dataSourcesDatabase.newsProviderPropertiesDao().delete(newsProviderProperties)
             markUpdated()

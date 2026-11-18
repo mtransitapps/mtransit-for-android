@@ -10,7 +10,7 @@ import kotlinx.coroutines.launch
 import org.mtransit.android.data.AgencyProperties
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.datasource.DataSourcesRepository
-import org.mtransit.android.ui.view.common.PairMediatorLiveData
+import org.mtransit.android.ui.view.common.MediatorLiveData2
 import javax.inject.Inject
 
 @HiltViewModel
@@ -22,7 +22,7 @@ class ModulesViewModel @Inject constructor(
         private const val FAKE_AGENCIES_COUNT = 0
         // private const val FAKE_AGENCIES_COUNT = 10 // DEBUG
 
-        @Suppress("KotlinConstantConditions")
+        @Suppress("KotlinConstantConditions", "SimplifyBooleanWithConstants")
         private const val ADD_FAKE_AGENCIES = FAKE_AGENCIES_COUNT > 0
 
         private val UNSUPPORTED_TYPE = listOf(DataSourceType.TYPE_PLACE, DataSourceType.TYPE_MODULE)
@@ -36,13 +36,13 @@ class ModulesViewModel @Inject constructor(
 
     private val sortByPkgOrMaxValid = MutableLiveData(true)
 
-    val agencies: LiveData<List<AgencyProperties>?> =
-        PairMediatorLiveData(_filteredAgencies, sortByPkgOrMaxValid).map { (newFilteredAgencies, newSortByPkgOrMaxValid) ->
+    val agencies: LiveData<List<AgencyProperties>?> = MediatorLiveData2(_filteredAgencies, sortByPkgOrMaxValid)
+        .map { (newFilteredAgencies, newSortByPkgOrMaxValid) ->
             if (ADD_FAKE_AGENCIES) { // DEBUG
                 return@map newFilteredAgencies
                     ?.toMutableList()
                     ?.apply {
-                        (0..FAKE_AGENCIES_COUNT).forEach { idx ->
+                        for (idx in 0..FAKE_AGENCIES_COUNT) {
                             add(
                                 AgencyProperties(
                                     "fake$idx",
@@ -50,6 +50,7 @@ class ModulesViewModel @Inject constructor(
                                     "$idx",
                                     "$idx name",
                                     "FFFFFF",
+                                    null,
                                     org.mtransit.android.commons.LocationUtils.THE_WORLD,
                                     org.mtransit.android.commons.Constants.MAIN_APP_PACKAGE_NAME,
                                     idx.toLong(),

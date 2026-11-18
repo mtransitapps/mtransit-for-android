@@ -4,7 +4,7 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 
-public abstract class PreferenceRepository implements IKeyValueRepository {
+public abstract class PreferenceRepository {
 
 	@NonNull
 	private final Context appContext;

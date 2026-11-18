@@ -10,13 +10,14 @@ import com.google.android.ump.FormError
 import com.google.android.ump.UserMessagingPlatform
 import dagger.hilt.android.qualifiers.ApplicationContext
 import org.mtransit.android.R
+import org.mtransit.android.ad.AdConstants.logAdsD
 import org.mtransit.android.commons.MTLog
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class AdsConsentManager @Inject constructor(
-    @param:ApplicationContext private val context: Context,
+    @param:ApplicationContext private val appContext: Context,
 ) : MTLog.Loggable {
 
     companion object {
@@ -26,13 +27,12 @@ class AdsConsentManager @Inject constructor(
     override fun getLogTag() = LOG_TAG
 
     private val consentInformation: ConsentInformation by lazy {
-        UserMessagingPlatform.getConsentInformation(context)
+        UserMessagingPlatform.getConsentInformation(appContext)
     }
 
-    fun interface OnConsentGatheringCompleteListener {
-        fun consentGatheringComplete(error: FormError?)
-    }
-
+    /**
+     * > "Important: canRequestAds() always returns false until you have called requestConsentInfoUpdate()"
+     */
     val canRequestAds: Boolean
         get() = consentInformation.canRequestAds()
 
@@ -41,7 +41,8 @@ class AdsConsentManager @Inject constructor(
 
     fun gatherConsent(
         activity: Activity,
-        onConsentGatheringCompleteListener: OnConsentGatheringCompleteListener,
+        noUI: Boolean = false,
+        onConsentGatheringComplete: (error: FormError?) -> Unit = {},
     ) {
         val consentRequestParams = ConsentRequestParameters.Builder().apply {
             if (AdConstants.DEBUG) {
@@ -50,8 +51,8 @@ class AdsConsentManager @Inject constructor(
                         AdConstants.DEBUG_CONSENT_GEOGRAPHY?.let {
                             setDebugGeography(it)
                             setForceTesting(true)
-                            context.resources.getStringArray(R.array.google_ads_test_devices_ids).forEach {
-                                addTestDeviceHashedId(it)
+                            appContext.resources.getStringArray(R.array.google_ads_test_devices_ids).forEach { testDeviceHashedId ->
+                                addTestDeviceHashedId(testDeviceHashedId)
                             }
                         }
                     }.build()
@@ -59,25 +60,26 @@ class AdsConsentManager @Inject constructor(
             }
         }.build()
         consentInformation.requestConsentInfoUpdate(
-            activity, consentRequestParams,
-            {
-                MTLog.d(this, "Consent information successfully updated.")
-                loadAndShowConsentFormIfRequired(activity, onConsentGatheringCompleteListener)
+            activity,
+            consentRequestParams,
+            { // SUCCESS
+                logAdsD(this, "Consent information successfully updated.")
+                if (noUI) {
+                    onConsentGatheringComplete(null)
+                    return@requestConsentInfoUpdate
+                }
+                UserMessagingPlatform.loadAndShowConsentFormIfRequired(
+                    activity,
+                    { formError -> // DISMISSED
+                        onConsentGatheringComplete(formError)
+                    }
+                )
             },
-            { requestConsentError ->
-                MTLog.d(this, "Error updating consent information: $requestConsentError")
-                onConsentGatheringCompleteListener.consentGatheringComplete(requestConsentError)
+            { requestConsentError -> // FAILURE
+                MTLog.w(this@AdsConsentManager, "Error updating consent information: [${requestConsentError.errorCode}]: ${requestConsentError.message}.")
+                onConsentGatheringComplete(requestConsentError)
             },
         )
-    }
-
-    private fun loadAndShowConsentFormIfRequired(
-        activity: Activity,
-        onConsentGatheringCompleteListener: OnConsentGatheringCompleteListener,
-    ) {
-        UserMessagingPlatform.loadAndShowConsentFormIfRequired(activity) { formError ->
-            onConsentGatheringCompleteListener.consentGatheringComplete(formError)
-        }
     }
 
     fun showPrivacyOptionsForm(

@@ -1,24 +1,28 @@
 package org.mtransit.android.provider.sensor
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.hardware.GeomagneticField
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
-import android.location.Location
+import android.os.Build
 import android.view.Surface
 import android.widget.AbsListView
+import androidx.core.content.getSystemService
 import dagger.hilt.android.qualifiers.ApplicationContext
 import org.mtransit.android.commons.MTLog
-import org.mtransit.android.commons.api.SupportFactory
+import org.mtransit.android.dev.DemoModeManager
 import org.mtransit.android.ui.view.common.IFragment
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import kotlin.math.abs
+import android.location.Location as AndroidLocation
 
 class SensorManagerImpl @Inject constructor(
     @param:ApplicationContext private val appContext: Context,
+    private val demoModeManager: DemoModeManager,
 ) : MTSensorManager, MTLog.Loggable {
 
     companion object {
@@ -30,11 +34,15 @@ class SensorManagerImpl @Inject constructor(
     }
 
     private val sensorManager: SensorManager?
-        get() = appContext.getSystemService(Context.SENSOR_SERVICE) as SensorManager?
+        get() = appContext.getSystemService<SensorManager>()
 
     override fun getLogTag() = LOG_TAG
 
-    override fun registerCompassListener(sensorEventListener: SensorEventListener) {
+    override fun registerCompassListener(sensorEventListener: SensorEventListener, listener: MTSensorManager.CompassListener) {
+        if (demoModeManager.isFilterLocation()) {
+            listener.updateCompass(170.0f, false)
+            return
+        }
         sensorManager?.apply {
             registerListener(
                 sensorEventListener,
@@ -58,9 +66,7 @@ class SensorManagerImpl @Inject constructor(
     }
 
     override fun unregisterSensorListener(sensorEventListener: SensorEventListener) {
-        sensorManager?.apply {
-            unregisterListener(sensorEventListener)
-        }
+        sensorManager?.unregisterListener(sensorEventListener)
     }
 
     override fun checkForCompass(
@@ -70,6 +76,9 @@ class SensorManagerImpl @Inject constructor(
         magneticFieldValues: FloatArray,
         listener: MTSensorManager.CompassListener
     ) {
+        if (demoModeManager.isFilterLocation()) {
+            return
+        }
         when (event.sensor.type) {
             Sensor.TYPE_ACCELEROMETER -> {
                 System.arraycopy(
@@ -116,7 +125,7 @@ class SensorManagerImpl @Inject constructor(
                 }
             }
             else -> {
-                // DO NOTING
+                // DO NOTHING
             }
         }
     }
@@ -143,7 +152,13 @@ class SensorManagerImpl @Inject constructor(
         axis[0] = SensorManager.AXIS_X
         axis[1] = SensorManager.AXIS_Y
         val aActivity = activity.getActivity() ?: return null
-        val defaultDisplay = SupportFactory.get().getDefaultDisplay(aActivity)
+        val defaultDisplay = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            aActivity.display
+        } else {
+            @SuppressLint("DeprecatedCall")
+            @Suppress("DEPRECATION")
+            aActivity.windowManager.defaultDisplay
+        }
         when (defaultDisplay?.rotation) {
             Surface.ROTATION_0 -> {
                 // DO NOTHING
@@ -175,7 +190,7 @@ class SensorManagerImpl @Inject constructor(
         return values[0]
     }
 
-    override fun getLocationDeclination(location: Location): Float {
+    override fun getLocationDeclination(location: AndroidLocation): Float {
         return GeomagneticField(
             location.latitude.toFloat(),
             location.longitude.toFloat(),
@@ -186,7 +201,7 @@ class SensorManagerImpl @Inject constructor(
 
     override fun updateCompass(
         force: Boolean,
-        deviceLocation: Location?,
+        deviceLocation: AndroidLocation?,
         roundedOrientation: Int,
         now: Long,
         scrollState: Int,

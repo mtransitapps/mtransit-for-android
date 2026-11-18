@@ -69,11 +69,12 @@ public class MTPieChartPercentView extends MTView {
 	}
 
 	public void setPiecesColors(@NonNull List<Pair<Integer, Integer>> piecesColors) {
-		if (piecesColors.size() != this.pieces.size()) {
+		final int piecesSize = this.pieces.size();
+		if (piecesColors.size() != piecesSize) {
 			MTLog.w(this, "Trying to set wrong number of colors '%d'", piecesColors.size());
 			return;
 		}
-		for (int i = 0; i < this.pieces.size(); i++) {
+		for (int i = 0; i < piecesSize; i++) {
 			Piece piece = this.pieces.get(i);
 			Pair<Integer, Integer> pieceColor = piecesColors.get(i);
 			if (pieceColor.first != null) {
@@ -86,12 +87,13 @@ public class MTPieChartPercentView extends MTView {
 	}
 
 	public void setPieces(@NonNull List<Integer> newSizes) {
-		if (newSizes.size() != this.pieces.size()) {
+		final int piecesSize = this.pieces.size();
+		if (newSizes.size() != piecesSize) {
 			MTLog.w(this, "Trying to set wrong number of color sizes '%d'", newSizes.size());
 			return;
 		}
 		boolean sizesChanged = false;
-		for (int i = 0; i < this.pieces.size(); i++) {
+		for (int i = 0; i < piecesSize; i++) {
 			Piece piece = this.pieces.get(i);
 			Integer newSize = newSizes.get(i);
 			int newSizeI = newSize == null ? 0 : newSize;
@@ -110,7 +112,8 @@ public class MTPieChartPercentView extends MTView {
 		int total = getTotal();
 		float previousPieceEndingAngle = DEGREE_90;
 		if (!this.pieces.isEmpty()) {
-			for (int i = this.pieces.size() - 1; i >= 0; i--) { // last first
+			final int piecesSize = this.pieces.size();
+			for (int i = piecesSize - 1; i >= 0; i--) { // last first
 				Piece piece = pieces.get(i);
 				final float pieceAngle = piece.getSize() * DEGREE_360 / total;
 				final float pieceEndingAngle = previousPieceEndingAngle + pieceAngle;

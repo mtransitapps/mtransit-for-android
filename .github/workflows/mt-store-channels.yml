@@ -1,0 +1,240 @@
+# ORIGINAL FILE: https://github.com/mtransitapps/commons/tree/master/shared-overwrite
+name: MT store channels (enable/disable)
+on:
+  workflow_dispatch: # manual
+    inputs:
+      internal:
+        description: 'Internal channel'
+        type: choice
+        options:
+          - ignore
+          - enable
+          - disable
+        default: ignore
+        required: true
+      alpha:
+        description: 'Alpha channel'
+        type: choice
+        options:
+          - ignore
+          - enable
+          - disable
+        default: ignore
+        required: true
+      betaPrivate:
+        description: 'Beta (Private) channel'
+        type: choice
+        options:
+          - ignore
+          - enable
+          - disable
+        default: ignore
+        required: true
+      production:
+        description: 'Production channel'
+        type: choice
+        options:
+          - ignore
+          - enable
+          - disable
+        default: ignore
+        required: true
+# gh workflow run mt-store-channels.yml --ref $(git rev-parse --abbrev-ref HEAD)
+# gh workflow run mt-store-channels.yml -f production=disable
+# gh run list --workflow=mt-store-channels.yml
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+env:
+  MT_BOT_USER_NAME: ${{ vars.MT_BOT_USER_NAME }}
+  MT_BOT_USER_EMAIL: ${{ vars.MT_BOT_USER_EMAIL }}
+  # git branches & sha
+  MT_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+  MT_BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+  MT_TARGET_BRANCH_NAME: ${{ github.base_ref || github.ref_name }}
+  MT_DEFAULT_BRANCH_NAME: ${{ github.event.repository.default_branch }}
+  # repo type
+  MT_IS_SUBMODULE: ${{ contains(fromJSON('["mtransitapps/commons", "mtransitapps/commons-java", "mtransitapps/parser", "mtransitapps/commons-android"]'), github.repository) }}
+  MT_IS_MAIN_REPO: ${{ endsWith(github.repository, '/mtransit-for-android') }}
+  MT_IS_AGENCY_REPO: ${{ ! contains(fromJSON('["mtransitapps/commons", "mtransitapps/commons-java", "mtransitapps/parser", "mtransitapps/commons-android"]'), github.repository) && ! endsWith(github.repository, '/mtransit-for-android')}}
+  MT_IS_AGENCY_RDS: ${{ ! contains(github.repository, '-bike-') }}
+  MT_IS_AGENCY_BIKE: ${{ contains(github.repository, '-bike-') }}
+  # git commit & push
+  MT_ORG_GIT_COMMIT_ON: ${{ secrets.MT_ORG_GIT_COMMIT_ON }}
+  MT_ORG_GIT_COMMIT_OFF: ${{ secrets.MT_ORG_GIT_COMMIT_OFF }}
+  MT_GIT_COMMIT_ON: ${{ secrets.MT_GIT_COMMIT_ON }}
+  MT_GIT_COMMIT_OFF: ${{ secrets.MT_GIT_COMMIT_OFF }}
+jobs:
+  MT-STORE-CHANNELS-JOB:
+    name: "MT store channels"
+    timeout-minutes: 30
+    runs-on: ubuntu-latest
+    steps:
+      - name: MT check out main repository code
+        uses: actions/checkout@v7
+        with:
+          token: ${{ secrets.MT_PAT }}
+
+      - name: MT Enable `Internal` channel
+        if: ${{ github.event.inputs.internal == 'enable' }}
+        run: |
+          mkdir -p config/store/
+          touch config/store/internal
+      - name: MT Disable `Internal` channel
+        if: ${{ github.event.inputs.internal == 'disable' }}
+        run: |
+          rm -f config/store/internal
+
+      - name: MT Enable `Alpha` channel
+        if: ${{ github.event.inputs.alpha == 'enable' }}
+        run: |
+          mkdir -p config/store/
+          touch config/store/alpha
+      - name: MT Disable `Alpha` channel
+        if: ${{ github.event.inputs.alpha == 'disable' }}
+        run: |
+          rm -f config/store/alpha
+
+      - name: MT Enable `Beta Private` channel
+        if: ${{ github.event.inputs.betaPrivate == 'enable' }}
+        run: |
+          mkdir -p config/store/
+          touch config/store/beta-private
+      - name: MT Disable `Beta Private` channel
+        if: ${{ github.event.inputs.betaPrivate == 'disable' }}
+        run: |
+          rm -f config/store/beta-private
+
+      - name: MT Enable `Production` channel
+        if: ${{ github.event.inputs.production == 'enable' }}
+        run: |
+          mkdir -p config/store/
+          touch config/store/production
+      - name: MT Disable `Production` channel
+        if: ${{ github.event.inputs.production == 'disable' }}
+        run: |
+          rm -f config/store/production
+
+      - name: MT Compute commit & PR title
+        id: mt-change-message
+        run: |
+          join_by_separator() {
+            local separator="$1"
+            shift
+            local result=""
+            local value=""
+            for value in "$@"; do
+              if [[ -n "$result" ]]; then
+                result+="$separator"
+              fi
+              result+="$value"
+            done
+            printf '%s' "$result"
+          }
+
+          channel_label() {
+            local count="${1:-0}"
+            case "$count" in
+              1) printf '%s' "store channel" ;;
+              *) printf '%s' "store channels" ;;
+            esac
+          }
+
+          ENABLED_CHANNELS=()
+          DISABLED_CHANNELS=()
+
+          if [[ "${{ github.event.inputs.internal }}" == "enable" ]]; then
+            ENABLED_CHANNELS+=("\`Internal\`")
+          elif [[ "${{ github.event.inputs.internal }}" == "disable" ]]; then
+            DISABLED_CHANNELS+=("\`Internal\`")
+          fi
+
+          if [[ "${{ github.event.inputs.alpha }}" == "enable" ]]; then
+            ENABLED_CHANNELS+=("\`Alpha\`")
+          elif [[ "${{ github.event.inputs.alpha }}" == "disable" ]]; then
+            DISABLED_CHANNELS+=("\`Alpha\`")
+          fi
+
+          if [[ "${{ github.event.inputs.betaPrivate }}" == "enable" ]]; then
+            ENABLED_CHANNELS+=("\`Beta Private\`")
+          elif [[ "${{ github.event.inputs.betaPrivate }}" == "disable" ]]; then
+            DISABLED_CHANNELS+=("\`Beta Private\`")
+          fi
+
+          if [[ "${{ github.event.inputs.production }}" == "enable" ]]; then
+            ENABLED_CHANNELS+=("\`Production\`")
+          elif [[ "${{ github.event.inputs.production }}" == "disable" ]]; then
+            DISABLED_CHANNELS+=("\`Production\`")
+          fi
+
+          ACTION_PARTS=()
+          if [[ ${#ENABLED_CHANNELS[@]} -gt 0 ]]; then
+            ACTION_PARTS+=("Enable $(join_by_separator ", " "${ENABLED_CHANNELS[@]}") $(channel_label "${#ENABLED_CHANNELS[@]}")")
+          fi
+          if [[ ${#DISABLED_CHANNELS[@]} -gt 0 ]]; then
+            ACTION_PARTS+=("Disable $(join_by_separator ", " "${DISABLED_CHANNELS[@]}") $(channel_label "${#DISABLED_CHANNELS[@]}")")
+          fi
+
+          if [[ ${#ACTION_PARTS[@]} -eq 0 ]]; then
+            ACTION_SUMMARY="Update store channels"
+          else
+            ACTION_SUMMARY="$(join_by_separator " & " "${ACTION_PARTS[@]}")"
+          fi
+
+          BRANCH_LABEL="\`${MT_BRANCH_NAME}\`"
+          printf -v COMMIT_MESSAGE '%s in %s' "${ACTION_SUMMARY}" "${BRANCH_LABEL}"
+          echo "commit_message=${COMMIT_MESSAGE}" >> "$GITHUB_OUTPUT"
+
+      - name: MT Commit changes
+        id: mt-commit-changes
+        env:
+          COMMIT_MESSAGE: ${{ steps.mt-change-message.outputs.commit_message }}
+        run: |
+          mkdir -p config/store
+          if [ -n "$(git status --porcelain config/store)" ]; then
+            git add -v -A config/store
+          fi
+          if git diff --staged --quiet; then
+            echo "No changes to commit."
+            exit 0 # success
+          fi
+          git switch -C "${MT_BRANCH_NAME}_update_store_channels"
+          git config user.name "$MT_BOT_USER_NAME"
+          git config user.email "$MT_BOT_USER_EMAIL"
+          git commit -m "$COMMIT_MESSAGE"
+          git push -u origin "$(git rev-parse --abbrev-ref HEAD)" --force
+          echo "pushed=true" >> "$GITHUB_OUTPUT"
+          exit 0 # success
+
+      - name: MT Check if PR exists
+        id: mt-check-pr-exists
+        if: ${{ steps.mt-commit-changes.outputs.pushed == 'true' }}
+        continue-on-error: true
+        run: |
+          # gh pr view &>/dev/null # incl. closed PRs
+          PR_COUNT=$(gh pr list --state open --head "$(git rev-parse --abbrev-ref HEAD)" | wc -l)
+          echo "Pull requests found: $PR_COUNT."
+          if [[ $PR_COUNT -eq 0 ]]; then
+            exit 1 # fail
+          else
+            exit 0 # success
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.MT_PAT }}
+
+      - name: MT Create pull request (if necessary)
+        if: ${{ steps.mt-commit-changes.outputs.pushed == 'true' && steps.mt-check-pr-exists.outcome == 'failure' }}
+        env:
+          GH_TOKEN: ${{ secrets.MT_PAT }}
+          COMMIT_MESSAGE: ${{ steps.mt-change-message.outputs.commit_message }}
+        run: |
+          gh pr create --base "${MT_BRANCH_NAME}" --fill --title "$COMMIT_MESSAGE" --assignee montransit
+          # using CODEOWNERS # gh pr comment --body "@mtransitapps/codeowners please review this pull request"
+      - name: MT Update pull request (if necessary)
+        if: ${{ steps.mt-commit-changes.outputs.pushed == 'true' && steps.mt-check-pr-exists.outcome == 'success' }}
+        env:
+          GH_TOKEN: ${{ secrets.MT_PAT }}
+          COMMIT_MESSAGE: ${{ steps.mt-change-message.outputs.commit_message }}
+        run: |
+          gh pr edit --add-assignee montransit --title "$COMMIT_MESSAGE"
+          gh pr comment --body "@mtransitapps/codeowners please review updated pull request"

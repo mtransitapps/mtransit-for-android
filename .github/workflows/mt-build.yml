@@ -26,6 +26,8 @@ jobs:
     outputs:
       mt_checkout_branch: ${{ steps.mt-select-branch.outputs.mt_checkout_branch }}
     steps:
+      - name: MT wait for main & submodule merge to target branch
+        run: sleep 10
       - name: MT select main repo checkout branch
         id: mt-select-branch
         env:
@@ -55,14 +57,14 @@ jobs:
           echo "Checkout branch: '$CHECKOUT_BRANCH'."
           echo "mt_checkout_branch=$CHECKOUT_BRANCH" >> "$GITHUB_OUTPUT"
 
-  MT-TEST-JOB:
-    name: "MT Test"
+  MT-TESTS-JOB:
+    name: "MT Tests"
     needs: MT-SELECT-BRANCH-JOB
     runs-on: ubuntu-latest
     steps:
 
       - name: MT check out main repo
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
         with:
           repository: mtransitapps/mtransit-for-android
           ref: ${{ needs.MT-SELECT-BRANCH-JOB.outputs.mt_checkout_branch }}
@@ -70,27 +72,74 @@ jobs:
           fetch-depth: 0 # fetch all (not required util release build)
       - name: MT setup
         id: mt-setup
-        uses: ./.github/actions/setup
+        uses: mtransitapps/gh-actions/.github/actions/setup@v1.5.1
 
-      - name: MT test
-        run: ./test_only.sh
-      - name: MT artifact > tests XML results
-        uses: actions/upload-artifact@v5
-        if: ${{ always() }} # even if tests fails
+      - name: MT compile # fail fast before detekt & unit tests
+        id: mt-compile
+        run: |
+          ./gradlew compileAll \
+            --no-configure-on-demand --scan
+
+      - name: MT detekt
+        id: mt-detekt
+        continue-on-error: true # run tests even if detekt fails (job failed at the end)
+        run: |
+          ./gradlew detektAll \
+            --no-configure-on-demand --scan # works better with "gradle/actions/setup-gradle"
+      - name: MT detekt > print markdown report (if failure)
+        if: ${{ steps.mt-detekt.outcome == 'failure' }}
+        run: |
+          mapfile -d '' reports < <(find . -path '*/build/reports/detekt/*.md' -print0)
+          if (( ${#reports[@]} > 0 )); then
+            cat -- "${reports[@]}"
+          fi
+      - name: MT detekt > artifact > XML results
+        uses: actions/upload-artifact@v7
+        if: ${{ always() }}
+        with:
+          name: detekt-xml-results
+          path: |
+            */build/reports/detekt/*.xml
+      - name: MT detekt > artifact > HTML report
+        uses: actions/upload-artifact@v7
+        if: ${{ always() }}
+        with:
+          name: detekt-html-reports
+          path: |
+            */build/reports/detekt/*.html
+
+      - name: MT tests
+        id: mt-tests
+        if: ${{ !cancelled() && steps.mt-compile.outcome == 'success' }} # run even if detekt failed
+        run: ./sh/ci/test_only.sh
+      - name: MT tests > artifact > XML results
+        uses: actions/upload-artifact@v7
+        if: ${{ always() }}
         with:
           name: test-xml-results
           path: |
             */build/test-results/**/*.xml
             */build/test-results/*.xml
             */build/reports/*.xml
-      - name: MT artifact > HTML reports
-        uses: actions/upload-artifact@v5
-        if: ${{ always() }} # even if tests fails
+      - name: MT tests > artifact > HTML reports
+        uses: actions/upload-artifact@v7
+        if: ${{ always() }}
         with:
           name: test-html-reports
           path: |
             */build/reports/
             !**/*.xml
+
+      - name: "MT checks failed — detekt: ${{ steps.mt-detekt.outcome }}, tests: ${{ steps.mt-tests.outcome }}"
+        if: ${{ !cancelled() && (steps.mt-detekt.outcome == 'failure' || steps.mt-tests.outcome == 'failure') }}
+        run: |
+          if [[ "${{ steps.mt-detekt.outcome }}" == "failure" ]]; then
+            echo "::error title=Detekt failed::See the MT detekt step and uploaded reports."
+          fi
+          if [[ "${{ steps.mt-tests.outcome }}" == "failure" ]]; then
+            echo "::error title=Tests failed::See the MT tests step and uploaded reports."
+          fi
+          exit 1
 
   MT-LINT-JOB:
     name: "MT Lint"
@@ -99,7 +148,7 @@ jobs:
     steps:
 
       - name: MT check out main repo
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
         with:
           repository: mtransitapps/mtransit-for-android
           ref: ${{ needs.MT-SELECT-BRANCH-JOB.outputs.mt_checkout_branch }}
@@ -107,19 +156,23 @@ jobs:
           fetch-depth: 0 # fetch all (not required util release build)
       - name: MT setup
         id: mt-setup
-        uses: ./.github/actions/setup
+        uses: mtransitapps/gh-actions/.github/actions/setup@v1.5.1
 
       - name: MT lint
-        run: ./lint_only.sh
-      - name: MT artifact > lint XML results
-        uses: actions/upload-artifact@v5
+        run: ./app-android/sh/lint_only.sh
+      - name: MT lint > print text report (if failure)
+        if: ${{ failure() }}
+        run: |
+          cat app-android/build/intermediates/lint_intermediate_text_report/debug/lintReportDebug/lint-results-debug.txt
+      - name: MT lint > artifact > XML reports
+        uses: actions/upload-artifact@v7
         if: ${{ always() }} # even if tests fails
         with:
           name: lint-xml-results
           path: |
             */build/reports/*.xml
-      - name: MT artifact > lint HTML reports
-        uses: actions/upload-artifact@v5
+      - name: MT lint > artifact > HTML reports
+        uses: actions/upload-artifact@v7
         if: ${{ always() }} # even if tests fails
         with:
           name: lint-html-reports
@@ -135,7 +188,7 @@ jobs:
     steps:
 
       - name: MT check out main repo
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
         with:
           repository: mtransitapps/mtransit-for-android
           ref: ${{ needs.MT-SELECT-BRANCH-JOB.outputs.mt_checkout_branch }}
@@ -143,14 +196,14 @@ jobs:
           fetch-depth: 0 # fetch all (not required util release build)
       - name: MT setup
         id: mt-setup
-        uses: ./.github/actions/setup
+        uses: mtransitapps/gh-actions/.github/actions/setup@v1.5.1
 
-      - name: MT assemble release (APK & ABB)
-        run: ./assemble_release.sh
+      - name: MT assemble release (APK & AAB)
+        run: ./app-android/sh/assemble_release.sh
         env:
           MT_ENCRYPT_KEY: ${{ secrets.MT_ENCRYPT_KEY }}
-      - name: MT artifact > app-android > APK & ABB
-        uses: actions/upload-artifact@v5
+      - name: MT artifact > app-android > APK & AAB
+        uses: actions/upload-artifact@v7
         with:
           name: app-android-apk-bundle
           path: |

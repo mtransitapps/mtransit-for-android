@@ -66,8 +66,6 @@
         <item name="android:gravity">center</item>
         <item name="android:textAppearance">?attr/textAppearanceButton</item>
         <item name="textAllCaps">false</item>
-        <item name="android:paddingTop">0dp</item>
-        <item name="android:paddingBottom">0dp</item>
         <item name="android:padding">@dimen/button_text_padding</item>
         <!-- INSET = top / bottom margins -->
         <item name="android:insetTop">0dp</item><!-- remove top margin -->
@@ -89,7 +87,7 @@
         <item name="android:layout_marginBottom">@dimen/button_padding</item>
     </style>
 
-    <style name="MTButton.Header.Middle" parent="@style/MTButton.Header">
+    <style name="MTButton.Header.Middle" parent="@style/MTButton.Header" tools:ignore="UnusedResources">
         <item name="android:layout_alignParentEnd">false</item>
         <item name="android:layout_marginStart">0dp</item>
         <item name="android:layout_marginEnd">0dp</item>
@@ -102,10 +100,29 @@
         <item name="android:letterSpacing">0.0123456789</item>
     </style>
 
-    <style name="MTButtonHeaderMoreBtn" parent="Widget.MaterialComponents.Button.TextButton.Icon">
+    <style name="MTButton.Header.Icon" parent="@style/MTButton.Header">
+        <item name="android:layout_marginStart">@dimen/button_padding</item>
+        <item name="android:layout_marginEnd">@dimen/button_padding</item>
+        <item name="android:layout_marginTop">@dimen/button_padding</item>
+        <item name="android:layout_marginBottom">@dimen/button_padding</item>
+
+        <item name="android:padding">@dimen/baseline_4</item>
+
+        <item name="android:gravity">start|center_vertical</item>
+        <item name="iconGravity">start</item>
+        <item name="iconPadding">@dimen/baseline_4</item>
+    </style>
+
+    <style name="MTButton.Header.Icon.Middle" parent="@style/MTButton.Header.Icon">
+        <item name="android:layout_alignParentEnd">false</item>
+        <item name="android:layout_alignParentBottom">true</item>
+        <item name="android:layout_marginStart">0dp</item>
+        <item name="android:layout_marginEnd">0dp</item>
+    </style>
+
+    <style name="MTButtonHeaderLight" parent="Widget.MaterialComponents.Button.TextButton.Icon">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_alignParentEnd">true</item>
         <item name="android:layout_alignParentBottom">true</item>
         <item name="android:layout_margin">0dp</item>
         <item name="android:includeFontPadding">false</item>
@@ -113,11 +130,14 @@
         <item name="android:minHeight">24dp</item>
         <item name="android:paddingTop">12dp</item>
         <item name="android:paddingBottom">0dp</item>
-        <item name="android:paddingStart">24dp</item>
+        <item name="android:paddingStart">12dp</item>
         <item name="android:paddingEnd">12dp</item>
-        <item name="android:contentDescription">@string/more</item>
-        <item name="icon">@drawable/ic_arrow_forward_24</item>
+        <item name="android:alpha">0.70</item>
         <item name="iconTint">?attr/colorOnBackground</item>
+    </style>
+
+    <style name="MTButtonHeaderLight.Last" parent="@style/MTButtonHeaderLight">
+        <item name="android:layout_alignParentEnd">true</item>
     </style>
 
     <style name="MTShapeAppearance" parent="@style/ShapeAppearance.Material3.Corner.ExtraSmall" />
@@ -128,7 +148,7 @@
     <style name="Widget.MaterialComponents.BottomSheet.DragHandle" parent="Widget.Material3.BottomSheet.DragHandle">
         <item name="tint">?colorOnSurface</item>
         <!--Alpha can be added optionally to achieve nice color blend-->
-        <item name="android:alpha">0.3</item>
+        <item name="android:alpha">0.30</item>
     </style>
 
     <style name="MTTextPoiTitle">
@@ -195,6 +215,13 @@
         <item name="drawableTint">?attr/colorOnBackground</item>
     </style>
 
+    <style name="MTLayoutSectionTertiary">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:paddingBottom">@dimen/baseline_0</item>
+        <item name="android:paddingTop">@dimen/title_top_padding</item>
+    </style>
+
     <style name="MTTextSurfaceBody">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
@@ -216,7 +243,7 @@
         <item name="android:maxLines">1</item>
         <item name="android:ellipsize">end</item>
         <item name="android:gravity">end</item>
-        <item name="android:alpha">0.75</item>
+        <item name="android:alpha">0.70</item>
         <item name="android:fontFamily">sans-serif-condensed-light</item>
         <item name="android:includeFontPadding">false</item>
 
@@ -259,6 +286,22 @@
         <item name="android:textAppearance">?attr/textAppearanceBody1</item>
     </style>
 
+    <style name="MTTextTertiary">
+        <item name="android:alpha">0.70</item>
+        <item name="android:drawablePadding">@dimen/baseline_8</item>
+        <item name="android:paddingStart">@dimen/baseline_8</item>
+        <item name="android:paddingEnd">@dimen/baseline_8</item>
+        <item name="android:fontFamily">sans-serif-light</item>
+        <item name="android:textAppearance">?attr/textAppearanceCaption</item>
+        <item name="android:textColor">?android:attr/textColorTertiary</item>
+        <item name="android:textSize">@dimen/text_size_extra_extra_small</item>
+        <item name="drawableTint">?android:attr/textColorTertiary</item>
+    </style>
+
+    <style name="MTTextTertiary.Light" parent="@style/MTTextTertiary">
+        <item name="android:alpha">0.30</item>
+    </style>
+
     <style name="MTMapTypeSwitch">
         <item name="android:layout_width">?android:attr/listPreferredItemHeightSmall</item>
         <item name="android:layout_height">?android:attr/listPreferredItemHeightSmall</item>
@@ -267,7 +310,7 @@
         <item name="android:layout_centerVertical">false</item>
         <item name="android:layout_marginStart">@dimen/map_type_switch_margin_start</item>
         <item name="android:layout_marginBottom">@dimen/map_type_switch_margin_bottom</item>
-        <item name="android:alpha">0.75</item>
+        <item name="android:alpha">0.70</item>
         <item name="android:scaleType">centerCrop</item>
     </style>
 
@@ -291,6 +334,11 @@
         <item name="android:layout_marginBottom">@dimen/fab_mini_margin_bottom</item>
     </style>
 
+    <style name="MTFabMiniBottomEndNotLast" parent="@style/MTFabMiniBottomEnd">
+        <item name="android:layout_alignParentEnd">false</item>
+        <item name="android:layout_marginEnd">@dimen/fab_mini_margin_end_not_last</item>
+    </style>
+
     <style name="MTFabAutoBottomEnd" parent="@style/MTFabBottomEnd">
         <item name="fabSize">auto</item>
         <item name="android:layout_marginEnd">@dimen/fab_auto_margin_end</item>
@@ -299,7 +347,7 @@
 
     <style name="MTPOIList">
         <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item><!-- height wrap_content needed to hide last divider -->
 
         <item name="android:drawSelectorOnTop">true</item>
         <item name="android:listSelector">?android:attr/selectableItemBackground</item>

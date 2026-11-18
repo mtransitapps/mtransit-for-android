@@ -8,7 +8,6 @@ import android.os.Looper;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.WorkerThread;
 
 import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -97,12 +96,14 @@ public class GoogleLocationProvider
 	private final CrashReporter crashReporter;
 
 	@Inject
-	GoogleLocationProvider(@NonNull @ApplicationContext Context appContext,
-						   @NonNull LocationPermissionProvider permissionProvider,
-						   @NonNull DemoModeManager demoModeManager,
-						   @NonNull DataSourcesRepository dataSourcesRepository,
-						   @NonNull IAnalyticsManager analyticsManager,
-						   @NonNull CrashReporter crashReporter) {
+	GoogleLocationProvider(
+			@NonNull @ApplicationContext Context appContext,
+			@NonNull LocationPermissionProvider permissionProvider,
+			@NonNull DemoModeManager demoModeManager,
+			@NonNull DataSourcesRepository dataSourcesRepository,
+			@NonNull IAnalyticsManager analyticsManager,
+			@NonNull CrashReporter crashReporter
+	) {
 		this.appContext = appContext;
 		this.permissionProvider = permissionProvider;
 		this.demoModeManager = demoModeManager;
@@ -117,21 +118,19 @@ public class GoogleLocationProvider
 			onLocationProviderReady();
 			return;
 		}
-		if (!this.dataSourcesRepository.hasAgenciesAdded()) {
-			return; // wait until 1 module is installed
-		}
+		if (!this.dataSourcesRepository.hasAgenciesAdded()) return; // wait until 1 module is installed
 		doSetup(screenWithLocationView);
 	}
 
 	@Override
 	public boolean needsSetup(@NonNull ScreenWithLocationView screenWithLocationView) {
-		return !this.permissionProvider.allRequiredPermissionsGranted(screenWithLocationView.requireContext());
+		return !this.permissionProvider.allRequiredPermissionsGranted();
 	}
 
 	@Override
 	public void doSetup(@NonNull ScreenWithLocationView screenWithLocationView) {
 		for (String requiredPermission : this.permissionProvider.getRequiredPermissions()) {
-			if (!this.permissionProvider.permissionGranted(appContext, requiredPermission)) {
+			if (!this.permissionProvider.permissionGranted(requiredPermission)) {
 				if (this.permissionProvider.shouldShowRequestPermissionRationale(screenWithLocationView, requiredPermission)) {
 					screenWithLocationView.showPermissionsRationale(this);
 					return;
@@ -194,7 +193,7 @@ public class GoogleLocationProvider
 	}
 
 	private void enableDisableForegroundLocationUpdates() {
-		if (!this.permissionProvider.allRequiredPermissionsGranted(this.appContext)) {
+		if (!this.permissionProvider.allRequiredPermissionsGranted()) {
 			MTLog.d(this, "enableDisableForegroundLocationUpdates() > SKIP (permission NOT granted yet)");
 			return;
 		}
@@ -213,7 +212,7 @@ public class GoogleLocationProvider
 
 	@SuppressLint("MissingPermission")
 	private void enableForegroundLocationUpdates() {
-		if (!this.permissionProvider.allRequiredPermissionsGranted(this.appContext)) {
+		if (!this.permissionProvider.allRequiredPermissionsGranted()) {
 			crashReporter.shouldNotHappen("Last location requested w/o permission!");
 			return;
 		}
@@ -249,7 +248,7 @@ public class GoogleLocationProvider
 	@SuppressLint("MissingPermission")
 	@Override
 	public void readLastLocation() {
-		if (!this.permissionProvider.allRequiredPermissionsGranted(this.appContext)) {
+		if (!this.permissionProvider.allRequiredPermissionsGranted()) {
 			MTLog.d(this, "readLastLocation() > SKIP (no permission)");
 			return;
 		}
@@ -276,9 +275,7 @@ public class GoogleLocationProvider
 
 	private void broadcastDeviceLocationChanged(@Nullable Location lastLocation) {
 		for (OnLastLocationChangeListener lastLocationChangeListener : this.onLastLocationChangeListeners.keySet()) {
-			if (lastLocationChangeListener == null) {
-				continue;
-			}
+			if (lastLocationChangeListener == null) continue;
 			lastLocationChangeListener.onLastLocationChanged(lastLocation);
 		}
 	}
@@ -319,22 +316,6 @@ public class GoogleLocationProvider
 			this.settingsClient = LocationServices.getSettingsClient(this.appContext);
 		}
 		return this.settingsClient;
-	}
-
-	@WorkerThread
-	@NonNull
-	@Override
-	public String getLocationAddressString(@NonNull Location location) {
-		return LocationUtils.getLocationString(
-				this.appContext,
-				LocationUtils.getLocationAddress(this.appContext, location),
-				location.getAccuracy()
-		);
-	}
-
-	@Override
-	public void updateDistanceWithString(@Nullable LocationUtils.LocationPOI poi, @Nullable Location currentLocation) {
-		LocationUtils.updateDistanceWithString(this.appContext, poi, currentLocation);
 	}
 
 	@Override

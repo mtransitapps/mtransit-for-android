@@ -1,15 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    style="@style/MTLayoutSectionTertiary"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical">
-
-    <include layout="@layout/layout_poi_app_update_title" />
+    tools:ignore="MergeRootFrame">
 
     <TextView
-        android:id="@+id/appUpdateBtn"
-        android:text="@string/app_update_btn_text"
-        android:visibility="visible"
-        style="@style/MTTextSurfaceBody" />
+        android:id="@+id/appUpdateText"
+        style="@style/MTTextTertiary"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal|bottom"
+        android:gravity="center"
+        android:text="@string/app_update_btn_text_short"
+        app:drawableStartCompat="@drawable/ic_download_black_24dp" />
 
-</LinearLayout>
+</FrameLayout>

@@ -1,0 +1,7 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>NoEmptyFile:MapViewModelTest.kt:org.mtransit.android.ui.map.MapViewModelTest.kt</ID>
+  </CurrentIssues>
+</SmellBaseline>

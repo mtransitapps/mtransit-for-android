@@ -1,82 +1,81 @@
-//@file:JvmName("POIFragment") // ANALYTICS
 package org.mtransit.android.ui.poi
 //
-//import android.content.Context
-//import android.content.res.Configuration
-//import android.graphics.Color
-//import android.hardware.Sensor
-//import android.hardware.SensorEvent
-//import android.hardware.SensorEventListener
-//import android.location.Location
-//import android.os.Bundle
-//import android.view.Menu
-//import android.view.MenuInflater
-//import android.view.MenuItem
-//import android.view.View
-//import androidx.core.os.bundleOf
-//import androidx.core.view.isVisible
-//import androidx.fragment.app.viewModels
-//import androidx.viewbinding.ViewBinding
-//import com.google.android.gms.maps.model.LatLng
-//import com.google.android.gms.maps.model.LatLngBounds
-//import dagger.hilt.android.AndroidEntryPoint
-//import org.mtransit.android.R
-//import org.mtransit.android.ad.IAdManager.RewardedAdListener
-//import org.mtransit.android.commons.Constants
-//import org.mtransit.android.commons.LocationUtils
-//import org.mtransit.android.commons.MTLog
-//import org.mtransit.android.commons.StoreUtils
-//import org.mtransit.android.commons.ThreadSafeDateFormatter
-//import org.mtransit.android.commons.data.News
-//import org.mtransit.android.commons.data.POI
-//import org.mtransit.android.commons.data.POIStatus
-//import org.mtransit.android.commons.data.RouteDirectionStop
-//import org.mtransit.android.commons.data.ServiceUpdate
-//import org.mtransit.android.commons.provider.NewsProviderContract
-//import org.mtransit.android.data.AgencyProperties
-//import org.mtransit.android.data.POIArrayAdapter
-//import org.mtransit.android.data.POIManager
-//import org.mtransit.android.data.ScheduleProviderProperties
-//import org.mtransit.android.databinding.FragmentPoiBinding
-//import org.mtransit.android.databinding.LayoutPoiAppUpdateBinding
-//import org.mtransit.android.databinding.LayoutPoiRewardedAdBinding
-//import org.mtransit.android.databinding.LayoutPoiServiceUpdateBinding
-//import org.mtransit.android.datasource.DataSourcesRepository
-//import org.mtransit.android.provider.FavoriteManager
-//import org.mtransit.android.provider.FavoriteManager.FavoriteUpdateListener
-//import org.mtransit.android.provider.permission.LocationPermissionProvider
-//import org.mtransit.android.provider.sensor.MTSensorManager
-//import org.mtransit.android.provider.sensor.MTSensorManager.CompassListener
-//import org.mtransit.android.task.ServiceUpdateLoader
-//import org.mtransit.android.task.StatusLoader
-//import org.mtransit.android.ui.MTActivityWithLocation
-//import org.mtransit.android.ui.MTActivityWithLocation.DeviceLocationListener
-//import org.mtransit.android.ui.MainActivity
-//import org.mtransit.android.ui.fragment.ABFragment
-//import org.mtransit.android.ui.map.MapFragment.Companion.newInstance
-//import org.mtransit.android.ui.nearby.NearbyFragment
-//import org.mtransit.android.ui.news.NewsListFragment
-//import org.mtransit.android.ui.schedule.ScheduleFragment
-//import org.mtransit.android.ui.view.MapViewController
-//import org.mtransit.android.ui.view.POIDataProvider
-//import org.mtransit.android.ui.view.POINewsViewController
-//import org.mtransit.android.ui.view.POIServiceUpdateViewController
-//import org.mtransit.android.ui.view.POIStatusDetailViewController
-//import org.mtransit.android.ui.view.POIViewController
-//import org.mtransit.android.ui.view.common.EventObserver
-//import org.mtransit.android.util.FragmentUtils
-//import org.mtransit.android.util.LinkUtils
-//import org.mtransit.android.util.MapUtils
-//import org.mtransit.android.util.UITimeUtils
-//import org.mtransit.android.util.UITimeUtils.TimeChangedReceiver
-//import org.mtransit.android.util.UITimeUtils.TimeChangedReceiver.TimeChangedListener
-//import javax.inject.Inject
+// import android.content.Context
+// import android.content.res.Configuration
+// import android.graphics.Color
+// import android.hardware.Sensor
+// import android.hardware.SensorEvent
+// import android.hardware.SensorEventListener
+// import android.location.Location as AndroidLocation
+// import android.os.Bundle
+// import android.view.Menu
+// import android.view.MenuInflater
+// import android.view.MenuItem
+// import android.view.View
+// import androidx.annotation.AnyThread
+// import androidx.core.os.bundleOf
+// import androidx.core.view.isVisible
+// import androidx.fragment.app.viewModels
+// import androidx.viewbinding.ViewBinding
+// import com.google.android.gms.maps.model.LatLng
+// import com.google.android.gms.maps.model.LatLngBounds
+// import dagger.hilt.android.AndroidEntryPoint
+// import org.mtransit.android.R
+// import org.mtransit.android.ad.IAdManager.RewardedAdListener
+// import org.mtransit.android.commons.Constants
+// import org.mtransit.android.commons.LocationUtils
+// import org.mtransit.android.commons.MTLog
+// import org.mtransit.android.commons.StoreUtils
+// import org.mtransit.android.commons.ThreadSafeDateFormatter
+// import org.mtransit.android.commons.data.News
+// import org.mtransit.android.commons.data.POI
+// import org.mtransit.android.commons.data.POIStatus
+// import org.mtransit.android.commons.data.RouteDirectionStop
+// import org.mtransit.android.commons.data.ServiceUpdate
+// import org.mtransit.android.commons.provider.news.NewsProviderContract
+// import org.mtransit.android.data.AgencyProperties
+// import org.mtransit.android.data.POIArrayAdapter
+// import org.mtransit.android.data.POIManager
+// import org.mtransit.android.data.ScheduleProviderProperties
+// import org.mtransit.android.databinding.FragmentPoiBinding
+// import org.mtransit.android.databinding.LayoutPoiAppUpdateBinding
+// import org.mtransit.android.databinding.LayoutPoiRewardedAdBinding
+// import org.mtransit.android.databinding.LayoutPoiServiceUpdateBinding
+// import org.mtransit.android.datasource.DataSourcesRepository
+// import org.mtransit.android.provider.FavoriteManager
+// import org.mtransit.android.provider.FavoriteManager.FavoriteUpdateListener
+// import org.mtransit.android.provider.permission.LocationPermissionProvider
+// import org.mtransit.android.provider.sensor.MTSensorManager
+// import org.mtransit.android.provider.sensor.MTSensorManager.CompassListener
+// import org.mtransit.android.task.ServiceUpdateLoader
+// import org.mtransit.android.task.StatusLoader
+// import org.mtransit.android.ui.MTActivityWithLocation
+// import org.mtransit.android.ui.MTActivityWithLocation.DeviceLocationListener
+// import org.mtransit.android.ui.MainActivity
+// import org.mtransit.android.ui.fragment.ABFragment
+// import org.mtransit.android.ui.map.MapFragment.Companion.newInstance
+// import org.mtransit.android.ui.nearby.NearbyFragment
+// import org.mtransit.android.ui.news.NewsListFragment
+// import org.mtransit.android.ui.schedule.ScheduleFragment
+// import org.mtransit.android.ui.view.MapViewController
+// import org.mtransit.android.ui.view.POIDataProvider
+// import org.mtransit.android.ui.view.POINewsViewController
+// import org.mtransit.android.ui.view.POIServiceUpdateViewController
+// import org.mtransit.android.ui.view.POIStatusDetailViewController
+// import org.mtransit.android.ui.view.POIViewController
+// import org.mtransit.android.ui.view.common.EventObserver
+// import org.mtransit.android.util.FragmentUtils
+// import org.mtransit.android.util.LinkUtils
+// import org.mtransit.android.util.MapUtils
+// import org.mtransit.android.util.UITimeUtils
+// import org.mtransit.android.util.UITimeUtils
+// import javax.inject.Inject
 //
-//@AndroidEntryPoint
-//class POIFragment : ABFragment(R.layout.fragment_poi), DeviceLocationListener, POIDataProvider, TimeChangedListener, FavoriteUpdateListener {
+// @AndroidEntryPoint
+// class POIFragment : ABFragment(R.layout.fragment_poi), DeviceLocationListener, POIDataProvider, UITimeUtils.TimeChangedReceiver, FavoriteUpdateListener {
 //
 // companion object {
-// private val LOG_TAG = POIFragment::class.java.simpleName
+// private val LOG_TAG: String = POIFragment::class.java.simpleName
 //
 // private const val PKG_COMMON = "org.mtransit.android."
 //
@@ -104,7 +103,7 @@ package org.mtransit.android.ui.poi
 //
 // override fun getLogTag(): String = this.theLogTag
 //
-// override fun getScreenName(): String = viewModel.uuid.value?.let { "$TRACKING_SCREEN_NAME/$it" } ?: TRACKING_SCREEN_NAME
+// override val screenName = viewModel.uuid.value?.let { "$TRACKING_SCREEN_NAME/$it" } ?: TRACKING_SCREEN_NAME
 //
 // private val viewModel by viewModels<POIViewModel>()
 //
@@ -138,9 +137,9 @@ package org.mtransit.android.ui.poi
 // private var poiRewardedAdBinding: LayoutPoiRewardedAdBinding? = null
 // // private var nearbyMoreBtn: View? = null
 //
-// private val mapMarkerProvider = object : MapViewController.MapMarkerProvider {
+// private val mapMarkerProvider = object : MapMarkerProvider {
 //
-// override fun getPOMarkers(): Collection<MapViewController.POIMarker>? = null
+// override fun getPOIMarkers(): Collection<MapViewController.POIMarker>? = null
 //
 // override fun getPOIs() = viewModel.poimV?.let { listOf(it) }
 //
@@ -151,7 +150,7 @@ package org.mtransit.android.ui.poi
 // }
 // }
 //
-// private val mapListener = object : MapViewController.MapListener {
+// private val mapListener = object : MapListener {
 //
 // override fun onMapClick(position: LatLng) {
 // if (!FragmentUtils.isFragmentReady(this@POIFragment)) {
@@ -170,7 +169,7 @@ package org.mtransit.android.ui.poi
 // )
 // }
 //
-// override fun onCameraChange(latLngBounds: LatLngBounds) {
+// override fun onCameraChanged(latLngBounds: LatLngBounds) {
 // // DO NOTHING
 // }
 //
@@ -199,7 +198,7 @@ package org.mtransit.android.ui.poi
 // false,
 // this.dataSourcesRepository
 // ).apply {
-// setLocationPermissionGranted(locationPermissionProvider.permissionsGranted(requireContext()))
+// setLocationPermissionGranted(locationPermissionProvider.permissionsGranted())
 // }
 // }
 //
@@ -245,6 +244,7 @@ package org.mtransit.android.ui.poi
 // }
 //
 // private val rewardedAdListener = object : RewardedAdListener {
+// @AnyThread
 // override fun onRewardedAdStatusChanged() {
 // viewModel.onRewardedAdStatusChanged()
 // }
@@ -257,7 +257,7 @@ package org.mtransit.android.ui.poi
 // mapViewController.apply {
 // setDataSourcesRepository(dataSourcesRepository)
 // onAttach(requireActivity())
-// setLocationPermissionGranted(locationPermissionProvider.permissionsGranted(context))
+// setLocationPermissionGranted(locationPermissionProvider.permissionsGranted())
 // }
 // }
 //
@@ -500,7 +500,7 @@ package org.mtransit.android.ui.poi
 // viewModel.deviceLocation.observe(viewLifecycleOwner, {
 // MTLog.v(this, "onChanged($it) - deviceLocation")
 // context?.let { context ->
-// mapViewController.setLocationPermissionGranted(locationPermissionProvider.permissionsGranted(context))
+// mapViewController.setLocationPermissionGranted(locationPermissionProvider.permissionsGranted())
 // }
 // mapViewController.onDeviceLocationChanged(it)
 // // TODO if (!this.compassUpdatesEnabled) {
@@ -595,7 +595,7 @@ package org.mtransit.android.ui.poi
 //
 // private fun updatePOIServiceUpdatesView(
 // poiTypeAndStatus: Pair<Int, Int>? = viewModel.poiTypeAndStatus.value,
-// poiServiceUpdates: List<ServiceUpdate>? = viewModel.poiServiceUpdates.value,
+// poiServiceUpdates: ServiceUpdates? = viewModel.poiServiceUpdates.value,
 // poiView: View? = getPOIView(poiTypeAndStatus),
 // ) {
 // // poiStatusN?.let { poiStatus ->
@@ -659,7 +659,7 @@ package org.mtransit.android.ui.poi
 //
 // private fun updateServiceUpdateView(
 // // poimN: POIManager? = viewModel.poimV,
-// poiServiceUpdates: List<ServiceUpdate>? = viewModel.poiServiceUpdates.value,
+// poiServiceUpdates: ServiceUpdates? = viewModel.poiServiceUpdates.value,
 // serviceUpdateView: View? = getPOIServiceUpdateView(),
 // ) {
 // // poimN?.let { poim ->
@@ -789,7 +789,7 @@ package org.mtransit.android.ui.poi
 // // }
 // }
 //
-// override fun onServiceUpdatesLoaded(targetUUID: String, serviceUpdates: List<ServiceUpdate>?) {
+// override fun onServiceUpdatesLoaded(targetUUID: String, serviceUpdates: ServiceUpdates) {
 // MTLog.v(this, "onServiceUpdatesLoaded($targetUUID, $serviceUpdates)")
 // // T ODO this serviceUpdates needs to be added to view model POI Manager
 // //
@@ -1042,4 +1042,4 @@ package org.mtransit.android.ui.poi
 // override fun getLastCompassInDegree() = viewModel.lastCompassInDegree.value
 //
 // override fun hasLastCompassInDegree() = lastCompassInDegree != null
-//}
+// }

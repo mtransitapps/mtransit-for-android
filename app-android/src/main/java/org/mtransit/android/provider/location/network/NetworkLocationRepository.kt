@@ -1,12 +1,9 @@
 package org.mtransit.android.provider.location.network
 
-import android.content.Context
-import android.location.Location
 import androidx.core.content.edit
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.liveData
 import androidx.lifecycle.switchMap
-import dagger.hilt.android.qualifiers.ApplicationContext
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.commons.MTLog
@@ -14,22 +11,23 @@ import org.mtransit.android.commons.TimeUtils
 import org.mtransit.android.commons.pref.liveDataN
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.provider.permission.LocationPermissionProvider
-import org.mtransit.android.ui.view.common.TripleMediatorLiveData
+import org.mtransit.android.ui.view.common.MediatorLiveData3
+import org.mtransit.commons.suspendRunCatching
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
+import android.location.Location as AndroidLocation
 
 @Singleton
 class NetworkLocationRepository @Inject constructor(
-    @param:ApplicationContext private val appContext: Context,
     private val apiService: IPWhoIsApiService,
-    private val lclPreferenceRepository: LocalPreferenceRepository,
+    private val lclPrefRepository: LocalPreferenceRepository,
     private val dataSourcesRepository: DataSourcesRepository,
     private val locationPermissionProvider: LocationPermissionProvider,
 ) : MTLog.Loggable {
 
     companion object {
-        private val LOG_TAG = NetworkLocationRepository::class.java.simpleName
+        private val LOG_TAG: String = NetworkLocationRepository::class.java.simpleName
 
         private val DEFAULT_LOCATION_VALUE: Float? = null
 
@@ -40,45 +38,53 @@ class NetworkLocationRepository @Inject constructor(
         private const val PROVIDER_NAME = "ipwho.is"
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
-    private var _ipLocationLat = lclPreferenceRepository.pref.liveDataN(LocalPreferenceRepository.PREFS_LCL_IP_LOCATION_LAT, DEFAULT_LOCATION_VALUE)
-    private var _ipLocationLng = lclPreferenceRepository.pref.liveDataN(LocalPreferenceRepository.PREFS_LCL_IP_LOCATION_LNG, DEFAULT_LOCATION_VALUE)
+    private var _ipLocationLat = lclPrefRepository.pref.liveDataN(LocalPreferenceRepository.PREFS_LCL_IP_LOCATION_LAT, DEFAULT_LOCATION_VALUE)
+    private var _ipLocationLng = lclPrefRepository.pref.liveDataN(LocalPreferenceRepository.PREFS_LCL_IP_LOCATION_LNG, DEFAULT_LOCATION_VALUE)
 
     private val _hasAgenciesAdded = dataSourcesRepository.readingHasAgenciesAdded()
 
-    val ipLocation: LiveData<Location?> = TripleMediatorLiveData(_ipLocationLat, _ipLocationLng, _hasAgenciesAdded).switchMap { (lat, lng, hasAgenciesAdded) ->
-        liveData {
-            if (lat != null && lng != null && hasAgenciesAdded != null && hasAgenciesAdded == false) {
+    val ipLocation: LiveData<AndroidLocation?> = MediatorLiveData3(_ipLocationLat, _ipLocationLng, _hasAgenciesAdded)
+        .switchMap { (lat, lng, hasAgenciesAdded) ->
+            liveData {
+                lat ?: return@liveData
+                lng ?: return@liveData
+                hasAgenciesAdded ?: return@liveData
+                if (hasAgenciesAdded) {
+                    emit(null) // forget IP location if already loaded
+                    return@liveData
+                }
                 emit(LocationUtils.getNewLocation(lat.toDouble(), lng.toDouble(), NETWORK_LOCATION_ACCURACY_IN_METERS, PROVIDER_NAME))
-            } else {
-                emit(null)
             }
         }
-    }
 
-    suspend fun fetchIPLocationIfNecessary(deviceLocation: Location?) {
+    suspend fun fetchIPLocationIfNecessary(deviceLocation: AndroidLocation?) {
         if (deviceLocation != null) {
             return
         }
-        if (locationPermissionProvider.allRequiredPermissionsGranted(appContext)) {
+        if (locationPermissionProvider.allRequiredPermissionsGranted()) {
             return
         }
         if (dataSourcesRepository.hasAgenciesAdded()) {
             return
         }
-        val lastCheckInMs = lclPreferenceRepository.getValue(LocalPreferenceRepository.PREFS_LCL_IP_LOCATION_TIMESTAMP, -1L)
+        val lastCheckInMs = lclPrefRepository.pref.getLong(LocalPreferenceRepository.PREFS_LCL_IP_LOCATION_TIMESTAMP, -1L)
         if (lastCheckInMs + MIN_INTERVAL_BETWEEN_IP_LOCATION_CHECK_MS > TimeUtils.currentTimeMillis()) {
             return // SKIP too soon
         }
-        runCatching {
+        suspendRunCatching {
             apiService.getCurrentIPLocation()
         }.fold(
-            onSuccess = { (lat, lng) ->
+            onSuccess = { ipLocationResult ->
+                val lat = ipLocationResult.latitude
+                val lng = ipLocationResult.longitude
+                val countryCode = ipLocationResult.countryCode
                 if (lat != null && lng != null) {
-                    lclPreferenceRepository.pref.edit {
+                    lclPrefRepository.pref.edit {
                         putFloat(LocalPreferenceRepository.PREFS_LCL_IP_LOCATION_LAT, lat)
                         putFloat(LocalPreferenceRepository.PREFS_LCL_IP_LOCATION_LNG, lng)
+                        countryCode?.let { putString(LocalPreferenceRepository.PREFS_LCL_IP_LOCATION_COUNTRY_CODE, it) }
                         putLong(LocalPreferenceRepository.PREFS_LCL_IP_LOCATION_TIMESTAMP, TimeUtils.currentTimeMillis())
                     }
                 }

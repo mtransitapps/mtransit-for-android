@@ -1,7 +1,7 @@
-@file:JvmName("ScheduleFragment") // ANALYTICS
 package org.mtransit.android.ui.schedule
 
 import android.content.Context
+import android.content.res.ColorStateList
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
@@ -9,51 +9,59 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
-import androidx.core.os.bundleOf
-import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
 import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Lifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.OnScrollListener
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
+import org.mtransit.android.ad.IAdManager
+import org.mtransit.android.ad.IAdScreenActivity
+import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.commons.ColorUtils
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.POI
-import org.mtransit.android.commons.dp
+import org.mtransit.android.commons.dpToPx
 import org.mtransit.android.data.POIManager
+import org.mtransit.android.data.getNewOneLineSubtitleForSchedule
+import org.mtransit.android.data.getNewOneLineTitleForSchedule
 import org.mtransit.android.databinding.FragmentScheduleInfiniteBinding
 import org.mtransit.android.datasource.DataSourcesRepository
+import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.applyStatusBarsInsetsEdgeToEdge
 import org.mtransit.android.ui.applyWindowInsetsEdgeToEdge
 import org.mtransit.android.ui.common.UISourceLabelUtils
 import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.setUpListEdgeToEdge
-import org.mtransit.android.ui.view.common.EventObserver
 import org.mtransit.android.ui.view.common.StickyHeaderItemDecorator
 import org.mtransit.android.ui.view.common.context
 import org.mtransit.android.ui.view.common.end
 import org.mtransit.android.ui.view.common.endMargin
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
+import org.mtransit.android.ui.view.common.observeEvent
 import org.mtransit.android.ui.view.common.scrollToPositionWithOffset
 import org.mtransit.android.ui.view.common.start
 import org.mtransit.android.ui.view.common.startMargin
+import org.mtransit.android.ui.view.common.textAndVisibility
 import org.mtransit.android.util.UIFeatureFlags
 import org.mtransit.android.util.UITimeUtils
+import org.mtransit.android.util.formatTime
 import java.util.TimeZone
+import javax.inject.Inject
 
 @AndroidEntryPoint
-class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite), MenuProvider {
+class ScheduleFragment :
+    ABFragment(R.layout.fragment_schedule_infinite),
+    MenuProvider {
 
     companion object {
-        private val LOG_TAG = ScheduleFragment::class.java.simpleName
+        private val LOG_TAG: String = ScheduleFragment::class.java.simpleName
 
         const val TRACKING_SCREEN_NAME = "Schedule"
 
@@ -85,16 +93,25 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite), MenuPr
             uuid: String,
             authority: String,
             optColor: String? = null,
-        ) = bundleOf(
-            ScheduleViewModel.EXTRA_POI_UUID to uuid,
-            ScheduleViewModel.EXTRA_AUTHORITY to authority,
-            ScheduleViewModel.EXTRA_COLOR to (optColor ?: ScheduleViewModel.EXTRA_COLOR_DEFAULT)
-        )
+        ) = Bundle().apply {
+            putString(ScheduleViewModel.EXTRA_POI_UUID, uuid)
+            putString(ScheduleViewModel.EXTRA_AUTHORITY, authority)
+            putString(ScheduleViewModel.EXTRA_COLOR, optColor ?: ScheduleViewModel.EXTRA_COLOR_DEFAULT)
+        }
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
-    override fun getScreenName(): String = TRACKING_SCREEN_NAME
+    override val screenName = TRACKING_SCREEN_NAME
+
+    @Inject
+    lateinit var serviceUpdateLoader: ServiceUpdateLoader
+
+    @Inject
+    lateinit var adManager: IAdManager
+
+    @Inject
+    lateinit var analyticsManager: IAnalyticsManager
 
     private val viewModel by viewModels<ScheduleViewModel>()
     private val attachedViewModel
@@ -103,17 +120,19 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite), MenuPr
     private var binding: FragmentScheduleInfiniteBinding? = null
 
     private val listAdapter: ScheduleAdapter by lazy {
-        ScheduleAdapter()
+        ScheduleAdapter(serviceUpdateLoader)
     }
 
     private var timeChangedReceiverEnabled = false
 
-    private val timeChangedReceiver = UITimeUtils.TimeChangedReceiver { onTimeChanged() }
-
-    private fun onTimeChanged() {
+    private val timeChangedListener = UITimeUtils.TimeChangedReceiver.TimeChangedListener {
         listAdapter.onTimeChanged()
+        attachedViewModel?.triggerRealTimeTimestampRefresh()
         bindLocaleTime(attachedViewModel?.localTimeZone?.value)
+        (activity as? IAdScreenActivity)?.let { adManager.onTimeChanged(it) }
     }
+
+    private val timeChangedReceiver = UITimeUtils.TimeChangedReceiver(timeChangedListener) // need to create an object because of WeakReference
 
     private val onScrollListener = object : OnScrollListener() {
         override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
@@ -130,9 +149,6 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite), MenuPr
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        (requireActivity() as MenuHost).addMenuProvider(
-            this, viewLifecycleOwner, Lifecycle.State.RESUMED
-        )
         binding = FragmentScheduleInfiniteBinding.bind(view).apply {
             applyStatusBarsInsetsEdgeToEdge() // not drawing behind status bar
             list.apply {
@@ -141,6 +157,7 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite), MenuPr
                 addItemDecoration(StickyHeaderItemDecorator(listAdapter, this))
                 setUpListEdgeToEdge()
             }
+            setupScreenToolbar(screenToolbarLayout.screenToolbarLayout, screenToolbarLayout.screenToolbar)
             if (UIFeatureFlags.F_EDGE_TO_EDGE_NAV_BAR_BELOW) {
                 sourceLabel.applyWindowInsetsEdgeToEdge(WindowInsetsCompat.Type.navigationBars(), consumed = false) { insets ->
                     updateLayoutParams<ViewGroup.MarginLayoutParams> {
@@ -149,6 +166,9 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite), MenuPr
                         bottomMargin = insets.bottom
                     }
                 }
+            }
+            fabRealTime.setOnClickListener {
+                viewModel.setHideRealTime(attachedViewModel?.hideRealTime?.value != true)
             }
         }
         viewModel.localTimeZone.observe(viewLifecycleOwner) { localTimeZone ->
@@ -168,9 +188,9 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite), MenuPr
         viewModel.scrolledToNow.observe(viewLifecycleOwner) {
             // NOTHING
         }
-        viewModel.sourceLabel.observe(viewLifecycleOwner) { sourceLabel ->
-            binding?.apply {
-                UISourceLabelUtils.setSourceLabelTextView(this.sourceLabel, sourceLabel)
+        viewModel.sourceLabelAndReadFromSource.observe(viewLifecycleOwner) { (sourceLabel, readFromSource) ->
+            binding?.let {
+                UISourceLabelUtils.setSourceLabelTextView(it.sourceLabel, readFromSource, sourceLabel)
             }
         }
         viewModel.timestamps.observe(viewLifecycleOwner) { timestamps ->
@@ -180,54 +200,77 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite), MenuPr
                 if (timestamps != null) {
                     if (viewModel.scrolledToNow.value == false) {
                         listAdapter.getScrollToNowPosition()?.let {
-                            list.scrollToPositionWithOffset(it, 48.dp)
+                            list.scrollToPositionWithOffset(it, 48.dpToPx)
                         }
                         viewModel.setScrolledToNow(true)
                     } else if (scrollPosition > 0) {
                         list.scrollToPosition(scrollPosition)
                     }
                 }
-                loadingLayout.isVisible = !listAdapter.isReady()
-                list.isVisible = listAdapter.isReady()
+                loadingLayout.isVisible = !listAdapter.isReady
+                list.isVisible = listAdapter.isReady
             }
         }
-        viewModel.rds.observe(viewLifecycleOwner) { rds ->
-            listAdapter.setRDS(rds)
+        viewModel.hasRealTime.observe(viewLifecycleOwner) { hasRealTime ->
+            binding?.apply {
+                fabRealTime.isVisible = hasRealTime
+            }
+        }
+        viewModel.hideRealTime.observe(viewLifecycleOwner) { hideRealTime ->
+            listAdapter.hideRealTime = hideRealTime
+            binding?.apply {
+                fabRealTime.apply {
+                    if (hideRealTime) {
+                        setImageResource(R.drawable.ic_baseline_wifi_24)
+                        contentDescription = getString(R.string.fab_action_real_time_show)
+                    } else {
+                        setImageResource(R.drawable.ic_baseline_wifi_off_24)
+                        contentDescription = getString(R.string.fab_action_real_time_hide)
+                    }
+                }
+            }
         }
         viewModel.showAccessibility.observe(viewLifecycleOwner) { showAccessibility ->
             listAdapter.showingAccessibility = showAccessibility
         }
-        viewModel.dataSourceRemovedEvent.observe(viewLifecycleOwner, EventObserver { removed ->
+        viewModel.dataSourceRemovedEvent.observeEvent(viewLifecycleOwner) { removed ->
             if (removed) {
                 (activity as MainActivity?)?.popFragmentFromStack(this) // close this fragment
             }
-        })
-        viewModel.colorInt.observe(viewLifecycleOwner) {
+        }
+        viewModel.colorInt.observe(viewLifecycleOwner) { colorInt ->
             abController?.setABBgColor(this, getABBgColor(context), false)
+            colorInt?.let {
+                binding?.fabRealTime?.apply {
+                    rippleColor = colorInt
+                    backgroundTintList = ColorStateList.valueOf(colorInt)
+                }
+            }
         }
         viewModel.agency.observe(viewLifecycleOwner) {
             abController?.setABSubtitle(this, getABSubtitle(context), false)
+            binding?.screenToolbarLayout?.screenToolbar?.let { updateScreenToolbarSubtitle(it) }
         }
-        viewModel.rds.observe(viewLifecycleOwner) {
-            abController?.setABBgColor(this, getABBgColor(context), false)
+        viewModel.poim.observe(viewLifecycleOwner) { poim ->
+            listAdapter.optPOIM = poim
+        }
+        viewModel.rds.observe(viewLifecycleOwner) { _ ->
+            abController?.setABTitle(this, getABTitle(context), false)
+            binding?.screenToolbarLayout?.screenToolbar?.let { updateScreenToolbarTitle(it) }
             abController?.setABSubtitle(this, getABSubtitle(context), false)
+            binding?.screenToolbarLayout?.screenToolbar?.let { updateScreenToolbarSubtitle(it) }
             abController?.setABReady(this, isABReady, true)
         }
     }
 
     private fun bindLocaleTime(localTimeZone: TimeZone?) = binding?.apply {
-        localTimeZone?.let {
+        localTimeZone?.let { tz ->
             val nowInMs = UITimeUtils.currentTimeToTheMinuteMillis()
-            UITimeUtils.formatTime(context, nowInMs, it)
-                .takeIf {
-                    it != UITimeUtils.formatTime(context, nowInMs, TimeZone.getDefault())
-                }
+            formatTime(context, nowInMs, tz)
+                .takeIf { it != formatTime(context, nowInMs, TimeZone.getDefault()) }
         }.let { localTimeDifferent ->
-            localTime.apply {
-                text = localTimeDifferent?.let {
-                    context.getString(R.string.local_time_and_time, UITimeUtils.cleanNoRealTime(false, it))
-                }
-                isVisible = localTimeDifferent != null
+            localTime.textAndVisibility = localTimeDifferent?.let {
+                context.getString(R.string.local_time_and_time, UITimeUtils.cleanNoRealTime(false, it))
             }
         }
     }
@@ -239,9 +282,10 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite), MenuPr
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
         return when (menuItem.itemId) {
             R.id.menu_today -> {
+                analyticsManager.trackButtonClick("toolbar_show_today", this)
                 binding?.apply {
                     listAdapter.getScrollToNowPosition()?.let {
-                        this.list.scrollToPositionWithOffset(it, 48.dp)
+                        this.list.scrollToPositionWithOffset(it, 48.dpToPx)
                     }
                     viewModel.setScrolledToNow(true)
                 }
@@ -259,7 +303,9 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite), MenuPr
 
     override fun onResume() {
         super.onResume()
+        binding?.apply { onResumeToolbar(screenToolbarLayout.screenToolbarLayout, screenToolbarLayout.screenToolbar) }
         viewModel.initStartEndTimeIfNotSet()
+        viewModel.poim.value?.allowTriggerStatusAndServiceUpdatesRefresh() // get changes loaded from other screens (while paused)
         enableTimeChangedReceiver()
     }
 
@@ -273,7 +319,7 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite), MenuPr
             context?.let {
                 ContextCompat.registerReceiver(it, timeChangedReceiver, UITimeUtils.TIME_CHANGED_INTENT_FILTER, ContextCompat.RECEIVER_EXPORTED)
                 timeChangedReceiverEnabled = true
-                onTimeChanged() // force update to current time before next change
+                timeChangedListener.onTimeChanged() // force update to current time before next change
             } ?: run {
                 MTLog.w(this, "enableTimeChangedReceiver() > SKIP (no context)")
             }
@@ -290,13 +336,15 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite), MenuPr
         }
     }
 
+    override fun hasToolbar() = true
+
     override fun isABReady() = attachedViewModel?.rds?.value != null
 
-    override fun getABTitle(context: Context?) = context?.getString(R.string.full_schedule) ?: super.getABTitle(context)
+    override fun getABTitle(context: Context?) =
+        attachedViewModel?.rds?.value?.getNewOneLineTitleForSchedule() ?: super.getABTitle(context)
 
-    override fun getABSubtitle(context: Context?) = attachedViewModel?.rds?.value?.let { rds ->
-        POIManager.getNewOneLineDescription(rds, attachedViewModel?.agency?.value)
-    } ?: super.getABSubtitle(context)
+    override fun getABSubtitle(context: Context?) =
+        attachedViewModel?.rds?.value?.getNewOneLineSubtitleForSchedule(context, attachedViewModel?.agency?.value) ?: super.getABSubtitle(context)
 
     override fun getABBgColor(context: Context?) = attachedViewModel?.colorInt?.value ?: super.getABBgColor(context)
 

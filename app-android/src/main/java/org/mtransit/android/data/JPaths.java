@@ -16,12 +16,12 @@ import java.util.Objects;
 @SuppressWarnings({"WeakerAccess", "unused"})
 public class JPaths implements MTLog.Loggable {
 
-	private static final String TAG = JPaths.class.getSimpleName();
+	private static final String LOG_TAG = JPaths.class.getSimpleName();
 
 	@NonNull
 	@Override
 	public String getLogTag() {
-		return TAG;
+		return LOG_TAG;
 	}
 
 	@NonNull
@@ -69,7 +69,7 @@ public class JPaths implements MTLog.Loggable {
 			json.put(JSON_PATHS, jPaths);
 			return json;
 		} catch (JSONException e) {
-			MTLog.w(TAG, e, "Error while converting to JSON!");
+			MTLog.w(LOG_TAG, e, "Error while converting to JSON!");
 			return null;
 		}
 	}
@@ -85,7 +85,7 @@ public class JPaths implements MTLog.Loggable {
 			}
 			return jPath;
 		} catch (JSONException e) {
-			MTLog.w(TAG, e, "Error while converting to JSON!");
+			MTLog.w(LOG_TAG, e, "Error while converting to JSON!");
 			return null;
 		}
 	}
@@ -95,7 +95,7 @@ public class JPaths implements MTLog.Loggable {
 		try {
 			return jsonString == null ? null : fromJSON(new JSONObject(jsonString));
 		} catch (JSONException e) {
-			MTLog.w(TAG, e, "Error while parsing JSON string '%s'!", jsonString);
+			MTLog.w(LOG_TAG, e, "Error while parsing JSON string '%s'!", jsonString);
 			return null;
 		}
 	}
@@ -116,7 +116,7 @@ public class JPaths implements MTLog.Loggable {
 			}
 			return jPaths;
 		} catch (JSONException e) {
-			MTLog.w(TAG, e, "Error while parsing JSON!");
+			MTLog.w(LOG_TAG, e, "Error while parsing JSON!");
 			return null;
 		}
 	}
@@ -133,7 +133,7 @@ public class JPaths implements MTLog.Loggable {
 					JRotation.fromJSON(jRotation)
 			);
 		} catch (JSONException e) {
-			MTLog.w(TAG, e, "Error while parsing JSON!");
+			MTLog.w(LOG_TAG, e, "Error while parsing JSON!");
 			return null;
 		}
 	}
@@ -244,7 +244,7 @@ public class JPaths implements MTLog.Loggable {
 				}
 				return json;
 			} catch (JSONException e) {
-				MTLog.w(TAG, e, "Error while converting to JSON!");
+				MTLog.w(LOG_TAG, e, "Error while converting to JSON!");
 				return null;
 			}
 		}
@@ -262,7 +262,7 @@ public class JPaths implements MTLog.Loggable {
 				}
 				return jPaint;
 			} catch (JSONException e) {
-				MTLog.w(TAG, e, "Error while parsing JSON!");
+				MTLog.w(LOG_TAG, e, "Error while parsing JSON!");
 				return null;
 			}
 		}
@@ -321,11 +321,11 @@ public class JPaths implements MTLog.Loggable {
 				case FORM_RECT:
 					return JRect.fromJSON(json);
 				default:
-					MTLog.w(TAG, "Unexpected form type ID '%s'!", formType);
+					MTLog.w(LOG_TAG, "Unexpected form type ID '%s'!", formType);
 					return null;
 				}
 			} catch (JSONException e) {
-				MTLog.w(TAG, e, "Error while parsing JSON!");
+				MTLog.w(LOG_TAG, e, "Error while parsing JSON!");
 				return null;
 			}
 		}
@@ -371,7 +371,7 @@ public class JPaths implements MTLog.Loggable {
 				super.toJSON(json);
 				return json;
 			} catch (JSONException e) {
-				MTLog.w(TAG, e, "Error while converting to JSON!");
+				MTLog.w(LOG_TAG, e, "Error while converting to JSON!");
 				return null;
 			}
 		}
@@ -384,7 +384,7 @@ public class JPaths implements MTLog.Loggable {
 				float radius = (float) json.getDouble(JSON_RADIUS);
 				return new JCircle(x, y, radius);
 			} catch (JSONException e) {
-				MTLog.w(TAG, e, "Error while parsing JSON!");
+				MTLog.w(LOG_TAG, e, "Error while parsing JSON!");
 				return null;
 			}
 		}
@@ -446,7 +446,7 @@ public class JPaths implements MTLog.Loggable {
 				super.toJSON(json);
 				return json;
 			} catch (JSONException e) {
-				MTLog.w(TAG, e, "Error while creating subway logo!");
+				MTLog.w(LOG_TAG, e, "Error while creating subway logo!");
 				return null;
 			}
 		}
@@ -460,7 +460,7 @@ public class JPaths implements MTLog.Loggable {
 				float bottom = (float) json.getDouble(JSON_BOTTOM);
 				return new JRect(left, top, right, bottom);
 			} catch (JSONException e) {
-				MTLog.w(TAG, e, "Error while parsing JSON!");
+				MTLog.w(LOG_TAG, e, "Error while parsing JSON!");
 				return null;
 			}
 		}

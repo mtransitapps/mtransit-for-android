@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -8,15 +8,10 @@
     tools:background="#0000FF"
     tools:context=".ui.type.AgencyTypeFragment">
 
-    <View
-        android:id="@+id/fragment_status_bar_bg"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/action_bar_size_static"
-        android:visibility="visible"
-        tools:background="#80FF00FF"
-        tools:layout_height="28dp"
-        tools:layout_marginBottom="@dimen/action_bar_size_static"
-        tools:visibility="visible" />
+    <include
+        android:id="@+id/screen_toolbar_layout"
+        layout="@layout/layout_screen_toolbar"
+        tools:background="#FF00FF" />
 
     <!-- TABS -->
     <com.google.android.material.tabs.TabLayout
@@ -24,6 +19,7 @@
         style="@style/Widget.MaterialComponents.TabLayout.Colored"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_below="@id/screen_toolbar_layout"
         android:theme="@style/MTThemeOverlay"
         android:visibility="gone"
         app:tabContentStart="@dimen/tab_content_start"
@@ -35,18 +31,54 @@
         tools:background="#FF00FF"
         tools:visibility="visible" />
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@id/tabs"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:weightSum="10">
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="6" />
+
+        <ImageView
+            android:id="@+id/type_img"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginBottom="28dp"
+            android:layout_weight="2"
+            android:alpha="0.3"
+            android:contentDescription="@null"
+            android:scaleType="fitCenter"
+            android:visibility="gone"
+            app:tint="#FFFFFF"
+            tools:background="#00ff00"
+            tools:src="@drawable/ic_directions_subway_black_24dp"
+            tools:visibility="visible" />
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="2" />
+
+    </LinearLayout>
+
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:id="@+id/context_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:layout_below="@id/tabs">
+
         <!-- LOADING -->
         <include
             android:id="@id/loading_layout"
             layout="@layout/layout_loading_large"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
             android:visibility="gone"
             tools:visibility="visible" />
+
         <!-- VIEWPAGER -->
         <androidx.viewpager2.widget.ViewPager2
             android:id="@id/view_pager"
@@ -54,16 +86,16 @@
             android:layout_height="match_parent"
             android:orientation="horizontal"
             android:visibility="visible"
+            tools:layout="@layout/fragment_agency_pois"
             tools:visibility="visible" />
+
         <!-- EMPTY -->
         <include
             android:id="@id/empty_layout"
             layout="@layout/layout_empty"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
             android:visibility="gone"
             tools:visibility="visible" />
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
-</LinearLayout>
+</RelativeLayout>

@@ -21,6 +21,7 @@ interface IBillingManager {
         @JvmField
         val PRODUCT_ID_STARTS_WITH_F = "f_"
 
+        @Suppress("unused")
         @JvmField
         val PRODUCT_ID_STARTS_WITH_N = "n_"
 
@@ -45,6 +46,7 @@ interface IBillingManager {
         @JvmField
         val NEW_PRO_SUBSCRIPTIONS = "n_pro" // TODO create on play console
 
+        @Suppress("KotlinConstantConditions")
         @JvmField
         val NEW_SUBSCRIPTIONS = arrayListOf(
             NEW_BASIC_SUBSCRIPTIONS,
@@ -87,62 +89,55 @@ interface IBillingManager {
         val ALL_VALID_SUBSCRIPTIONS = FLEXIBLE_SUBSCRIPTIONS + ORIGINAL_SUBSCRIPTIONS + NEW_SUBSCRIPTIONS
     }
 
-    val productIdsWithDetails: LiveData<Map<String, ProductDetails>>
+    val availableProductIdsWithDetails: LiveData<Map<String, ProductDetails>>
 
-    val currentSubscription: LiveData<String?>
+    val currentSubsProductId: LiveData<String?>
+
+    suspend fun getCachedHasSubscription(): Boolean?
+
+    suspend fun getCachedCurrentSubsProductId(): String?
 
     val hasSubscription: LiveData<Boolean?>
 
-    fun showingPaidFeatures(): Boolean
+    val hasSubscriptionOrNoError: LiveData<Boolean?>
+
+    val hasBillingConfig: LiveData<Boolean?>
+
+    fun setFullDemoMode(newFullDemoMode: Boolean)
+
+    val showPaidFeatures: LiveData<Boolean>
 
     fun refreshAvailableSubscriptions()
 
     fun refreshPurchases()
 
     fun launchBillingFlow(activity: IActivity, productId: String): Boolean
-
-    fun addListener(listener: OnBillingResultListener)
-
-    fun removeListener(listener: OnBillingResultListener)
-
-    interface OnBillingResultListener {
-        fun onBillingResult(productId: String?)
-    }
 }
 
-fun <T : IAgencyProperties> List<T>.filterExpansiveAgencies(billingManager: IBillingManager) =
-    this.filterExpansiveAgencies(billingManager.showingPaidFeatures())
-
-fun <T : IAgencyProperties> List<T>.filterExpansiveAgencies(showingPaidFeatures: Boolean): List<T> {
+fun <T : IAgencyProperties> List<T>.filterExpansiveAgencies(showingPaidFeatures: Boolean, allowTwitterNewsForFree: Boolean): List<T> {
     if (showingPaidFeatures) return this // keep all for paid users
-    return this.filterTo(ArrayList()) { agency ->
-        filterExpansiveAgencyAuthorities(agency.authority)
+    return filterTo(ArrayList()) { agency ->
+        filterExpansiveAgencyAuthorities(agency.authority, allowTwitterNewsForFree)
     }
 }
 
-fun List<String>.filterExpansiveAgencyAuthorities(billingManager: IBillingManager) =
-    this.filterExpansiveAgencyAuthorities(billingManager.showingPaidFeatures())
-
-fun List<String>.filterExpansiveAgencyAuthorities(showingPaidFeatures: Boolean): List<String> {
+fun List<String>.filterExpansiveAgencyAuthorities(showingPaidFeatures: Boolean, allowTwitterNewsForFree: Boolean): List<String> {
     if (showingPaidFeatures) return this // keep all for paid users
-    return this.filterTo(ArrayList()) { authority ->
-        filterExpansiveAgencyAuthorities(authority)
+    return filterTo(ArrayList()) { authority ->
+        filterExpansiveAgencyAuthorities(authority, allowTwitterNewsForFree)
     }
 }
 
-fun List<NewsProviderProperties>.filterExpansiveNewsProviders(billingManager: IBillingManager) =
-    this.filterExpansiveNewsProviders(billingManager.showingPaidFeatures())
-
-fun List<NewsProviderProperties>.filterExpansiveNewsProviders(showingPaidFeatures: Boolean): List<NewsProviderProperties> {
+fun List<NewsProviderProperties>.filterExpansiveNewsProviders(showingPaidFeatures: Boolean, allowTwitterNewsForFree: Boolean): List<NewsProviderProperties> {
     if (showingPaidFeatures) return this // keep all for paid users
-    return this.filterTo(ArrayList()) { agency ->
-        filterExpansiveAgencyAuthorities(agency.authority)
+    return filterTo(ArrayList()) { newsProvider ->
+        filterExpansiveAgencyAuthorities(newsProvider.authority, allowTwitterNewsForFree)
     }
 }
 
-private val filterExpansiveAgencyAuthorities: (String) -> Boolean = { authority ->
+private val filterExpansiveAgencyAuthorities: (String, allowTwitterNewsForFree: Boolean) -> Boolean = { authority, allowTwitterNewsForFree ->
     (
-            !authority.contains("news.twitter") // Twitter/X API
-                    && !authority.contains("provider.place") // Google Place Search API
-            )
+        (allowTwitterNewsForFree || !authority.contains("news.twitter")) // Twitter/X API
+            && !authority.contains("provider.place") // Google Place Search API
+        )
 }

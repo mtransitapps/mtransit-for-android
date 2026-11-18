@@ -42,6 +42,8 @@ interface IAgencyProperties {
     val type: DataSourceType
     val extendedType: DataSourceType?
 
+    val timeZoneId: String?
+
     fun getSupportedType(): DataSourceType = this.extendedType ?: this.type
 
     val pkg: String
@@ -60,3 +62,7 @@ interface IAgencyProperties {
         return isEnabled && pm.isAppEnabled(this.pkg)
     }
 }
+
+fun String.toShortAuthority() = this.replace("org.mtransit.android.", "[MT]")
+
+val IAgencyProperties.shortAuthority: String get() = this.authority.toShortAuthority()

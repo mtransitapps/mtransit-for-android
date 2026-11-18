@@ -4,49 +4,64 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.text.SpannableStringBuilder
 import android.text.style.ForegroundColorSpan
-import android.util.SparseArray
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.annotation.IntDef
-import androidx.core.util.forEach
+import androidx.annotation.VisibleForTesting
+import androidx.collection.SparseArrayCompat
+import androidx.collection.forEach
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.NO_POSITION
+import org.mtransit.android.R
+import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.SpanUtils
 import org.mtransit.android.commons.ThreadSafeDateFormatter
 import org.mtransit.android.commons.data.Accessibility
-import org.mtransit.android.commons.data.Direction
 import org.mtransit.android.commons.data.RouteDirectionStop
 import org.mtransit.android.commons.data.Schedule
-import org.mtransit.android.commons.equalOrAfter
+import org.mtransit.android.commons.data.ServiceUpdates
+import org.mtransit.android.commons.data.arrivalMs
+import org.mtransit.android.commons.data.departureMs
+import org.mtransit.android.commons.data.getDepartureArrivalDiff
+import org.mtransit.android.data.POIManager
 import org.mtransit.android.data.UISchedule
-import org.mtransit.android.data.decorateDirection
-import org.mtransit.android.databinding.LayoutPoiDetailStatusScheduleDaySeparatorBinding
-import org.mtransit.android.databinding.LayoutPoiDetailStatusScheduleHourSeparatorBinding
-import org.mtransit.android.databinding.LayoutPoiDetailStatusScheduleLoadingBinding
-import org.mtransit.android.databinding.LayoutPoiDetailStatusScheduleTimeBinding
+import org.mtransit.android.data.allTripsNoService
+import org.mtransit.android.data.getDepartureLateEarlyString
+import org.mtransit.android.data.makeHeading
+import org.mtransit.android.databinding.LayoutScheduleInfiniteListDaySeparatorBinding
+import org.mtransit.android.databinding.LayoutScheduleInfiniteListHourSeparatorBinding
+import org.mtransit.android.databinding.LayoutScheduleInfiniteListLoadingBinding
+import org.mtransit.android.databinding.LayoutScheduleInfiniteListTimeBinding
+import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.ui.view.common.StickyHeaderItemDecorator
 import org.mtransit.android.ui.view.common.context
 import org.mtransit.android.util.UIAccessibilityUtils
 import org.mtransit.android.util.UITimeUtils
-import org.mtransit.commons.Constants
+import org.mtransit.android.util.formatTime
+import org.mtransit.commons.Constants.EMPTY
+import org.mtransit.commons.Constants.SPACE
 import org.mtransit.commons.beginningOfDay
 import org.mtransit.commons.date
 import org.mtransit.commons.hourOfTheDay
 import org.mtransit.commons.isSameDay
 import org.mtransit.commons.toCalendar
+import java.text.DateFormat
 import java.util.Calendar
-import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 
-class ScheduleAdapter
-    : RecyclerView.Adapter<RecyclerView.ViewHolder>(),
+class ScheduleAdapter(
+    private val serviceUpdateLoader: ServiceUpdateLoader,
+) : RecyclerView.Adapter<RecyclerView.ViewHolder>(),
     StickyHeaderItemDecorator.StickyAdapter<RecyclerView.ViewHolder>,
+    ServiceUpdateLoader.ServiceUpdateLoaderListener,
     MTLog.Loggable {
 
     companion object {
-        private val LOG_TAG = ScheduleAdapter::class.java.simpleName
+        private val LOG_TAG: String = ScheduleAdapter::class.java.simpleName
 
         @Retention(AnnotationRetention.SOURCE)
         @IntDef(ITEM_VIEW_TYPE_DAY_SEPARATORS, ITEM_VIEW_TYPE_HOUR_SEPARATORS, ITEM_VIEW_TYPE_TIME, ITEM_VIEW_TYPE_LOADING)
@@ -100,26 +115,41 @@ class ScheduleAdapter
 
     private var timesCount: Int? = null
 
-    private fun makeDayHours(): SparseArray<MutableList<Schedule.Timestamp>> {
-        return SparseArray<MutableList<Schedule.Timestamp>>().apply {
-            for (hourOfTheDay in 0 until HOUR_SEPARATORS_COUNT) {
-                put(hourOfTheDay, mutableListOf())
-            }
+    private fun makeDayHours() = SparseArrayCompat<MutableList<Schedule.Timestamp>>().apply {
+        repeat(HOUR_SEPARATORS_COUNT) { hourOfTheDay ->
+            put(hourOfTheDay, mutableListOf())
         }
     }
 
-    private val dayToHourToTimestamps = mutableListOf<Pair<Long, SparseArray<MutableList<Schedule.Timestamp>>>>()
+    @VisibleForTesting
+    internal val dayToHourToTimestamps = mutableListOf<Pair<Long, SparseArrayCompat<MutableList<Schedule.Timestamp>>>>()
 
-    private var nextTimestamp: Schedule.Timestamp? = null
+    @VisibleForTesting
+    internal var nextTimestamp: Schedule.Timestamp? = null
 
     private var nowToTheMinute: Long = UITimeUtils.currentTimeToTheMinuteMillis()
 
-    private var optRds: RouteDirectionStop? = null
-
-    var timestamps: List<Schedule.Timestamp>? = null
+    @SuppressLint("NotifyDataSetChanged")
+    var optPOIM: POIManager? = null
         set(value) {
             if (field == value) return
+            field?.removeServiceUpdateLoaderListener(this@ScheduleAdapter)
             field = value
+            field?.addServiceUpdateLoaderListener(this@ScheduleAdapter)
+            callNotifyDataSetChanged() // all times can show POI service updates cancellations...
+        }
+
+    @SuppressLint("NotifyDataSetChanged")
+    override fun onServiceUpdatesLoaded(targetUUID: String, serviceUpdates: ServiceUpdates) {
+        if (targetUUID != this.optPOIM?.poi?.uuid) return // wrong POI
+        this.optPOIM?.setServiceUpdates(serviceUpdates)
+        callNotifyDataSetChanged() // all times can show POI service updates cancellations...
+    }
+
+    var timestamps: List<Schedule.Timestamp>? = null
+        set(newValue) {
+            if (field == newValue) return
+            field = newValue
             updateTimes()
         }
 
@@ -155,7 +185,7 @@ class ScheduleAdapter
     }
 
     private val dayDateFormat by lazy {
-        ThreadSafeDateFormatter("EEEE, MMM d, yyyy", Locale.getDefault()).apply {
+        ThreadSafeDateFormatter(DateFormat.getDateInstance(DateFormat.LONG, Locale.getDefault())).apply {
             localTimeZone?.let { setTimeZone(it) }
         }
     }
@@ -167,15 +197,24 @@ class ScheduleAdapter
         }
     }
 
-    fun setRDS(rds: RouteDirectionStop?) {
-        this.optRds = rds
+    @SuppressLint("NotifyDataSetChanged")
+    internal var callNotifyDataSetChanged: () -> Unit = {
+        notifyDataSetChanged()
     }
 
-    var showingAccessibility: Boolean? = null
+    var hideRealTime: Boolean = false
+        @SuppressLint("NotifyDataSetChanged")
+        set(value) {
+            if (field == value) return
+            field = value
+            updateTimes()
+        }
+
+    var showingAccessibility: Boolean = DefaultPreferenceRepository.PREFS_SHOW_ACCESSIBILITY_DEFAULT
         @SuppressLint("NotifyDataSetChanged")
         set(value) {
             if (field != value) {
-                notifyDataSetChanged()
+                callNotifyDataSetChanged()
             }
             field = value
         }
@@ -184,7 +223,7 @@ class ScheduleAdapter
     fun onTimeChanged(newTimeInMs: Long = UITimeUtils.currentTimeToTheMinuteMillis()) {
         this.nowToTheMinute = newTimeInMs
         if (this.nowToTheMinute > 0L) {
-            notifyDataSetChanged()
+            callNotifyDataSetChanged()
         }
     }
 
@@ -217,17 +256,17 @@ class ScheduleAdapter
             cal.date++
         }
         if (dataSetChanged) {
-            notifyDataSetChanged()
+            callNotifyDataSetChanged()
         }
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    fun updateTimes() {
+    private fun updateTimes() {
         val originalTimeCount = this.timesCount ?: -1
         clearTimes()
         if (this.timestamps == null || this.localTimeZone == null) {
             if (originalTimeCount > 0) {
-                notifyDataSetChanged()
+                callNotifyDataSetChanged()
             }
             return
         }
@@ -235,10 +274,11 @@ class ScheduleAdapter
         val localTimeZone = this.localTimeZone ?: return
         var newTimesCount = 0
         var dayBeginningCalendar: Calendar? = null
-        var dayToHourToTimestamp: Pair<Long, SparseArray<MutableList<Schedule.Timestamp>>>? = null
+        var dayToHourToTimestamp: Pair<Long, SparseArrayCompat<MutableList<Schedule.Timestamp>>>? = null
         val calendar = Calendar.getInstance(localTimeZone)
-        for (timestamp in timestamps) {
-            calendar.timeInMillis = timestamp.t
+        timestamps.forEach { timestamp ->
+            val departureMs = timestamp.departureMs(hideRealTime)
+            calendar.timeInMillis = departureMs
             if (dayBeginningCalendar == null || !dayBeginningCalendar.isSameDay(calendar)) {
                 dayBeginningCalendar = calendar.beginningOfDay
                 dayToHourToTimestamp = this.dayToHourToTimestamps.firstOrNull { it.first == dayBeginningCalendar.timeInMillis }
@@ -252,12 +292,30 @@ class ScheduleAdapter
             }
             dayToHourToTimestamp?.second?.get(calendar.hourOfTheDay)?.add(timestamp)
             newTimesCount++
-            if (this.nextTimestamp == null && timestamp.t >= this.nowToTheMinute) {
-                this.nextTimestamp = timestamp
+        }
+        this.dayToHourToTimestamps.sortBy { it.first } // SORT DAY GROUPS
+        this.dayToHourToTimestamps.forEach { (_, hourToTimes) ->
+            hourToTimes.forEach { _, scheduleTimestamps ->
+                scheduleTimestamps.sortBy { it.departureMs(hideRealTime) }
             }
         }
+        updateNextTimestamp()
         this.timesCount = newTimesCount
-        notifyDataSetChanged()
+        callNotifyDataSetChanged()
+    }
+
+    private fun updateNextTimestamp() {
+        this.nextTimestamp = null
+        this.dayToHourToTimestamps.forEach { (_, hourToTimes) ->
+            repeat(HOUR_SEPARATORS_COUNT) { hourOfTheDay ->
+                hourToTimes[hourOfTheDay]?.forEach { timestamp ->
+                    if (timestamp.departureMs(hideRealTime) >= this.nowToTheMinute) {
+                        this.nextTimestamp = timestamp
+                        return
+                    }
+                }
+            }
+        }
     }
 
     fun getScrollToNowPosition(): Int? {
@@ -269,55 +327,64 @@ class ScheduleAdapter
 
     private fun getTodaySelectPosition(): Int {
         nextTimestamp?.let { nextTimestamp ->
-            val nextTimePosition: Int = getPosition(nextTimestamp)
-            if (nextTimePosition == NO_POSITION) {
-                return 0 // ELSE show 1st of the list
+            val nextTimePosition = getPosition(nextTimestamp.departureMs(hideRealTime))
+            if (nextTimePosition != NO_POSITION) {
+                return nextTimePosition
             }
-            return nextTimePosition
+        }
+        val nowPosition = getPosition(nowToTheMinute, notAtTimestamp = true) // when no next timestamp available
+        if (nowPosition != NO_POSITION) {
+            return nowPosition
         }
         return 0 // ELSE show 1st of the list
     }
 
-    private fun getPosition(item: Any): Int {
-        if (item !is Schedule.Timestamp) {
+    private fun getPosition(timestampMs: Long, notAtTimestamp: Boolean = false): Int {
+        if (timestampMs <= 0L) {
             return NO_POSITION
         }
         val localTimeZone = this.localTimeZone ?: return NO_POSITION
         var index = 0
-        val date = Date(item.t)
-        var thatDate: Date
-        var nextDate: Date?
+        var nextTimestampMs: Long?
         var nextHourOfTheDay: Int
-        this.dayToHourToTimestamps.forEach { (dayBeginningMs, hourToTimes) ->
+        this.dayToHourToTimestamps.forEach { (dayBeginningMs, hourToTimestamp) ->
             index++ // day separator
             val dayCal = dayBeginningMs.toCalendar(localTimeZone)
-            hourToTimes.forEach { hour, hourTimes ->
+            hourToTimestamp.forEach { hour, hourTimestamps ->
                 index++ // hour separator
-                if (hourTimes.isNotEmpty()) {
-                    dayCal.hourOfTheDay = hour
-                    thatDate = dayCal.time
-                    if (date.equalOrAfter(thatDate)) {
-                        nextHourOfTheDay = hour + 1
-                        nextDate = null
-                        if (nextHourOfTheDay < hourTimes.size) {
-                            dayCal.hourOfTheDay = nextHourOfTheDay
-                            nextDate = dayCal.time
-                        }
-                        if (nextDate == null || date.before(nextDate)) {
-                            for (hourTime in hourTimes) {
-                                if (item.t == hourTime.t) {
-                                    return index
-                                }
-                                index++ // after
-                            }
-                        } else {
-                            index += hourTimes.size // after
-                        }
-                    } else {
-                        index += hourTimes.size // after
+                if (!notAtTimestamp && hourTimestamps.isEmpty()) {
+                    return@forEach
+                }
+                dayCal.hourOfTheDay = hour
+                if (timestampMs < dayCal.timeInMillis) {
+                    if (notAtTimestamp) {
+                        return index - 1
+                    }
+                    index += hourTimestamps.size // after
+                    return@forEach
+                }
+                nextHourOfTheDay = hour + 1
+                nextTimestampMs = null
+                if (nextHourOfTheDay < HOUR_SEPARATORS_COUNT) {
+                    dayCal.hourOfTheDay = nextHourOfTheDay
+                    nextTimestampMs = dayCal.timeInMillis
+                }
+                nextTimestampMs?.let {
+                    if (it <= timestampMs) {
+                        index += hourTimestamps.size // after
+                        return@forEach
                     }
                 }
+                for (hourTimestamp in hourTimestamps) {
+                    if (timestampMs == hourTimestamp.departureMs(hideRealTime)) {
+                        return index
+                    }
+                    index++ // after
+                }
             }
+        }
+        if (notAtTimestamp && index > 0) {
+            return index - 1
         }
         return NO_POSITION
     }
@@ -330,27 +397,27 @@ class ScheduleAdapter
         this.nextTimestamp = null
     }
 
-    fun isReady() = this.timesCount != null
+    val isReady get() = this.timesCount != null
 
     override fun getItemCount(): Int {
-        return if (!isReady()) 0
-        else
-            (this.timesCount ?: 0) + // times
-                    dayToHourToTimestamps.size + // day separator
-                    dayToHourToTimestamps.size * HOUR_SEPARATORS_COUNT + // time separator
-                    1 // loading
+        if (!isReady) return 0
+        return (this.timesCount ?: 0) + // times
+            dayToHourToTimestamps.size + // day separator
+            dayToHourToTimestamps.size * HOUR_SEPARATORS_COUNT + // time separator
+            1 // loading
     }
 
     private fun getTimestampItem(position: Int): Schedule.Timestamp? {
         var index = 0
         this.dayToHourToTimestamps.forEach { (_, hourToTimes) ->
             index++ // day separator
-            (0 until HOUR_SEPARATORS_COUNT).forEach { hourOfTheDay ->
+            repeat(HOUR_SEPARATORS_COUNT) { hourOfTheDay ->
                 index++ // hour separator
-                if (position >= index && position < index + hourToTimes.get(hourOfTheDay).size) {
-                    return hourToTimes.get(hourOfTheDay)[position - index]
+                val hoursTimestamps = hourToTimes[hourOfTheDay].orEmpty()
+                if (index <= position && position < index + hoursTimestamps.size) {
+                    return hoursTimestamps[position - index]
                 }
-                index += hourToTimes.get(hourOfTheDay).size
+                index += hoursTimestamps.size
             }
         }
         return null
@@ -364,9 +431,9 @@ class ScheduleAdapter
             val dayPosition = index
             val startIndex = index
             index++ // day separator
-            (0 until HOUR_SEPARATORS_COUNT).forEach { hourOfTheDay ->
+            repeat(HOUR_SEPARATORS_COUNT) { hourOfTheDay ->
                 index++ // hour separator
-                index += hourToTimes.get(hourOfTheDay).size
+                index += hourToTimes[hourOfTheDay].orEmpty().size
             }
             val endIndex = index - 1
             if (itemPosition in (startIndex..endIndex)) {
@@ -398,9 +465,9 @@ class ScheduleAdapter
                 return dayBeginningMs
             }
             index++ // day separator
-            (0 until HOUR_SEPARATORS_COUNT).forEach { hourOfTheDay ->
+            repeat(HOUR_SEPARATORS_COUNT) { hourOfTheDay ->
                 index++ // hour separator
-                index += hourToTimes.get(hourOfTheDay).size
+                index += hourToTimes[hourOfTheDay].orEmpty().size
             }
         }
         return null
@@ -413,13 +480,13 @@ class ScheduleAdapter
         this.dayToHourToTimestamps.forEach { (dayBeginningMs, hourToTimes) ->
             index++ // day separator
             val cal: Calendar = dayBeginningMs.toCalendar(localTimeZone)
-            (0 until HOUR_SEPARATORS_COUNT).forEach { hourOfTheDay ->
+            repeat(HOUR_SEPARATORS_COUNT) { hourOfTheDay ->
                 if (index == position) {
                     cal.hourOfTheDay = hourOfTheDay
                     return cal.timeInMillis
                 }
                 index++ // hour separator
-                index += hourToTimes.get(hourOfTheDay).size
+                index += hourToTimes[hourOfTheDay].orEmpty().size
             }
         }
         return null
@@ -433,15 +500,16 @@ class ScheduleAdapter
                 return ITEM_VIEW_TYPE_DAY_SEPARATORS
             }
             index++ // separator
-            (0 until HOUR_SEPARATORS_COUNT).forEach { hourOfTheDay ->
+            repeat(HOUR_SEPARATORS_COUNT) { hourOfTheDay ->
                 if (index == position) {
                     return ITEM_VIEW_TYPE_HOUR_SEPARATORS
                 }
                 index++ // separator
-                if (position >= index && position < index + hourToTimes.get(hourOfTheDay).size) {
+                val hoursTimestamps = hourToTimes[hourOfTheDay].orEmpty()
+                if (position >= index && position < index + hoursTimestamps.size) {
                     return ITEM_VIEW_TYPE_TIME
                 }
-                index += hourToTimes.get(hourOfTheDay).size
+                index += hoursTimestamps.size
             }
         }
         if (position == index) {
@@ -461,56 +529,49 @@ class ScheduleAdapter
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        when (getItemViewType(position)) {
-            ITEM_VIEW_TYPE_DAY_SEPARATORS -> {
-                (holder as? DaySeparatorViewHolder)?.bind(
-                    getDayItem(position),
-                    nowToTheMinute,
-                    this.dayDateFormat,
-                    this.localTimeZone,
-                )
-            }
+        when (holder) {
+            is DaySeparatorViewHolder -> holder.bind(
+                getDayItem(position),
+                nowToTheMinute,
+                this.dayDateFormat,
+                this.localTimeZone,
+            )
 
-            ITEM_VIEW_TYPE_HOUR_SEPARATORS -> {
-                (holder as? HourSeparatorViewHolder)?.bind(
-                    getHourItemTimestamp(position),
-                    getHourFormatter(holder.context),
-                    this.localTimeZone,
-                )
-            }
+            is HourSeparatorViewHolder -> holder.bind(
+                getHourItemTimestamp(position),
+                getHourFormatter(holder.context),
+                this.localTimeZone,
+            )
 
-            ITEM_VIEW_TYPE_TIME -> {
-                (holder as? TimeViewHolder)?.bind(
-                    getTimestampItem(position),
-                    nowToTheMinute,
-                    nextTimestamp,
-                    this.optRds,
-                    this.showingAccessibility,
-                )
-            }
+            is TimeViewHolder -> holder.bind(
+                serviceUpdateLoader,
+                getTimestampItem(position),
+                nowToTheMinute,
+                nextTimestamp,
+                this.optPOIM,
+                this.showingAccessibility,
+                this.hideRealTime,
+                this.localTimeZone,
+            )
 
-            ITEM_VIEW_TYPE_LOADING -> {
-                (holder as? LoadingViewHolder)?.bind(
-                )
-            }
+            is LoadingViewHolder -> holder.bind()
 
             else -> throw RuntimeException("Unexpected view to bind $position!")
         }
     }
 
     private class DaySeparatorViewHolder private constructor(
-        private val binding: LayoutPoiDetailStatusScheduleDaySeparatorBinding
+        private val binding: LayoutScheduleInfiniteListDaySeparatorBinding
     ) : RecyclerView.ViewHolder(binding.root) {
         companion object {
             fun from(parent: ViewGroup): DaySeparatorViewHolder {
-                val binding = LayoutPoiDetailStatusScheduleDaySeparatorBinding.inflate(
+                val binding = LayoutScheduleInfiniteListDaySeparatorBinding.inflate(
                     LayoutInflater.from(parent.context),
                     parent,
                     false
                 )
                 return DaySeparatorViewHolder(binding)
             }
-
         }
 
         val context: Context
@@ -526,7 +587,7 @@ class ScheduleAdapter
                 binding.day.text = null
                 return
             }
-            val cal = localTimeZone?.let { timestampInMs.toCalendar(localTimeZone) } ?: timestampInMs.toCalendar()
+            val cal = timestampInMs.toCalendar(localTimeZone ?: TimeZone.getDefault())
             val timeSb = SpannableStringBuilder(
                 UITimeUtils.getNearRelativeDay(
                     context,
@@ -550,11 +611,11 @@ class ScheduleAdapter
     }
 
     private class HourSeparatorViewHolder private constructor(
-        private val binding: LayoutPoiDetailStatusScheduleHourSeparatorBinding
+        private val binding: LayoutScheduleInfiniteListHourSeparatorBinding
     ) : RecyclerView.ViewHolder(binding.root) {
         companion object {
             fun from(parent: ViewGroup): HourSeparatorViewHolder {
-                val binding = LayoutPoiDetailStatusScheduleHourSeparatorBinding.inflate(
+                val binding = LayoutScheduleInfiniteListHourSeparatorBinding.inflate(
                     LayoutInflater.from(parent.context),
                     parent,
                     false
@@ -570,7 +631,7 @@ class ScheduleAdapter
             if (hourInMs == null) {
                 binding.hour.text = null
             } else {
-                val cal = localTimeZone?.let { hourInMs.toCalendar(localTimeZone) } ?: hourInMs.toCalendar()
+                val cal = hourInMs.toCalendar(localTimeZone ?: TimeZone.getDefault())
                 binding.hour.text = UITimeUtils.cleanNoRealTime(
                     false,
                     hourFormatter.formatThreadSafe(cal)
@@ -580,11 +641,11 @@ class ScheduleAdapter
     }
 
     private class TimeViewHolder private constructor(
-        private val binding: LayoutPoiDetailStatusScheduleTimeBinding
+        private val binding: LayoutScheduleInfiniteListTimeBinding
     ) : RecyclerView.ViewHolder(binding.root) {
         companion object {
             fun from(parent: ViewGroup): TimeViewHolder {
-                val binding = LayoutPoiDetailStatusScheduleTimeBinding.inflate(
+                val binding = LayoutScheduleInfiniteListTimeBinding.inflate(
                     LayoutInflater.from(parent.context),
                     parent,
                     false
@@ -592,54 +653,90 @@ class ScheduleAdapter
                 return TimeViewHolder(binding)
             }
 
-            private const val P2 = ")"
             private const val P1 = " ("
+            private const val P2 = ")"
 
+            private val LATE_EARLY_MIN_DIFF = 45.seconds
         }
 
         val context: Context
             get() = binding.context
 
         fun bind(
-            timestamp: Schedule.Timestamp? = null,
-            nowToTheMinuteInMs: Long = -1L,
-            nextTimestamp: Schedule.Timestamp? = null,
-            optRds: RouteDirectionStop? = null,
-            showingAccessibility: Boolean? = null,
+            serviceUpdateLoader: ServiceUpdateLoader,
+            timestamp: Schedule.Timestamp?,
+            nowToTheMinuteInMs: Long,
+            nextTimestamp: Schedule.Timestamp?,
+            optPOIM: POIManager?,
+            showingAccessibility: Boolean,
+            hideRealTime: Boolean,
+            localTimeZone: TimeZone?,
         ) {
             if (timestamp == null) {
                 binding.time.text = null
                 return
             }
-            val formattedTime = UITimeUtils.formatTimestamp(context, timestamp)
+            val optRds = optPOIM?.poi as? RouteDirectionStop
+
+            //noinspection DiscouragedApi
+            val localTZ = localTimeZone ?: timestamp.localTimeZoneId?.let { TimeZone.getTimeZone(it) }
+            val formattedTime = formatTime(
+                context,
+                timestampInMs = timestamp.departureMs(hideRealTime),
+                realTime = !hideRealTime && timestamp.isRealTime,
+                localTimeZone = localTZ,
+            )
             var timeSb = SpannableStringBuilder(formattedTime)
+            timestamp.takeUnless { hideRealTime } // hide late/early w/o real-time
+                ?.getDepartureLateEarlyString(context, LATE_EARLY_MIN_DIFF, LATE_EARLY_MIN_DIFF, short = false)
+                ?.let { lateOrEarly ->
+                    timeSb.append(P1).append(lateOrEarly).append(P2)
+                }
+            if (timestamp.getDepartureArrivalDiff(hideRealTime) > 1.minutes) {
+                timeSb.append(P1)
+                    .append(
+                        context.getString(
+                            R.string.arrival_and,
+                            formatTime(
+                                context = context,
+                                timestampInMs = timestamp.arrivalMs(hideRealTime),
+                                realTime = false, // cannot have multiple real-time image in 1 Spannable
+                                localTimeZone = localTZ,
+                            )
+                        )
+                    )
+                    .append(P2)
+            }
             timeSb.append(
                 UIAccessibilityUtils.decorate(
                     context,
-                    Accessibility.decorate(Constants.EMPTY, timestamp.accessibleOrDefault),
-                    showingAccessibility == true,
+                    Accessibility.decorate(EMPTY, timestamp.accessibleOrDefault),
+                    showingAccessibility,
                     UIAccessibilityUtils.ImageSize.SMALL,
                     false
                 )
             )
             val timeOnly = timeSb.toString()
-            if (timestamp.hasHeadsign()) {
-                val timestampHeading = timestamp.getHeading(context)
-                if (!Direction.isSameHeadsign(timestampHeading, optRds?.direction?.getHeading(context))) {
-                    timeSb.append(P1).append(
-                        timestamp.decorateDirection(context, false)
-                    ).append(P2)
-                }
+            timestamp.makeHeading(context, optRds?.direction?.getHeading(context), small = false)?.let { heading ->
+                timeSb.append(SPACE).append(heading)
             }
             UITimeUtils.cleanTimes(timeOnly, timeSb, 0.55)
-            timeSb = UISchedule.decorateRealTime(context, timestamp, formattedTime, timeSb)
+            timeSb = if (hideRealTime) timeSb else UISchedule.decorateRealTime(context, timestamp, formattedTime, timeSb)
             timeSb = UISchedule.decorateOldSchedule(timestamp, timeSb)
-            val nextTimeInMsT = nextTimestamp?.t ?: -1L
+            val poiServiceUpdates = optPOIM?.takeUnless { hideRealTime }?.getServiceUpdates(serviceUpdateLoader, emptySet())
+            timeSb = if (poiServiceUpdates?.allTripsNoService() == true) { // #allTripsCancelled
+                UISchedule.setCancelled(timeSb)
+            } else if (!hideRealTime) {
+                UISchedule.decorateCancelled(timestamp, timeSb, poiServiceUpdates)
+            } else {
+                timeSb
+            }
+            val nextTimeInMsT = nextTimestamp?.departureMs(hideRealTime) ?: -1L
             if (nowToTheMinuteInMs > 0L) {
-                val compareToNow = nowToTheMinuteInMs - timestamp.t
-                val sameTimestamp = nextTimeInMsT == timestamp.t
-                if (sameTimestamp
-                ) { // now
+                val departureMs = timestamp.departureMs(hideRealTime)
+                val compareToNow = nowToTheMinuteInMs - departureMs
+                val sameTimestamp = nextTimeInMsT == departureMs
+                if (sameTimestamp) { // now
                     SpanUtils.setAll(timeSb, getScheduleListTimesNowTextColor(context), SCHEDULE_LIST_TIMES_NOW_STYLE)
                 } else if (compareToNow > 0L) { // past
                     SpanUtils.setAll(timeSb, getScheduleListTimesPastTextColor(context), SCHEDULE_LIST_TIMES_PAST_STYLE)
@@ -656,18 +753,17 @@ class ScheduleAdapter
     }
 
     class LoadingViewHolder private constructor(
-        private val binding: LayoutPoiDetailStatusScheduleLoadingBinding
+        private val binding: LayoutScheduleInfiniteListLoadingBinding
     ) : RecyclerView.ViewHolder(binding.root) {
         companion object {
             fun from(parent: ViewGroup): LoadingViewHolder {
-                val binding = LayoutPoiDetailStatusScheduleLoadingBinding.inflate(
+                val binding = LayoutScheduleInfiniteListLoadingBinding.inflate(
                     LayoutInflater.from(parent.context),
                     parent,
                     false
                 )
                 return LoadingViewHolder(binding)
             }
-
         }
 
         val context: Context

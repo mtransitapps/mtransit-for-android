@@ -36,7 +36,7 @@
         android:name=".ui.MTApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/backup_rules"
-        android:enableOnBackInvokedCallback="@bool/f_predictive_back_gesture"
+        android:enableOnBackInvokedCallback="true"
         android:fullBackupContent="@xml/backup_descriptor"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -60,10 +60,11 @@
             </intent-filter>
         </activity>
         <!-- REMOVE MODULE REDIRECT ACTIVITY -->
+        <!-- using FQCN to remove build warning "was tagged at AndroidManifest.xml to remove other declarations but no other declaration present" -->
         <activity
-            android:name=".commons.ui.ModuleRedirectActivity"
+            android:name="org.mtransit.android.commons.ui.ModuleRedirectActivity"
             tools:node="remove" />
-        <!-- MAIN SCREEN OLD -->
+        <!-- MAIN SCREEN -->
         <activity
             android:name=".ui.MainActivity"
             android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"
@@ -77,9 +78,9 @@
                 android:name="android.app.searchable"
                 android:resource="@xml/searchable" />
         </activity>
-        <!-- MAIN SCREEN -->
+        <!-- MAIN SCREEN NEXT -->
         <activity
-            android:name=".ui.main.NextMainActivity"
+            android:name=".ui.main.next.NextMainActivity"
             android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"
             android:exported="false"
             android:launchMode="singleTask"

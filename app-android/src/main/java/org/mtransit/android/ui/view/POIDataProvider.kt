@@ -1,25 +1,31 @@
 package org.mtransit.android.ui.view
 
 import android.app.Activity
-import android.location.Location
+import org.mtransit.android.analytics.AnalyticsScreen
+import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.dev.DemoModeManager
+import org.mtransit.android.device.DevicePrefManager
 import org.mtransit.android.task.serviceupdate.ServiceUpdateLoaderProvider
 import org.mtransit.android.ui.view.poi.status.POIStatusDataProvider
 import org.mtransit.android.util.LinkUtils.OnUrlClickListener
+import android.location.Location as AndroidLocation
 
 interface POIDataProvider : POIStatusDataProvider, ServiceUpdateLoaderProvider, OnUrlClickListener {
     val activity: Activity?
+    val analyticsManager: IAnalyticsManager
+    val analyticsScreen: AnalyticsScreen
     val isShowingExtra: Boolean
     fun isClosestPOI(uuid: String): Boolean
-    fun isFavorite(uuid: String): Boolean
+    fun isFavorite(): Boolean
     val isShowingFavorite: Boolean
     val locationDeclination: Float?
     val lastCompassInDegree: Int?
-    val location: Location?
+    val deviceLocation: AndroidLocation?
     fun hasLastCompassInDegree(): Boolean
     fun hasLocation(): Boolean
     fun providesDataSourcesRepository(): DataSourcesRepository
+    fun providesDevicePrefManager(): DevicePrefManager
     fun providesDemoModeManager(): DemoModeManager
     val isShowingAccessibilityInfo: Boolean
 }

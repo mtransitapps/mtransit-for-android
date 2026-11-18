@@ -1,6 +1,8 @@
 package org.mtransit.android.ui.type.rds
 
 import android.annotation.SuppressLint
+import android.graphics.Color
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,29 +13,34 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import org.mtransit.android.R
 import org.mtransit.android.commons.MTLog
-import org.mtransit.android.commons.data.ServiceUpdate
-import org.mtransit.android.commons.data.distinctByOriginalId
-import org.mtransit.android.commons.data.isSeverityWarningInfo
-import org.mtransit.android.commons.dp
-import org.mtransit.android.commons.getDimensionInt
+import org.mtransit.android.commons.dpToPx
 import org.mtransit.android.data.IAgencyUIProperties
+import org.mtransit.android.data.POIListFooterManager
 import org.mtransit.android.data.RouteManager
 import org.mtransit.android.databinding.LayoutRdsRouteItemBinding
 import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.ui.common.UIColorUtils
 import org.mtransit.android.ui.view.common.MTTransitions
 import org.mtransit.android.ui.view.common.context
+import org.mtransit.android.ui.view.common.setImageResourceAndVisibility
 import org.mtransit.android.ui.view.common.setPadding
+import org.mtransit.android.ui.view.common.textAndVisibility
+import org.mtransit.android.ui.view.listfooter.FooterViewHolder
+import org.mtransit.android.ui.view.setJSONAndVisibility
 import org.mtransit.android.util.UIRouteUtils
 
 class RDSAgencyRoutesAdapter(
     private val serviceUpdateLoader: ServiceUpdateLoader,
+    private val footerManager: POIListFooterManager,
     private val onClick: (View, RouteManager) -> Unit,
-) : ListAdapter<RouteManager, RDSAgencyRoutesAdapter.RouteViewHolder>(RoutesDiffCallback),
+) : ListAdapter<RouteManager, RecyclerView.ViewHolder>(RoutesDiffCallback),
     MTLog.Loggable {
 
     companion object {
-        private val LOG_TAG = RDSAgencyRoutesAdapter::class.java.simpleName
+        private val LOG_TAG: String = RDSAgencyRoutesAdapter::class.java.simpleName
+
+        private const val TYPE_ROUTE = 0
+        private const val TYPE_FOOTER = 1
     }
 
     private var theLogTag: String = LOG_TAG
@@ -44,7 +51,7 @@ class RDSAgencyRoutesAdapter(
 
     private var _showingListInsteadOfGrid: Boolean? = null
 
-    private var _listSet: Boolean? = null
+    private var listSet = false
 
     @SuppressLint("NotifyDataSetChanged")
     fun setAgency(agency: IAgencyUIProperties?) {
@@ -69,33 +76,46 @@ class RDSAgencyRoutesAdapter(
 
     @SuppressLint("NotifyDataSetChanged")
     fun setList(list: List<RouteManager>?) {
-        submitList(list)
-        if (_listSet == (list != null)) {
-            MTLog.d(this, "setListSet() > SKIP (same: $_listSet)")
-            return
-        }
-        _listSet = list != null
-        notifyDataSetChanged()
+        listSet = list != null
+        submitList(list) // triggers notifyDataSetChanged()/notifyItem()
     }
+
+    val routeCount: Int get() = super.getItemCount()
+
+    override fun getItemCount(): Int = routeCount + 1 // footer
+
+    override fun getItemViewType(position: Int): Int =
+        when (position) {
+            getItemCount() - 1 -> TYPE_FOOTER // last = footer
+            else -> TYPE_ROUTE
+        }
 
     @SuppressLint("NotifyDataSetChanged")
     fun onServiceUpdatesLoaded() {
         notifyDataSetChanged()
     }
 
-    fun isReady() = _agency != null && _showingListInsteadOfGrid != null && _listSet != null
+    fun isReady() = _agency != null && _showingListInsteadOfGrid != null && listSet
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RouteViewHolder {
-        return RouteViewHolder.from(parent, serviceUpdateLoader)
-    }
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
+        when (viewType) {
+            TYPE_ROUTE -> RouteViewHolder.from(parent, serviceUpdateLoader)
+            TYPE_FOOTER -> FooterViewHolder.from(parent)
+            else -> throw RuntimeException("Unexpected view type $viewType!")
+        }
 
-    override fun onBindViewHolder(holder: RouteViewHolder, position: Int) {
-        holder.bind(
-            getItem(position),
-            _agency,
-            _showingListInsteadOfGrid,
-            onClick
-        )
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        when (holder) {
+            is RouteViewHolder -> holder.bind(
+                getItem(position),
+                _agency,
+                _showingListInsteadOfGrid,
+                onClick
+            )
+
+            is FooterViewHolder -> holder.bind(footerManager)
+            else -> throw RuntimeException("Unexpected view type!")
+        }
     }
 
     class RouteViewHolder private constructor(
@@ -111,6 +131,9 @@ class RDSAgencyRoutesAdapter(
                 )
                 return RouteViewHolder(binding, serviceUpdateLoader)
             }
+
+            private const val DEBUG_LAYOUT = false
+            // private const val DEBUG_LAYOUT = true // DEBUG
         }
 
         fun bind(
@@ -127,69 +150,62 @@ class RDSAgencyRoutesAdapter(
             val route = routeM.route
             MTTransitions.setTransitionName(routeLayout, "r_" + agency.authority + "_" + route.id)
             // SHORT NAME & LOGO
-            if (route.shortName.isBlank()) { // NO RSN
-                routeShortName.visibility = View.INVISIBLE // keep size
-                if (routeTypeImg.hasPaths()
-                    && agency.authority == routeTypeImg.tag
-                ) {
-                    routeTypeImg.isVisible = true
-                } else {
-                    agency.logo?.let {
-                        routeTypeImg.setJSON(it)
-                        routeTypeImg.tag = agency.authority
-                        routeTypeImg.isVisible = true
-                    } ?: run {
-                        routeTypeImg.isVisible = false
-                    }
+            routeShortName.textAndVisibility = route.shortName.takeIf { it.isNotBlank() }?.let { UIRouteUtils.decorateRouteShortName(context, it) }
+            routeTypeImg.setJSONAndVisibility(agency)
+            if (routeShortName.isVisible && routeTypeImg.isVisible) {
+                routeSpaceStart.isVisible = showingListInsteadOfGrid
+                routeTypeImg.updateLayoutParams<LinearLayout.LayoutParams> {
+                    weight = 2f
                 }
+                routeShortName.updateLayoutParams<LinearLayout.LayoutParams> {
+                    weight = 2f
+                }
+                routeShortName.gravity = Gravity.START or Gravity.CENTER_VERTICAL
             } else {
-                routeTypeImg.isVisible = false
-                routeShortName.text = UIRouteUtils.decorateRouteShortName(context, route.shortName)
-                routeShortName.isVisible = true
+                routeSpaceStart.isVisible = false
+                routeTypeImg.updateLayoutParams<LinearLayout.LayoutParams> {
+                    weight = 4f
+                }
+                routeShortName.updateLayoutParams<LinearLayout.LayoutParams> {
+                    weight = 4f
+                }
+                routeShortName.gravity = Gravity.CENTER
             }
-
             serviceUpdateLayout.routeServiceUpdateImg.apply {
                 val serviceUpdates = routeM.getServiceUpdates(
                     serviceUpdateLoader = serviceUpdateLoader,
                     ignoredUUIDsOrUnknown = emptyList() // TODO agency-level UI?
                 ).distinctByOriginalId()
-                val (isWarning, isInfo) = serviceUpdates.isSeverityWarningInfo()
+                val (isWarning, isInfo) = serviceUpdates.isSeverityWarningXorInfo()
                 if (isWarning) {
-                    setImageResource(R.drawable.ic_warning_on_surface_16dp)
-                    isVisible = true
+                    setImageResourceAndVisibility(R.drawable.ic_warning_on_surface_16dp)
                 } else if (isInfo) {
-                    setImageResource(R.drawable.ic_info_outline_on_surface_16dp)
-                    isVisible = true
+                    setImageResourceAndVisibility(R.drawable.ic_info_outline_on_surface_16dp)
                 } else {
-                    setImageDrawable(null)
-                    isVisible = false
+                    setImageResourceAndVisibility(null)
                 }
             }
             // LONG NAME (grid only)
-            if (showingListInsteadOfGrid != false) { // LIST
-                routeLayout.setPadding(horizontal = 8.dp, relative = true)
+            if (showingListInsteadOfGrid) { // LIST
+                routeLayout.setPadding(horizontal = 8.dpToPx, relative = true)
                 serviceUpdateLayout.routeServiceUpdateImg.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                    topMargin = 8.dp
+                    topMargin = 8.dpToPx
                 }
-                rsnOrLogo.layoutParams = LinearLayout.LayoutParams(
-                    context.resources.getDimensionInt(R.dimen.poi_extra_width),
+                rsnImgServiceUpdate.updateLayoutParams {
+                    width = context.resources.getDimensionPixelSize(R.dimen.poi_extra_width)
                     // 64.dp, // TO DO poi_extra_width
                     // ResourceUtils.convertDPtoPX(context, 64).toInt(),
-                    LinearLayout.LayoutParams.MATCH_PARENT
-                )
-                routeLongName.text = route.longName
-                routeLongName.isVisible = route.longName.isNotBlank()
-            } else { // GRID
-                routeLayout.setPadding(horizontal = 4.dp, relative = true)
-                serviceUpdateLayout.routeServiceUpdateImg.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                    topMargin = 4.dp
                 }
-                rsnOrLogo.layoutParams = LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT,
-                    LinearLayout.LayoutParams.MATCH_PARENT
-                )
-                routeLongName.text = null
-                routeLongName.isVisible = false
+                routeLongName.textAndVisibility = route.longName.takeIf { it.isNotBlank() }
+            } else { // GRID
+                routeLayout.setPadding(horizontal = 4.dpToPx, relative = true)
+                serviceUpdateLayout.routeServiceUpdateImg.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                    topMargin = 4.dpToPx
+                }
+                rsnImgServiceUpdate.updateLayoutParams {
+                    width = ViewGroup.LayoutParams.MATCH_PARENT
+                }
+                routeLongName.textAndVisibility = null
             }
             // BG COLOR
             routeLayout.setBackgroundColor(
@@ -198,11 +214,22 @@ class RDSAgencyRoutesAdapter(
                     (if (route.hasColor()) route.colorInt else null) ?: agency.colorInt ?: UIColorUtils.DEFAULT_BACKGROUND_COLOR
                 )
             )
-            routeLayout.isVisible = true
             routeLayout.apply {
                 setOnClickListener { view ->
                     onClick(view, routeM)
                 }
+                isVisible = true
+            }
+            if (DEBUG_LAYOUT) {
+                serviceUpdateLayout.routeServiceUpdateImg.apply {
+                    setImageResourceAndVisibility(R.drawable.ic_warning_on_surface_16dp)
+                    setBackgroundColor(Color.RED)
+                }
+                routeLayout.setBackgroundColor(Color.YELLOW)
+                rsnImgServiceUpdate.setBackgroundColor(Color.BLUE)
+                routeTypeImg.setBackgroundColor(Color.CYAN)
+                routeShortName.setBackgroundColor(Color.MAGENTA)
+                rsnImg.setBackgroundColor(Color.GREEN)
             }
         }
     }

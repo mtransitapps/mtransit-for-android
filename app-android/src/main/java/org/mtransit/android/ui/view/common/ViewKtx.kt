@@ -4,15 +4,27 @@ import android.content.Context
 import android.content.res.Resources.NotFoundException
 import android.graphics.drawable.Drawable
 import android.view.View
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.DrawableRes
+import androidx.annotation.MainThread
 import androidx.annotation.PluralsRes
 import androidx.annotation.Px
+import androidx.annotation.StringRes
 import androidx.appcompat.content.res.AppCompatResources
+import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.isVisible
 import androidx.viewbinding.ViewBinding
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+import kotlin.math.max
+import com.google.android.material.R as materialR
 
 val ViewBinding.context: Context get() = root.context
+
+fun ImageView.setImageResourceAndVisibility(@DrawableRes resId: Int?) {
+    isVisible = resId != null
+    setImageResource(resId ?: ResourcesCompat.ID_NULL)
+}
 
 var TextView.textAndVisibility: CharSequence?
     get() = text
@@ -21,14 +33,22 @@ var TextView.textAndVisibility: CharSequence?
         text = value
     }
 
+fun TextView.setTextAndVisibility(@StringRes resId: Int?) {
+    isVisible = resId?.takeIf { it != ResourcesCompat.ID_NULL } != null
+    text = resId?.takeIf { it != ResourcesCompat.ID_NULL }?.let { context.getText(it) }
+}
+
+@Suppress("unused")
 fun TextView.setTextQuantityText(@PluralsRes resId: Int, quantity: Int) {
     this.text = this.resources.getQuantityText(resId, quantity)
 }
 
+@Suppress("unused")
 fun TextView.setTextQuantityString(@PluralsRes resId: Int, quantity: Int) {
     this.text = this.resources.getQuantityString(resId, quantity)
 }
 
+@Suppress("unused")
 fun TextView.setTextQuantityString(@PluralsRes resId: Int, quantity: Int, vararg formatArgs: Any) {
     this.text = this.resources.getQuantityString(resId, quantity, *formatArgs)
 }
@@ -74,6 +94,11 @@ fun TextView.setDrawables(
     }
 }
 
+fun View.setOnClickListenerClickable(listener: View.OnClickListener?) {
+    setOnClickListener(listener)
+    isClickable = listener != null
+}
+
 fun View.setPadding(
     @Px horizontal: Int = 0,
     @Px vertical: Int = 0,
@@ -90,12 +115,14 @@ fun View.setPadding(
     }
 }
 
+@set:MainThread
 inline var ViewBinding.isVisible: Boolean
     get() = root.isVisible
     set(value) {
         root.isVisible = value
     }
 
+@set:MainThread
 inline var View.isVisibleOnce: Boolean
     get() = isVisible
     set(value) {
@@ -107,12 +134,13 @@ inline var View.isVisibleOnce: Boolean
 /**
  * [android.view.View.toString]
  */
+@Suppress("unused")
 fun View.toStringSimple(): String {
     return javaClass.simpleName + "{" +
-            "hex:${Integer.toHexString(System.identityHashCode(this))}, " +
-            "id:${prettyId()}, " +
-            "isVisible:$isVisible, " +
-            "}"
+        "hex:${Integer.toHexString(System.identityHashCode(this))}, " +
+        "id:${prettyId()}, " +
+        "isVisible:$isVisible, " +
+        "}"
 }
 
 /**
@@ -148,3 +176,23 @@ fun View.prettyId(): String {
     }
     return out.toString()
 }
+
+// https://github.com/material-components/material-components-android/blob/master/lib/java/com/google/android/material/floatingactionbutton/FloatingActionButton.java
+private const val AUTO_MINI_LARGEST_SCREEN_WIDTH = 470
+
+@Px
+fun FloatingActionButton.getSizeDimension() = context.resources.getDimensionPixelSize(
+    when (size) {
+        FloatingActionButton.SIZE_NORMAL -> materialR.dimen.design_fab_size_normal
+        FloatingActionButton.SIZE_MINI -> materialR.dimen.design_fab_size_mini
+        else -> { // FloatingActionButton.SIZE_AUTO
+            val width = context.resources.configuration.screenWidthDp
+            val height = context.resources.configuration.screenHeightDp
+            if (max(width, height) < AUTO_MINI_LARGEST_SCREEN_WIDTH) {
+                materialR.dimen.design_fab_size_mini
+            } else {
+                materialR.dimen.design_fab_size_normal
+            }
+        }
+    }
+)

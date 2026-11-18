@@ -22,7 +22,6 @@ import com.google.android.libraries.places.api.net.SearchByTextRequest
 import org.mtransit.android.R
 import org.mtransit.android.commons.Constants
 import org.mtransit.android.commons.LocaleUtils
-import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.SqlUtils
 import org.mtransit.android.commons.SqlUtils.ProjectionMapBuilder
@@ -31,15 +30,16 @@ import org.mtransit.android.commons.UriUtils
 import org.mtransit.android.commons.data.Area
 import org.mtransit.android.commons.data.DataSourceTypeId
 import org.mtransit.android.commons.data.POI.POIUtils
-import org.mtransit.android.commons.provider.AgencyProvider
-import org.mtransit.android.commons.provider.ContentProviderConstants
-import org.mtransit.android.commons.provider.MTSQLiteOpenHelper
-import org.mtransit.android.commons.provider.POIProvider
-import org.mtransit.android.commons.provider.POIProviderContract
+import org.mtransit.android.commons.location.AroundDiff
+import org.mtransit.android.commons.provider.agency.AgencyProvider
+import org.mtransit.android.commons.provider.common.ContentProviderConstants
+import org.mtransit.android.commons.provider.common.MTSQLiteOpenHelper
 import org.mtransit.android.commons.provider.common.requiredContext
+import org.mtransit.android.commons.provider.poi.POIProvider
+import org.mtransit.android.commons.provider.poi.POIProviderContract
 import org.mtransit.android.data.Place
+import org.mtransit.android.ui.view.map.toLatLngBounds
 import org.mtransit.android.util.UITimeUtils
-import org.mtransit.android.util.toLatLngBounds
 import java.net.SocketException
 import java.net.UnknownHostException
 import java.util.Locale
@@ -52,28 +52,22 @@ class PlaceProvider : AgencyProvider(), POIProviderContract {
 
     private val _uriMatcher: UriMatcher by lazy { getNewUriMatcher(_authority) }
 
-    override fun getURI_MATCHER() = _uriMatcher
+    override val URI_MATCHER: UriMatcher get() = _uriMatcher
 
-    override fun getAgencyUriMatcher() = getURI_MATCHER()
+    override fun getAgencyUriMatcher() = URI_MATCHER
 
     override fun getSearchSuggest(query: String?): Cursor? = null // TODO implement Place/Query auto-complete
 
-    override fun getSearchSuggestProjectionMap(): ArrayMap<String?, String?>? = null // TODO implement Place/Query auto-complete
+    override val searchSuggestProjectionMap: ArrayMap<String, String>? = null // TODO implement Place/Query auto-complete
 
-    override fun getSearchSuggestTable(): String? = null // TODO implement Place/Query auto-complete
+    override val searchSuggestTable: String? = null // TODO implement Place/Query auto-complete
 
-    override fun getPOITable() = PlaceDbHelper.T_PLACE
+    override val pOITable = PlaceDbHelper.T_PLACE
 
-    override fun getPOIProjection() = PROJECTION_PLACE_POI
-
-    override fun getPOIMaxValidityInMs() = POI_MAX_VALIDITY_IN_MS
-
-    override fun getPOIValidityInMs() = POI_VALIDITY_IN_MS
+    override val poiProjection get() = PROJECTION_PLACE_POI
 
     override fun getPOI(poiFilter: POIProviderContract.Filter?): Cursor? {
-        if (poiFilter == null) {
-            return null
-        }
+        poiFilter ?: return null
         if (POIProviderContract.Filter.isAreaFilter(poiFilter)) {
             return ContentProviderConstants.EMPTY_CURSOR // empty cursor = processed
         } else if (POIProviderContract.Filter.isSearchKeywords(poiFilter)) {
@@ -93,10 +87,8 @@ class PlaceProvider : AgencyProvider(), POIProviderContract {
         val lat = poiFilter.getExtraDouble("lat", null)
         val lng = poiFilter.getExtraDouble("lng", null)
         val searchKeywords = poiFilter.searchKeywords
-        val searchByTextRequest = getTextSearchRequest(lat, lng, null, searchKeywords)
-        if (searchByTextRequest == null) { // no search keyboard => no search
-            return ContentProviderConstants.EMPTY_CURSOR // empty cursor = processed
-        }
+        val searchByTextRequest = getTextSearchRequest(lat, lng, null, searchKeywords) // no search keyboard => no search
+            ?: return ContentProviderConstants.EMPTY_CURSOR // empty cursor = processed
         return getTextSearchResults(context, searchByTextRequest)
     }
 
@@ -120,11 +112,11 @@ class PlaceProvider : AgencyProvider(), POIProviderContract {
                         authority,
                         providerId,
                         lang,
-                        newLastUpdateInMs
+                        newLastUpdateInMs,
+                        place.location?.latitude ?: return@mapNotNull null,
+                        place.location?.longitude ?: return@mapNotNull null,
+                        place.displayName ?: return@mapNotNull null
                     ).apply {
-                        this.name = place.displayName ?: return@mapNotNull null
-                        this.lat = place.location?.latitude ?: return@mapNotNull null
-                        this.lng = place.location?.longitude ?: return@mapNotNull null
                         this.score = score--
                         this.iconUrl = place.iconMaskUrl
                         this.iconBgColor = place.iconBackgroundColor
@@ -193,6 +185,8 @@ class PlaceProvider : AgencyProvider(), POIProviderContract {
      */
     override fun getAgencyColorString(context: Context): String? = null // default
 
+    override fun getAgencyTimeZoneId(context: Context): String? = null // default
+
     @StringRes
     override fun getAgencyLabelResId() = R.string.place_label
 
@@ -207,7 +201,7 @@ class PlaceProvider : AgencyProvider(), POIProviderContract {
     override fun isAgencyDeployed() = SqlUtils.isDbExist(requireContextCompat(), getDbName())
 
     override fun isAgencySetupRequired(): Boolean {
-        if (_currentDbVersion > 0 && _currentDbVersion != getCurrentDbVersion()) {
+        if (currentDbVersion > 0 && currentDbVersion != getCurrentDbVersion()) {
             return true // live update required => update
         }
         if (!SqlUtils.isDbExist(requireContextCompat(), getDbName())) {
@@ -221,7 +215,7 @@ class PlaceProvider : AgencyProvider(), POIProviderContract {
 
     private var _poiProjectionMap: ArrayMap<String, String>? = null
 
-    override fun getPOIProjectionMap() = _poiProjectionMap ?: getNewPoiProjectionMap(_authority).also { _poiProjectionMap = it }
+    override val poiProjectionMap get() = _poiProjectionMap ?: getNewPoiProjectionMap(_authority).also { _poiProjectionMap = it }
 
     override fun queryMT(uri: Uri, projection: Array<String?>?, selection: String?, selectionArgs: Array<String?>?, sortOrder: String?): Cursor? {
         try {
@@ -233,7 +227,7 @@ class PlaceProvider : AgencyProvider(), POIProviderContract {
             if (cursor != null) {
                 return cursor
             }
-            throw IllegalArgumentException(String.format("Unknown URI (query): '$uri'"))
+            throw IllegalArgumentException("Unknown URI (query): '$uri'")
         } catch (e: Exception) {
             MTLog.w(this, e, "Error while resolving query '$uri'!")
             return null
@@ -273,29 +267,29 @@ class PlaceProvider : AgencyProvider(), POIProviderContract {
 
     private fun getDBHelper(): SQLiteOpenHelper = getDBHelper(requireContextCompat())
 
-    @WorkerThread
-    override fun getReadDB(): SQLiteDatabase = getDBHelper().readableDatabase
+    @get:WorkerThread
+    override val readDB: SQLiteDatabase get() = getDBHelper().readableDatabase
 
-    @WorkerThread
-    override fun getWriteDB(): SQLiteDatabase = getDBHelper().writableDatabase
+    @get:WorkerThread
+    override val writeDB: SQLiteDatabase get() = getDBHelper().writableDatabase
 
-    private var _dbHelper: PlaceDbHelper? = null
-    private var _currentDbVersion: Int = -1
+    private var dbHelper: PlaceDbHelper? = null
+    private var currentDbVersion = -1
 
     private fun getDBHelper(context: Context): PlaceDbHelper {
-        when (val currentDbHelper: PlaceDbHelper? = _dbHelper) {
-            null -> {  // initialize
+        when (val currentDbHelper: PlaceDbHelper? = dbHelper) {
+            null -> { // initialize
                 val newDbHelper = getNewDbHelper(context)
-                _dbHelper = newDbHelper
-                _currentDbVersion = getCurrentDbVersion()
+                dbHelper = newDbHelper
+                currentDbVersion = getCurrentDbVersion()
                 return newDbHelper
             }
 
             else -> {
                 return try {
-                    if (_currentDbVersion == getCurrentDbVersion()) {
-                        _dbHelper?.close()
-                        _dbHelper = null
+                    if (currentDbVersion != getCurrentDbVersion()) {
+                        dbHelper?.close()
+                        dbHelper = null
                         getDBHelper(context)
                     } else {
                         currentDbHelper
@@ -322,7 +316,7 @@ class PlaceProvider : AgencyProvider(), POIProviderContract {
 
     private class PlaceDbHelper(context: Context) : MTSQLiteOpenHelper(context, DB_NAME, null, getDbVersion()) {
 
-        override fun getLogTag(): String = LOG_TAG
+        override fun getLogTag() = LOG_TAG
 
         override fun onCreateMT(db: SQLiteDatabase) {
             initAllDbTables(db)
@@ -343,23 +337,25 @@ class PlaceProvider : AgencyProvider(), POIProviderContract {
             /**
              * Override if multiple [PlaceDbHelper] in same app.
              */
-            const val DB_NAME: String = "place.db"
+            const val DB_NAME = "place.db"
 
             /**
              * Override if multiple [PlaceDbHelper] in same app.
              */
-            const val DB_VERSION: Int = 4
+            const val DB_VERSION = 5
 
-            const val T_PLACE: String = POIProvider.POIDbHelper.T_POI
-            val T_PLACE_K_PROVIDER_ID: String = POIProvider.POIDbHelper.getFkColumnName("provider_id")
-            val T_PLACE_K_LANG: String = POIProvider.POIDbHelper.getFkColumnName("lang")
-            val T_PLACE_K_READ_AT_IN_MS: String = POIProvider.POIDbHelper.getFkColumnName("read_at_in_ms")
-            val T_PLACE_K_ICON_URL: String = POIProvider.POIDbHelper.getFkColumnName("icon_url")
-            val T_PLACE_K_ICON_BG_COLOR: String = POIProvider.POIDbHelper.getFkColumnName("icon_bg_url")
+            const val T_PLACE = POIProvider.POIDbHelper.T_POI
+            val T_PLACE_K_PROVIDER_ID = POIProvider.POIDbHelper.getFkColumnName("provider_id")
+            val T_PLACE_K_LANG = POIProvider.POIDbHelper.getFkColumnName("lang")
+            val T_PLACE_K_READ_AT_IN_MS = POIProvider.POIDbHelper.getFkColumnName("read_at_in_ms")
+            val T_PLACE_K_SUB_TITLE = POIProvider.POIDbHelper.getFkColumnName("sub_title")
+            val T_PLACE_K_ICON_URL = POIProvider.POIDbHelper.getFkColumnName("icon_url")
+            val T_PLACE_K_ICON_BG_COLOR = POIProvider.POIDbHelper.getFkColumnName("icon_bg_url")
             private val T_PLACE_SQL_CREATE = POIProvider.POIDbHelper.getSqlCreateBuilder(T_PLACE)
                 .appendColumn(T_PLACE_K_PROVIDER_ID, SqlUtils.TXT)
                 .appendColumn(T_PLACE_K_LANG, SqlUtils.TXT)
                 .appendColumn(T_PLACE_K_READ_AT_IN_MS, SqlUtils.INT)
+                .appendColumn(T_PLACE_K_SUB_TITLE, SqlUtils.TXT)
                 .appendColumn(T_PLACE_K_ICON_URL, SqlUtils.TXT)
                 .appendColumn(T_PLACE_K_ICON_BG_COLOR, SqlUtils.INT) // @ColorInt
                 .build()
@@ -374,19 +370,22 @@ class PlaceProvider : AgencyProvider(), POIProviderContract {
 
     object PlaceColumns {
         @JvmField
-        val T_PLACE_K_PROVIDER_ID: String = POIProviderContract.Columns.getFkColumnName("provider_id")
+        val T_PLACE_K_PROVIDER_ID = POIProviderContract.Columns.getFkColumnName("provider_id")
 
         @JvmField
-        val T_PLACE_K_LANG: String = POIProviderContract.Columns.getFkColumnName("lang")
+        val T_PLACE_K_LANG = POIProviderContract.Columns.getFkColumnName("lang")
 
         @JvmField
-        val T_PLACE_K_READ_AT_IN_MS: String = POIProviderContract.Columns.getFkColumnName("read_at_in_ms")
+        val T_PLACE_K_READ_AT_IN_MS = POIProviderContract.Columns.getFkColumnName("read_at_in_ms")
 
         @JvmField
-        val T_PLACE_K_ICON_URL: String = POIProviderContract.Columns.getFkColumnName("icon_url")
+        val T_PLACE_K_ICON_URL = POIProviderContract.Columns.getFkColumnName("icon_url")
 
         @JvmField
-        val T_PLACE_K_ICON_BG_COLOR: String = POIProviderContract.Columns.getFkColumnName("icon_bg_color")
+        val T_PLACE_K_SUB_TITLE = POIProviderContract.Columns.getFkColumnName("sub_title")
+
+        @JvmField
+        val T_PLACE_K_ICON_BG_COLOR = POIProviderContract.Columns.getFkColumnName("icon_bg_color")
     }
 
     companion object {
@@ -398,20 +397,32 @@ class PlaceProvider : AgencyProvider(), POIProviderContract {
                 POIProvider.append(this, authority)
             }
 
-        private val PROJECTION_PLACE = arrayOf<String>(
+        /**
+         * sync w/ [Place.getCursorRow]
+         */
+        @JvmStatic
+        val PROJECTION_PLACE: Array<String> = arrayOf(
             POIProviderContract.Columns.T_POI_K_SCORE_META_OPT,
             PlaceColumns.T_PLACE_K_PROVIDER_ID,
             PlaceColumns.T_PLACE_K_LANG,
             PlaceColumns.T_PLACE_K_READ_AT_IN_MS,
+            PlaceColumns.T_PLACE_K_SUB_TITLE,
             PlaceColumns.T_PLACE_K_ICON_URL,
             PlaceColumns.T_PLACE_K_ICON_BG_COLOR,
         )
 
-        private val PROJECTION_PLACE_POI: Array<String> = POIProvider.PROJECTION_POI + PROJECTION_PLACE
+        /**
+         * sync w/ [Place.getCursorRow]
+         */
+        @JvmStatic
+        val PROJECTION_PLACE_POI: Array<String> = POIProviderContract.PROJECTION_POI + PROJECTION_PLACE
 
         // https://developers.google.com/maps/documentation/places/android-sdk/text-search
         // https://developers.google.com/maps/documentation/places/android-sdk/usage-and-billing#text-search-id-only-ess-sku
         // https://developers.google.com/maps/documentation/places/android-sdk/usage-and-billing#text-search-pro-sku
+        // https://developers.google.com/maps/billing-and-pricing/sku-details#places_text-search-pro-sku
+        // https://developers.google.com/maps/billing-and-pricing/pricing#places-pricing
+        // https://developers.google.com/maps/billing-and-pricing/pricing#places-pricing:~:text=Places%20API%20Text%20Search%20Pro
 
         private val GOOGLE_PLACE_TEXT_SEARCH_FIELDS = listOf(
             Field.ID,
@@ -427,7 +438,7 @@ class PlaceProvider : AgencyProvider(), POIProviderContract {
             optLat: Double?,
             optLng: Double?,
             optRadiusInMeters: Int?,
-            searchKeywords: Array<String?>?,
+            searchKeywords: Iterable<String?>?,
         ): SearchByTextRequest? {
             var keywordMaxLength = -1
             val textQuery = searchKeywords
@@ -448,22 +459,17 @@ class PlaceProvider : AgencyProvider(), POIProviderContract {
                 .apply {
                     if (optLat != null && optLng != null) {
                         @Suppress("KotlinConstantConditions") // doesn't work? maybe with SDK 4.0.0+ (minSDK 23)
-                        setLocationRestriction(
+                        this.locationRestriction =
                             CircularBounds.newInstance(LatLng(optLat, optLng), (optRadiusInMeters ?: TEXT_SEARCH_URL_RADIUS_IN_METERS_DEFAULT).toDouble())
                                 .takeIf { false } // doesn't work? maybe with SDK 4.0.0+ (minSDK 23)
                                 ?: RectangularBounds.newInstance(
-                                    Area.getArea(optLat, optLng, LocationUtils.MIN_AROUND_DIFF + LocationUtils.INC_AROUND_DIFF).toLatLngBounds()
+                                    Area.getArea(optLat, optLng, AroundDiff.AD_MINIMUM + AroundDiff.DEFAULT_INCREMENT).toLatLngBounds()
                                 )
-                        )
                     }
                 }.build()
         }
 
         private const val TEXT_SEARCH_URL_RADIUS_IN_METERS_DEFAULT = 50_000 // max = 50_000 // 50 km
-
-        private const val POI_MAX_VALIDITY_IN_MS = Long.MAX_VALUE
-
-        private const val POI_VALIDITY_IN_MS = Long.MAX_VALUE
 
         private fun getNewPoiProjectionMap(authority: String) = ProjectionMapBuilder.getNew()
             .appendValue(
@@ -471,7 +477,8 @@ class PlaceProvider : AgencyProvider(), POIProviderContract {
                     SqlUtils.escapeString(POIUtils.UID_SEPARATOR),
                     SqlUtils.escapeString(authority),
                     SqlUtils.getTableColumn(PlaceDbHelper.T_PLACE, PlaceDbHelper.T_PLACE_K_PROVIDER_ID)
-                ), POIProviderContract.Columns.T_POI_K_UUID_META
+                ),
+                POIProviderContract.Columns.T_POI_K_UUID_META
             )
             .appendValue(DataSourceTypeId.PLACE, POIProviderContract.Columns.T_POI_K_DST_ID_META)
             .appendTableColumn(POIProvider.POIDbHelper.T_POI, POIProvider.POIDbHelper.T_POI_K_ID, POIProviderContract.Columns.T_POI_K_ID)
@@ -484,6 +491,7 @@ class PlaceProvider : AgencyProvider(), POIProviderContract {
             .appendTableColumn(PlaceDbHelper.T_PLACE, PlaceDbHelper.T_PLACE_K_PROVIDER_ID, PlaceColumns.T_PLACE_K_PROVIDER_ID)
             .appendTableColumn(PlaceDbHelper.T_PLACE, PlaceDbHelper.T_PLACE_K_LANG, PlaceColumns.T_PLACE_K_LANG)
             .appendTableColumn(PlaceDbHelper.T_PLACE, PlaceDbHelper.T_PLACE_K_READ_AT_IN_MS, PlaceColumns.T_PLACE_K_READ_AT_IN_MS)
+            .appendTableColumn(PlaceDbHelper.T_PLACE, PlaceDbHelper.T_PLACE_K_SUB_TITLE, PlaceColumns.T_PLACE_K_SUB_TITLE)
             .appendTableColumn(PlaceDbHelper.T_PLACE, PlaceDbHelper.T_PLACE_K_ICON_URL, PlaceColumns.T_PLACE_K_ICON_URL)
             .appendTableColumn(PlaceDbHelper.T_PLACE, PlaceDbHelper.T_PLACE_K_ICON_BG_COLOR, PlaceColumns.T_PLACE_K_ICON_BG_COLOR)
             .appendTableColumn(POIProvider.POIDbHelper.T_POI, POIProvider.POIDbHelper.T_POI_K_ACCESSIBLE, POIProviderContract.Columns.T_POI_K_ACCESSIBLE)

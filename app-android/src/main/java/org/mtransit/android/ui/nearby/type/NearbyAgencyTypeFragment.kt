@@ -2,31 +2,34 @@ package org.mtransit.android.ui.nearby.type
 
 import android.os.Bundle
 import android.view.View
-import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
-import org.mtransit.android.common.repository.DefaultPreferenceRepository
-import org.mtransit.android.common.repository.LocalPreferenceRepository
+import org.mtransit.android.ad.IAdManager
+import org.mtransit.android.ad.IAdScreenActivity
+import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.commons.ThemeUtils
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.POIArrayAdapter
+import org.mtransit.android.data.POIListFooterManager
 import org.mtransit.android.databinding.FragmentNearbyAgencyTypeBinding
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
-import org.mtransit.android.provider.FavoriteManager
+import org.mtransit.android.device.DevicePrefManager
+import org.mtransit.android.provider.FavoriteRepository
 import org.mtransit.android.provider.sensor.MTSensorManager
 import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.task.StatusLoader
 import org.mtransit.android.ui.empty.EmptyLayoutUtils.updateEmptyLayout
 import org.mtransit.android.ui.fragment.MTFragmentX
-import org.mtransit.android.ui.main.NextMainViewModel
+import org.mtransit.android.ui.main.next.NextMainViewModel
 import org.mtransit.android.ui.nearby.NearbyViewModel
 import org.mtransit.android.ui.setUpListEdgeToEdge
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
+import org.mtransit.android.user.UserPrefManager
 import org.mtransit.commons.FeatureFlags
 import javax.inject.Inject
 
@@ -34,7 +37,7 @@ import javax.inject.Inject
 class NearbyAgencyTypeFragment : MTFragmentX(R.layout.fragment_nearby_agency_type) {
 
     companion object {
-        private val LOG_TAG = NearbyAgencyTypeFragment::class.java.simpleName
+        private val LOG_TAG: String = NearbyAgencyTypeFragment::class.java.simpleName
 
         @JvmStatic
         fun newInstance(
@@ -48,9 +51,9 @@ class NearbyAgencyTypeFragment : MTFragmentX(R.layout.fragment_nearby_agency_typ
             typeId: Int,
         ): NearbyAgencyTypeFragment {
             return NearbyAgencyTypeFragment().apply {
-                arguments = bundleOf(
-                    NearbyAgencyTypeViewModel.EXTRA_TYPE_ID to typeId,
-                )
+                arguments = Bundle().apply {
+                    putInt(NearbyAgencyTypeViewModel.EXTRA_TYPE_ID, typeId)
+                }
             }
         }
     }
@@ -76,31 +79,38 @@ class NearbyAgencyTypeFragment : MTFragmentX(R.layout.fragment_nearby_agency_typ
     lateinit var dataSourcesRepository: DataSourcesRepository
 
     @Inject
-    lateinit var defaultPrefRepository: DefaultPreferenceRepository
+    lateinit var userPrefManager: UserPrefManager
 
     @Inject
-    lateinit var localPreferenceRepository: LocalPreferenceRepository
+    lateinit var devicePrefManager: DevicePrefManager
 
     @Inject
     lateinit var poiRepository: POIRepository
 
     @Inject
-    lateinit var favoriteManager: FavoriteManager
+    lateinit var favoriteRepository: FavoriteRepository
 
     @Inject
     lateinit var statusLoader: StatusLoader
+
+    @Inject
+    lateinit var adManager: IAdManager
+
+    @Inject
+    lateinit var analyticsManager: IAnalyticsManager
 
     @Inject
     lateinit var serviceUpdateLoader: ServiceUpdateLoader
 
     private var binding: FragmentNearbyAgencyTypeBinding? = null
 
-    private val infiniteLoadingListener = object : POIArrayAdapter.InfiniteLoadingListener {
-        override fun isLoadingMore(): Boolean {
-            return attachedViewModel?.isLoadingMore() == true
-        }
+    private val poiListFooterManager = object : POIListFooterManager {
 
-        override fun showingDone() = true
+        override val isShowLoading get() = attachedViewModel?.isLoadingMore() == true
+
+        override val isShowText = true
+
+        override val text get() = context?.getString(R.string.world_explored)
     }
 
     private val listAdapter: POIArrayAdapter by lazy {
@@ -108,18 +118,20 @@ class NearbyAgencyTypeFragment : MTFragmentX(R.layout.fragment_nearby_agency_typ
             this,
             this.sensorManager,
             this.dataSourcesRepository,
-            this.defaultPrefRepository,
-            this.localPreferenceRepository,
+            this.userPrefManager,
+            this.devicePrefManager,
             this.poiRepository,
-            this.favoriteManager,
+            this.favoriteRepository,
             this.statusLoader,
-            this.serviceUpdateLoader
+            this.serviceUpdateLoader,
+            this.analyticsManager
         ).apply {
             logTag = this@NearbyAgencyTypeFragment.logTag
-            setInfiniteLoading(true)
-            setInfiniteLoadingListener(infiniteLoadingListener)
+            setShowFooter(true)
+            setFooterManager(poiListFooterManager)
             setPois(attachedViewModel?.nearbyPOIs?.value)
             setLocation(attachedParentViewModel?.deviceLocation?.value)
+            setTimeChangedListener { this@NearbyAgencyTypeFragment.onTimeChanged() }
         }
     }
 
@@ -144,6 +156,7 @@ class NearbyAgencyTypeFragment : MTFragmentX(R.layout.fragment_nearby_agency_typ
                 }
             }
         }
+        this.listAdapter.onCreateView(viewLifecycleOwner)
         parentViewModel.isFixedOn.observe(viewLifecycleOwner) { isFixedOn ->
             binding?.swipeRefresh?.setRefreshEnabled(isFixedOn != true)
         }
@@ -181,7 +194,7 @@ class NearbyAgencyTypeFragment : MTFragmentX(R.layout.fragment_nearby_agency_typ
             if (isResumed) {
                 listAdapter.updateDistanceNowAsync(parentViewModel.deviceLocation.value)
             } else {
-                listAdapter.onPause()
+                listAdapter.onInvisible()
             }
             switchView()
         }
@@ -195,6 +208,10 @@ class NearbyAgencyTypeFragment : MTFragmentX(R.layout.fragment_nearby_agency_typ
                 }
             }
         }
+    }
+
+    private fun onTimeChanged() {
+        (activity as? IAdScreenActivity)?.let { adManager.onTimeChanged(it) }
     }
 
     private fun updateEmptyLayout(
@@ -236,13 +253,13 @@ class NearbyAgencyTypeFragment : MTFragmentX(R.layout.fragment_nearby_agency_typ
 
     override fun onResume() {
         super.onResume()
-        this.listAdapter.onResume(this, parentViewModel.deviceLocation.value)
+        this.listAdapter.onVisible(this, parentViewModel.deviceLocation.value)
         switchView()
     }
 
     override fun onPause() {
         super.onPause()
-        this.listAdapter.onPause()
+        this.listAdapter.onInvisible()
     }
 
     override fun onDestroyView() {

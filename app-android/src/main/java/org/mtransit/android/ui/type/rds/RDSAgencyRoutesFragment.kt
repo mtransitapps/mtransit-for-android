@@ -1,4 +1,3 @@
-@file:JvmName("RTSAgencyRoutesFragment") // ANALYTICS // do not change to avoid breaking tracking
 package org.mtransit.android.ui.type.rds
 
 import android.content.Context
@@ -6,30 +5,41 @@ import android.content.res.ColorStateList
 import android.os.Bundle
 import android.util.DisplayMetrics
 import android.view.View
-import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.FragmentNavigator
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView.ItemDecoration
+import com.google.android.material.divider.MaterialDividerItemDecoration
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
+import org.mtransit.android.ad.IAdManager
+import org.mtransit.android.ad.IAdScreenActivity
+import org.mtransit.android.analytics.AnalyticsScreen
+import org.mtransit.android.analytics.IAnalyticsManager
+import org.mtransit.android.billing.IBillingManager
+import org.mtransit.android.data.IAgencyUIProperties
 import org.mtransit.android.data.RouteManager
 import org.mtransit.android.databinding.FragmentRdsAgencyRoutesBinding
+import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.empty.EmptyLayoutUtils.updateEmptyLayout
+import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.fragment.MTFragmentX
 import org.mtransit.android.ui.rds.route.RDSRouteFragment
 import org.mtransit.android.ui.setUpFabEdgeToEdge
-import org.mtransit.android.ui.view.common.EventObserver
 import org.mtransit.android.ui.view.common.SpacesItemDecoration
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
+import org.mtransit.android.ui.view.common.observeEvent
+import org.mtransit.android.ui.view.listfooter.DefaultPOIListFooterManager
+import org.mtransit.android.ui.view.listfooter.DefaultPOIListFooterManager.Companion.canShowRewardedAd
+import org.mtransit.android.ui.view.listfooter.DefaultPOIListFooterManager.Companion.computeWidth
+import org.mtransit.android.user.UserManager
 import org.mtransit.android.util.LinkUtils
 import org.mtransit.commons.FeatureFlags
 import javax.inject.Inject
@@ -38,18 +48,20 @@ import javax.inject.Inject
 class RDSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rds_agency_routes) {
 
     companion object {
-        private val LOG_TAG = RDSAgencyRoutesFragment::class.java.simpleName
+        private val LOG_TAG: String = RDSAgencyRoutesFragment::class.java.simpleName
+
+        @JvmStatic
+        fun newInstance(agency: IAgencyUIProperties) =
+            newInstance(agency.authority, agency.colorInt)
 
         @JvmStatic
         fun newInstance(
             agencyAuthority: String,
             optColorInt: Int? = null,
-        ): RDSAgencyRoutesFragment {
-            return RDSAgencyRoutesFragment().apply {
-                arguments = bundleOf(
-                    RDSAgencyRoutesViewModel.EXTRA_AGENCY_AUTHORITY to agencyAuthority,
-                    RDSAgencyRoutesViewModel.EXTRA_COLOR_INT to optColorInt,
-                )
+        ) = RDSAgencyRoutesFragment().apply {
+            arguments = Bundle().apply {
+                putString(RDSAgencyRoutesViewModel.EXTRA_AGENCY_AUTHORITY, agencyAuthority)
+                optColorInt?.let { putInt(RDSAgencyRoutesViewModel.EXTRA_COLOR_INT, it) }
             }
         }
     }
@@ -65,21 +77,76 @@ class RDSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rds_agency_routes)
     @Inject
     lateinit var serviceUpdateLoader: ServiceUpdateLoader
 
+    @Inject
+    lateinit var adManager: IAdManager
+
+    @Inject
+    lateinit var analyticsManager: IAnalyticsManager
+
+    @Inject
+    lateinit var billingManager: IBillingManager
+
+    @Inject
+    lateinit var dataSourcesRepository: DataSourcesRepository
+
+    @Inject
+    lateinit var userManager: UserManager
+
     private var binding: FragmentRdsAgencyRoutesBinding? = null
 
-    private val listItemDecoration: ItemDecoration by lazy { DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL) }
+    private val listItemDecoration: ItemDecoration by lazy {
+        MaterialDividerItemDecoration(requireContext(), LinearLayoutManager.VERTICAL).apply {
+            isLastItemDecorated = false
+        }
+    }
 
     private val gridItemDecoration: ItemDecoration by lazy { SpacesItemDecoration(requireContext(), R.dimen.grid_view_spacing) }
 
+    private val poiListFooterManager by lazy {
+        DefaultPOIListFooterManager(
+            adManager = adManager,
+            analyticsManager = analyticsManager,
+            dataSourcesRepository = dataSourcesRepository,
+            getFragment = { parentFragment as? ABFragment },
+            getShowLoading = { attachedViewModel?.routesM?.value == null },
+            getHideText = {
+                var routesCount = attachedViewModel?.routesM?.value?.size
+                    ?: return@DefaultPOIListFooterManager false
+                val minListItemToNotHide = context?.let { DefaultPOIListFooterManager.getMinListItemToNotHide(it) }
+                    ?: return@DefaultPOIListFooterManager false
+                (binding?.listGrid?.layoutManager as? GridLayoutManager)?.spanCount?.let { spanCount ->
+                    routesCount = routesCount.plus(spanCount - 1).div(spanCount) // round up
+                }
+                val listItemCount = 1 + // for tabs
+                    routesCount
+                listItemCount < minListItemToNotHide
+            },
+            getTextHorizontalMargin = {
+                binding?.let {
+                    it.computeWidth(it.fabListGrid, it.fabFares)
+                } ?: 0
+            },
+            canShowRewardedAd = { adManager.canShowRewardedAd() && binding?.fabFares?.isVisible == false },
+        )
+    }
+
     private var listGridAdapter: RDSAgencyRoutesAdapter? = null
 
-    private fun makeListGridAdapter() = RDSAgencyRoutesAdapter(serviceUpdateLoader, this::openRouteScreen).apply {
+    private fun makeListGridAdapter() = RDSAgencyRoutesAdapter(
+        serviceUpdateLoader,
+        poiListFooterManager,
+        this::openRouteScreen,
+    ).apply {
         setAgency(attachedViewModel?.agency?.value)
         setShowingListInsteadOfGrid(attachedViewModel?.showingListInsteadOfGrid?.value)
         submitList(attachedViewModel?.routesM?.value)
     }
 
+    private val analyticsScreen: AnalyticsScreen? get() = parentFragment as? AnalyticsScreen
+    private val analyticsButtonId: String? get() = attachedViewModel?.agency?.value?.authority
+
     private fun openRouteScreen(view: View, route: RouteManager) {
+        analyticsManager.trackButtonClick("list_rds_route", analyticsButtonId, analyticsScreen)
         if (FeatureFlags.F_NAVIGATION) {
             var extras: FragmentNavigator.Extras? = null
             if (FeatureFlags.F_TRANSITION) {
@@ -87,19 +154,13 @@ class RDSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rds_agency_routes)
             }
             findNavController().navigate(
                 R.id.nav_to_rds_route_screen,
-                RDSRouteFragment.newInstanceArgs(
-                    route.authority,
-                    route.route.id,
-                ),
+                RDSRouteFragment.newInstanceArgs(route.route),
                 null,
                 extras
             )
         } else {
             (activity as? MainActivity)?.addFragmentToStack(
-                RDSRouteFragment.newInstance(
-                    route.authority,
-                    route.route.id,
-                ),
+                RDSRouteFragment.newInstance(route.route),
                 this,
                 view,
             )
@@ -112,6 +173,7 @@ class RDSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rds_agency_routes)
             listGrid.adapter = listGridAdapter ?: makeListGridAdapter().also { listGridAdapter = it } // must null in destroyView() to avoid memory leak
             fabListGrid.apply {
                 setOnClickListener {
+                    analyticsManager.trackButtonClick("fab_list_grid", analyticsButtonId, analyticsScreen)
                     viewModel.saveShowingListInsteadOfGrid(viewModel.showingListInsteadOfGrid.value == false) // switching
                 }
                 setUpFabEdgeToEdge(
@@ -119,12 +181,10 @@ class RDSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rds_agency_routes)
                     originalMarginBottomDimenRes = R.dimen.fab_mini_margin_bottom,
                 )
             }
-            fabFares.apply {
-                setUpFabEdgeToEdge(
-                    originalMarginEndDimenRes = R.dimen.fab_mini_margin_end_above_fab,
-                    originalMarginBottomDimenRes = R.dimen.fab_mini_margin_bottom,
-                )
-            }
+            fabFares.setUpFabEdgeToEdge(
+                originalMarginEndDimenRes = R.dimen.fab_mini_margin_end_not_last,
+                originalMarginBottomDimenRes = R.dimen.fab_mini_margin_bottom,
+            )
         }
         viewModel.colorIntDistinct.observe(viewLifecycleOwner) { colorIntDistinct ->
             colorIntDistinct?.let {
@@ -152,8 +212,9 @@ class RDSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rds_agency_routes)
                 agency?.faresWebForLang?.let { url ->
                     isVisible = true
                     setOnClickListener {
+                        analyticsManager.trackButtonClick("fab_fares", analyticsButtonId, analyticsScreen)
                         activity?.let { activity ->
-                            LinkUtils.open(view, activity, url, getString(R.string.fares), true)
+                            LinkUtils.open(view, activity, url, getString(R.string.fares), true, viewModel.useInternalWebBrowserPref.value)
                         }
                     }
                 } ?: run {
@@ -162,51 +223,76 @@ class RDSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rds_agency_routes)
                 }
             }
         }
-        viewModel.showingListInsteadOfGrid.observe(viewLifecycleOwner) { showingListInsteadOfGrid ->
-            showingListInsteadOfGrid?.let { listInsteadOfGrid ->
-                binding?.apply {
-                    fabListGrid.apply {
-                        @Suppress("LiftReturnOrAssignment")
-                        if (listInsteadOfGrid) { // LIST
-                            setImageResource(R.drawable.switch_action_apps_dark_16dp)
-                            contentDescription = getString(R.string.menu_action_grid)
-                        } else { // GRID
-                            setImageResource(R.drawable.switch_action_view_headline_dark_16dp)
-                            contentDescription = getString(R.string.menu_action_list)
-                        }
+        viewModel.useInternalWebBrowserPref.observe(viewLifecycleOwner) {
+            // DO NOTHING
+        }
+        viewModel.showingListInsteadOfGrid.observe(viewLifecycleOwner) { listInsteadOfGrid ->
+            listInsteadOfGrid ?: return@observe
+            binding?.apply {
+                fabListGrid.apply {
+                    @Suppress("LiftReturnOrAssignment")
+                    if (listInsteadOfGrid) { // LIST
+                        setImageResource(R.drawable.switch_action_apps_dark_16dp)
+                        contentDescription = getString(R.string.menu_action_grid)
+                    } else { // GRID
+                        setImageResource(R.drawable.switch_action_view_headline_dark_16dp)
+                        contentDescription = getString(R.string.menu_action_list)
                     }
-                    listGrid.apply {
-                        val scrollPosition = (layoutManager as? LinearLayoutManager)?.findFirstCompletelyVisibleItemPosition() ?: -1
-                        if (listInsteadOfGrid) { // LIST
-                            if (layoutManager == null || layoutManager is GridLayoutManager) {
-                                removeItemDecoration(gridItemDecoration)
-                                addItemDecoration(listItemDecoration)
-                                layoutManager = LinearLayoutManager(requireContext())
-                            }
-                        } else { // GRID
-                            if (layoutManager == null || layoutManager !is GridLayoutManager) {
-                                removeItemDecoration(listItemDecoration)
-                                addItemDecoration(gridItemDecoration)
-                                layoutManager = GridLayoutManager(requireContext(), calculateNoOfColumns(requireContext(), 64f))
-                            }
-                        }
-                        if (scrollPosition > 0) {
-                            scrollToPosition(scrollPosition)
-                        }
-                    }
-                    listGridAdapter?.setShowingListInsteadOfGrid(showingListInsteadOfGrid)
-                    switchView()
                 }
+                listGrid.apply {
+                    val scrollPosition = (layoutManager as? LinearLayoutManager)?.findFirstCompletelyVisibleItemPosition() ?: -1
+                    if (listInsteadOfGrid) { // LIST
+                        if (layoutManager == null || layoutManager is GridLayoutManager) {
+                            removeItemDecoration(gridItemDecoration)
+                            addItemDecoration(listItemDecoration)
+                            layoutManager = LinearLayoutManager(requireContext())
+                        }
+                    } else { // GRID
+                        if (layoutManager == null || layoutManager !is GridLayoutManager) {
+                            removeItemDecoration(listItemDecoration)
+                            addItemDecoration(gridItemDecoration)
+                            layoutManager = GridLayoutManager(requireContext(), calculateNoOfColumns(requireContext(), 64f)).apply {
+                                spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
+                                    override fun getSpanSize(position: Int): Int {
+                                        val itemCount = listGridAdapter?.itemCount
+                                            ?: return 1 // default
+                                        return when (position) {
+                                            (itemCount - 1) -> spanCount // last = full row width
+                                            else -> 1 // default
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if (scrollPosition > 0) {
+                        scrollToPosition(scrollPosition)
+                    }
+                }
+                listGridAdapter?.setShowingListInsteadOfGrid(listInsteadOfGrid)
+                switchView()
             }
+            updateFooter()
+            (activity as? IAdScreenActivity)?.let { adManager.onResumeScreen(it) }
         }
         viewModel.routesM.observe(viewLifecycleOwner) { routes ->
             listGridAdapter?.setList(routes)
             switchView()
             binding?.emptyLayout?.updateEmptyLayout(routes.isEmpty(), viewModel.agency.value?.pkg, activity)
+            updateFooter()
         }
-        viewModel.serviceUpdateLoadedEvent.observe(viewLifecycleOwner, EventObserver { triggered ->
+        viewModel.serviceUpdateLoadedEvent.observeEvent(viewLifecycleOwner) { _ ->
             listGridAdapter?.onServiceUpdatesLoaded()
-        })
+        }
+        DefaultPOIListFooterManager.observe(viewLifecycleOwner, viewModel.routesM, billingManager, dataSourcesRepository, userManager) {
+            updateFooter()
+        }
+    }
+
+    private fun updateFooter() {
+        val adapter = listGridAdapter ?: return
+        val footerPosition = adapter.itemCount - 1
+        listGridAdapter?.notifyItemChanged(footerPosition)
     }
 
     private fun calculateNoOfColumns(context: Context, @Suppress("SameParameterValue") columnWidthDp: Float): Int {
@@ -220,18 +306,21 @@ class RDSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rds_agency_routes)
             listGridAdapter?.isReady() != true -> {
                 emptyLayout.isVisible = false
                 listGrid.isVisible = false
+
                 loadingLayout.isVisible = true
             }
 
-            listGridAdapter?.itemCount == 0 -> {
+            listGridAdapter?.routeCount == 0 -> {
                 loadingLayout.isVisible = false
                 listGrid.isVisible = false
+
                 emptyLayout.isVisible = true
             }
 
             else -> {
                 emptyLayout.isVisible = false
                 loadingLayout.isVisible = false
+
                 listGrid.isVisible = true
             }
         }
@@ -239,6 +328,7 @@ class RDSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rds_agency_routes)
 
     override fun onResume() {
         super.onResume()
+        viewModel.routesM.value?.forEach { it.allowTriggerServiceUpdatesRefresh() } // get changes loaded from other screens (while paused)
         switchView()
     }
 

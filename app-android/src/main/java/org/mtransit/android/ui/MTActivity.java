@@ -6,7 +6,6 @@ import android.content.Context;
 import androidx.annotation.ContentView;
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
-import androidx.lifecycle.LifecycleOwner;
 
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.ui.view.common.IActivity;
@@ -20,7 +19,6 @@ public abstract class MTActivity extends MTAppCompatActivity implements IActivit
 	@ContentView
 	public MTActivity(@LayoutRes int contentLayoutId) {
 		super(contentLayoutId);
-
 	}
 
 	@NonNull

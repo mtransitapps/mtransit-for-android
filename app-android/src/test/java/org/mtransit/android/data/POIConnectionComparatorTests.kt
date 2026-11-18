@@ -7,7 +7,7 @@ import org.mtransit.android.commons.data.Direction
 import org.mtransit.android.commons.data.POI
 import org.mtransit.android.commons.data.Route
 import org.mtransit.android.commons.data.RouteDirectionStop
-import org.mtransit.android.commons.data.Stop
+import org.mtransit.android.commons.data.makeStop
 import kotlin.math.abs
 
 @Suppress("DEPRECATION")
@@ -17,36 +17,34 @@ class POIConnectionComparatorTests {
     private val authority = "a"
 
     private val computeDistance: (POI, POI) -> Float? = { poi1, poi2 ->
-            if (abs(poi1.lat - poi2.lat) < 0.0001
-                && abs(poi1.lng - poi2.lng) < 0.0001
-            ) {
-                0f
-            } else {
-                100f
-            }
+        if (abs(poi1.lat - poi2.lat) < 0.0001
+            && abs(poi1.lng - poi2.lng) < 0.0001
+        ) {
+            0f
+        } else {
+            100f
+        }
     }
 
-    private val subject = POIConnectionComparator(
-        computeDistance = computeDistance
-    )
+    private lateinit var subject: POIConnectionComparator
 
     @Test
     fun `test POISameRouteComparator - same stop`() {
-        val routeVH= Route(authority, 1L, "11", "Vaudreuil / Hudson", "F16179")
-        val routeSH= Route(authority, 3L, "13", "Mont-St-Hilaire", "CA5898")
-        val routeCA= Route(authority, 4L, "14", "Candiac", "CA5898")
-        val routeMA= Route(authority, 6L, "15", "Mascouche", "999AC6")
-        val directionVhVe = Direction(100L, Direction.HEADSIGN_TYPE_STRING, "Vendôme", routeVH.id)
-        val directionVhVh = Direction(101L, Direction.HEADSIGN_TYPE_STRING, "Hudson", routeVH.id)
-        val directionShCt = Direction(300L, Direction.HEADSIGN_TYPE_STRING, "Centrale", routeSH.id)
-        val directionShSh = Direction(301L, Direction.HEADSIGN_TYPE_STRING, "St-Hilaire", routeSH.id)
-        val directionCaVe = Direction(400L, Direction.HEADSIGN_TYPE_STRING, "Vendôme", routeCA.id)
-        val directionCaVh = Direction(401L, Direction.HEADSIGN_TYPE_STRING, "Candiac", routeCA.id)
-        val directionMaCt = Direction(600L, Direction.HEADSIGN_TYPE_STRING, "Centrale", routeMA.id)
-        val directionMaMa = Direction(601L, Direction.HEADSIGN_TYPE_STRING, "Mascouche", routeMA.id)
-        val stopCentrale = Stop(11010, "", "Centrale", 45.500002, -73.566668)
-        val stopVendome = Stop(11160, "", "Vendôme", 45.473771, -73.603101)
-        val stopStLambert = Stop(11440, "", "St-Lambert", 45.499634, -73.505824)
+        val routeVH = Route(authority, 1L, "11", "Vaudreuil / Hudson", "F16179")
+        val routeSH = Route(authority, 3L, "13", "Mont-St-Hilaire", "CA5898")
+        val routeCA = Route(authority, 4L, "14", "Candiac", "CA5898")
+        val routeMA = Route(authority, 6L, "15", "Mascouche", "999AC6")
+        val directionVhVe = Direction(authority, 100L, Direction.HEADSIGN_TYPE_STRING, "Vendôme", routeVH.id)
+        val directionVhVh = Direction(authority, 101L, Direction.HEADSIGN_TYPE_STRING, "Hudson", routeVH.id)
+        val directionShCt = Direction(authority, 300L, Direction.HEADSIGN_TYPE_STRING, "Centrale", routeSH.id)
+        val directionShSh = Direction(authority, 301L, Direction.HEADSIGN_TYPE_STRING, "St-Hilaire", routeSH.id)
+        val directionCaVe = Direction(authority, 400L, Direction.HEADSIGN_TYPE_STRING, "Vendôme", routeCA.id)
+        val directionCaVh = Direction(authority, 401L, Direction.HEADSIGN_TYPE_STRING, "Candiac", routeCA.id)
+        val directionMaCt = Direction(authority, 600L, Direction.HEADSIGN_TYPE_STRING, "Centrale", routeMA.id)
+        val directionMaMa = Direction(authority, 601L, Direction.HEADSIGN_TYPE_STRING, "Mascouche", routeMA.id)
+        val stopCentrale = makeStop(stopId = 11010, stopCode = "", stopName = "Centrale", stopLat = 45.500002, stopLng = -73.566668)
+        val stopVendome = makeStop(stopId = 11160, stopCode = "", stopName = "Vendôme", stopLat = 45.473771, stopLng = -73.603101)
+        val stopStLambert = makeStop(stopId = 11440, stopCode = "", stopName = "St-Lambert", stopLat = 45.499634, stopLng = -73.505824)
         val excludedPOI = RouteDirectionStop(authority, dst, routeSH, directionShCt, stopCentrale, false).toPOIM()
         val poiListSortedByDistance = listOf(
             // Centrale
@@ -62,7 +60,8 @@ class POIConnectionComparatorTests {
             RouteDirectionStop(authority, dst, routeSH, directionShCt, stopStLambert, false).toPOIM(),
             RouteDirectionStop(authority, dst, routeSH, directionShSh, stopStLambert, false).toPOIM(),
         )
-        subject.targetedPOI = excludedPOI.poi
+        subject = POIConnectionComparator(targetedPOI = excludedPOI.poi, maxDistanceInMeters = { 25f }, computeDistance = computeDistance)
+
         val result = poiListSortedByDistance.sortedWith(subject)
 
         var i = 0
@@ -80,17 +79,17 @@ class POIConnectionComparatorTests {
 
     @Test
     fun `test POISameRouteComparator - same terminal - different stop`() {
-        val route23= Route(authority, 23L, "23", "Ste-Hélène / Jacques-Cartier", "")
-        val route29= Route(authority, 29L, "29", "Collectivité Nouvelle", "")
-        val route98= Route(authority, 98L, "98", "Promenades St-Bruno / St-Bruno-De-Montarville", "")
+        val route23 = Route(authority, 23L, "23", "Ste-Hélène / Jacques-Cartier", "")
+        val route29 = Route(authority, 29L, "29", "Collectivité Nouvelle", "")
+        val route98 = Route(authority, 98L, "98", "Promenades St-Bruno / St-Bruno-De-Montarville", "")
 
-        val direction23Tr = Direction(2300L, Direction.HEADSIGN_TYPE_STRING, "Tremblay", route23.id)
-        val direction23TL = Direction(2301L, Direction.HEADSIGN_TYPE_STRING, "Term Longueuil", route23.id)
-        val direction29Eg = Direction(2900L, Direction.HEADSIGN_TYPE_STRING, "Église", route29.id)
-        val direction29TL = Direction(2901L, Direction.HEADSIGN_TYPE_STRING, "Term Longueuil", route29.id)
-        val direction98Pa = Direction(9800L, Direction.HEADSIGN_TYPE_STRING, "Parent", route98.id)
-        val direction98TL = Direction(9801L, Direction.HEADSIGN_TYPE_STRING, "Term Longueuil", route98.id)
-        val stopTL34417 = Stop(4417, "34417", "Term Longueuil", 45.5235276580726, -73.5208026778995)
+        val direction23Tr = Direction(authority, 2300L, Direction.HEADSIGN_TYPE_STRING, "Tremblay", route23.id)
+        val direction23TL = Direction(authority, 2301L, Direction.HEADSIGN_TYPE_STRING, "Term Longueuil", route23.id)
+        val direction29Eg = Direction(authority, 2900L, Direction.HEADSIGN_TYPE_STRING, "Église", route29.id)
+        val direction29TL = Direction(authority, 2901L, Direction.HEADSIGN_TYPE_STRING, "Term Longueuil", route29.id)
+        val direction98Pa = Direction(authority, 9800L, Direction.HEADSIGN_TYPE_STRING, "Parent", route98.id)
+        val direction98TL = Direction(authority, 9801L, Direction.HEADSIGN_TYPE_STRING, "Term Longueuil", route98.id)
+        val stopTL34417 = makeStop(stopId = 4417, stopCode = "34417", stopName = "Term Longueuil", stopLat = 45.5235276580726, stopLng = -73.5208026778995)
         val excludedPOI = RouteDirectionStop(authority, dst, route98, direction98TL, stopTL34417, false).toPOIM()
         val poiListSortedByDistance = listOf(
             // 23
@@ -102,9 +101,9 @@ class POIConnectionComparatorTests {
             // 98 same route as targeted
             RouteDirectionStop(authority, dst, route98, direction98Pa, stopTL34417, false).toPOIM(),
         )
-        subject.targetedPOI = excludedPOI.poi
-        assertEquals(true, subject.isAlmostSameLocation(poiListSortedByDistance[0], poiListSortedByDistance[1]))
+        subject = POIConnectionComparator(targetedPOI = excludedPOI.poi, maxDistanceInMeters = { 25f }, computeDistance = computeDistance)
 
+        assertEquals(true, subject.isCloseEnough(poiListSortedByDistance[0], poiListSortedByDistance[1]))
         assertEquals(true, subject.isConnection(poiListSortedByDistance[4].poi))
 
         val result = poiListSortedByDistance.sortedWith(subject)
@@ -116,6 +115,5 @@ class POIConnectionComparatorTests {
         assertEquals("$authority-29-2901-4417", (result[i++].poi as? RouteDirectionStop)?.uuid)
         assertEquals("$authority-29-2900-4417", (result[i++].poi as? RouteDirectionStop)?.uuid)
         assertEquals(5, i)
-
     }
 }

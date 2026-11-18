@@ -9,6 +9,8 @@ import androidx.lifecycle.liveData
 import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
+import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.gms.maps.model.LatLng
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import org.mtransit.android.common.repository.LocalPreferenceRepository
@@ -17,6 +19,7 @@ import org.mtransit.android.commons.data.Direction
 import org.mtransit.android.commons.data.Route
 import org.mtransit.android.commons.pref.liveData
 import org.mtransit.android.data.AgencyBaseProperties
+import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.IAgencyUIProperties
 import org.mtransit.android.data.RouteManager
 import org.mtransit.android.data.toRouteM
@@ -26,8 +29,10 @@ import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.task.StatusLoader
 import org.mtransit.android.ui.MTViewModelWithLocation
 import org.mtransit.android.ui.view.common.Event
-import org.mtransit.android.ui.view.common.PairMediatorLiveData
+import org.mtransit.android.ui.view.common.MediatorLiveData2
+import org.mtransit.android.ui.view.common.MediatorLiveData3
 import org.mtransit.android.ui.view.common.getLiveDataDistinct
+import org.mtransit.android.util.UIFeatureFlags
 import javax.inject.Inject
 
 @HiltViewModel
@@ -41,7 +46,7 @@ class RDSRouteViewModel @Inject constructor(
 ) : MTViewModelWithLocation() {
 
     companion object {
-        private val LOG_TAG = RDSRouteViewModel::class.java.simpleName
+        private val LOG_TAG: String = RDSRouteViewModel::class.java.simpleName
 
         internal const val EXTRA_AUTHORITY = "extra_authority"
         internal const val EXTRA_ROUTE_ID = "extra_route_id"
@@ -49,55 +54,72 @@ class RDSRouteViewModel @Inject constructor(
         internal const val EXTRA_SELECTED_DIRECTION_ID_DEFAULT: Long = -1L
         internal const val EXTRA_SELECTED_STOP_ID = "extra_stop_id"
         internal const val EXTRA_SELECTED_STOP_ID_DEFAULT: Int = -1
+
+        internal const val EXTRA_SELECTED_MAP_CAMERA_POSITION_LAT = "extra_map_lat"
+        internal const val EXTRA_SELECTED_MAP_CAMERA_POSITION_LNG = "extra_map_lng"
+        internal const val EXTRA_SELECTED_MAP_CAMERA_POSITION_ZOOM = "extra_map_zoom"
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
-    val authority = savedStateHandle.getLiveDataDistinct<String>(EXTRA_AUTHORITY)
-    val routeId = savedStateHandle.getLiveDataDistinct<Long>(EXTRA_ROUTE_ID)
+    private val _authority = savedStateHandle.getLiveDataDistinct<String>(EXTRA_AUTHORITY)
+    private val _routeId = savedStateHandle.getLiveDataDistinct<Long>(EXTRA_ROUTE_ID)
     private val _selectedDirectionId = savedStateHandle.getLiveDataDistinct(EXTRA_SELECTED_DIRECTION_ID, EXTRA_SELECTED_DIRECTION_ID_DEFAULT)
         .map { if (it < 0L) null else it }
+    val originalSelectedDirectionId = _selectedDirectionId
     val selectedStopId = savedStateHandle.getLiveDataDistinct(EXTRA_SELECTED_STOP_ID, EXTRA_SELECTED_STOP_ID_DEFAULT)
         .map { if (it < 0) null else it }
 
+    private val _selectedMapCameraPositionLat = savedStateHandle.getLiveDataDistinct<Double?>(EXTRA_SELECTED_MAP_CAMERA_POSITION_LAT)
+    private val _selectedMapCameraPositionLng = savedStateHandle.getLiveDataDistinct<Double?>(EXTRA_SELECTED_MAP_CAMERA_POSITION_LNG)
+    private val _selectedMapCameraPositionZoom = savedStateHandle.getLiveDataDistinct<Float?>(EXTRA_SELECTED_MAP_CAMERA_POSITION_ZOOM)
+
+    val selectedMapCameraPosition = MediatorLiveData3(_selectedMapCameraPositionLat, _selectedMapCameraPositionLng, _selectedMapCameraPositionZoom)
+        .map { (lat, lng, zoom) ->
+            lat ?: return@map null
+            lng ?: return@map null
+            zoom ?: return@map null
+            CameraPosition.fromLatLngZoom(LatLng(lat, lng), zoom)
+        }.distinctUntilChanged()
+
     val dataSourceRemovedEvent = MutableLiveData<Event<Boolean>>()
 
-    private val _agency: LiveData<AgencyBaseProperties?> = authority.switchMap { authority ->
+    val agency: LiveData<AgencyBaseProperties?> = _authority.switchMap { authority ->
         this.dataSourcesRepository.readingAgencyBase(authority) // #onModulesUpdated
     }
 
-    private val _route: LiveData<Route?> = PairMediatorLiveData(_agency, routeId).switchMap { (agency, routeId) ->
-        liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
-            emit(getRoute(agency, routeId))
+    private val route: LiveData<Route?> = MediatorLiveData2(agency, _routeId)
+        .switchMap { (agency, routeId) ->
+            liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
+                emit(getRoute(agency, routeId))
+            }
         }
-    }
 
-    val routeM: LiveData<RouteManager> = PairMediatorLiveData(authority, _route).switchMap { (authority, route) ->
-        liveData(viewModelScope.coroutineContext) {
-            authority ?: return@liveData
-            route ?: return@liveData
-            emit(
-                route.toRouteM(authority)
-                    .apply {
-                        addServiceUpdateLoaderListener(serviceUpdateLoaderListener)
-                    }
-            )
+    val routeM: LiveData<RouteManager> = MediatorLiveData2(_authority, route)
+        .switchMap { (authority, route) ->
+            liveData(viewModelScope.coroutineContext) {
+                authority ?: return@liveData
+                route ?: return@liveData
+                emit(
+                    route.toRouteM(authority)
+                        .apply {
+                            addServiceUpdateLoaderListener(serviceUpdateLoaderListener)
+                        }
+                )
+            }
         }
-    }
 
     private val _serviceUpdateLoadedEvent = MutableLiveData<Event<String>>()
     val serviceUpdateLoadedEvent: LiveData<Event<String>> = _serviceUpdateLoadedEvent
 
-    private val serviceUpdateLoaderListener = ServiceUpdateLoader.ServiceUpdateLoaderListener { targetUUID, serviceUpdates ->
+    private val serviceUpdateLoaderListener = ServiceUpdateLoader.ServiceUpdateLoaderListener { targetUUID, _ ->
         _serviceUpdateLoadedEvent.postValue(Event(targetUUID))
     }
 
     private suspend fun getRoute(agency: IAgencyUIProperties?, routeId: Long?): Route? {
-        if (routeId == null) {
-            return null
-        }
+        routeId ?: return null
         if (agency == null) {
-            if (_route.value != null) {
+            if (route.value != null) {
                 MTLog.d(this, "getRoute() > data source removed (no more agency)")
                 dataSourceRemovedEvent.postValue(Event(true))
             }
@@ -111,37 +133,43 @@ class RDSRouteViewModel @Inject constructor(
         return newRoute
     }
 
-    val colorInt: LiveData<Int?> = PairMediatorLiveData(_route, _agency).map { (route, agency) ->
-        route?.let { if (it.hasColor()) route.colorInt else agency?.colorInt }
-    }
-
-    val routeDirections: LiveData<List<Direction>?> = PairMediatorLiveData(authority, routeId).switchMap { (authority, routeId) ->
-        liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
-            emit(getRouteDirections(authority, routeId))
+    val colorInt: LiveData<Int?> = MediatorLiveData2(route, agency)
+        .map { (route, agency) ->
+            route?.let { if (it.hasColor()) route.colorInt else agency?.colorInt }
         }
-    }
+
+    val routeType: LiveData<DataSourceType?> = agency.map { it?.type }
+
+    val routeDirections: LiveData<List<Direction>?> = MediatorLiveData2(_authority, _routeId)
+        .switchMap { (authority, routeId) ->
+            liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
+                emit(getRouteDirections(authority, routeId))
+            }
+        }
 
     private suspend fun getRouteDirections(authority: String?, routeId: Long?): List<Direction>? {
-        if (authority == null || routeId == null) {
-            return null
-        }
+        authority ?: return null
+        routeId ?: return null
         return this.dataSourceRequestManager.findRDSRouteDirections(authority, routeId)
     }
 
-    private val _selectedDirectionIdPref: LiveData<Long?> = PairMediatorLiveData(authority, routeId).switchMap { (authority, routeId) ->
-        if (authority == null || routeId == null) {
-            MutableLiveData(null)
-        } else {
+    private val selectedDirectionIdPref: LiveData<Long?> = MediatorLiveData2(_authority, _routeId)
+        .switchMap { (authority, routeId) ->
+            authority ?: return@switchMap MutableLiveData(null)
+            routeId ?: return@switchMap MutableLiveData(null)
             lclPrefRepository.pref.liveData(
                 LocalPreferenceRepository.getPREFS_LCL_RDS_ROUTE_DIRECTION_ID_TAB(authority, routeId),
                 LocalPreferenceRepository.PREFS_LCL_RDS_ROUTE_DIRECTION_ID_TAB_DEFAULT
             )
         }
-    }
 
     fun onPageSelected(position: Int) {
-        this.statusLoader.clearAllTasks()
-        this.serviceUpdateLoader.clearAllTasks()
+        if (UIFeatureFlags.F_CLEAR_ALL_TASKS_ON_LEAVING_SCREEN) {
+            //noinspection DiscouragedApi
+            this.statusLoader.clearAllTasks()
+            //noinspection DiscouragedApi
+            this.serviceUpdateLoader.clearAllTasks()
+        }
         saveSelectedRouteDirectionIdPosition(position)
     }
 
@@ -152,23 +180,22 @@ class RDSRouteViewModel @Inject constructor(
     }
 
     private fun saveSelectedRouteDirectionId(direction: Direction) {
-        val authority: String = this.authority.value ?: return
-        val routeId: Long = this.routeId.value ?: return
+        val authority = this._authority.value ?: return
+        val routeId = this._routeId.value ?: return
         lclPrefRepository.pref.edit {
             putLong(LocalPreferenceRepository.getPREFS_LCL_RDS_ROUTE_DIRECTION_ID_TAB(authority, routeId), direction.id)
         }
     }
 
-    private val selectedDirectionId: LiveData<Long?> =
-        PairMediatorLiveData(_selectedDirectionId, _selectedDirectionIdPref).map { (selectedDirectionId, selectedDirectionIdPref) ->
+    private val currentSelectedDirectionId: LiveData<Long?> = MediatorLiveData2(_selectedDirectionId, selectedDirectionIdPref)
+        .map { (selectedDirectionId, selectedDirectionIdPref) ->
             selectedDirectionId ?: selectedDirectionIdPref
         }.distinctUntilChanged()
 
-    val selectedRouteDirectionPosition: LiveData<Int?> = PairMediatorLiveData(selectedDirectionId, routeDirections).map { (directionId, routeDirections) ->
-        if (directionId == null || routeDirections == null) {
-            null
-        } else {
+    val currentSelectedRouteDirectionPosition = MediatorLiveData2(currentSelectedDirectionId, routeDirections)
+        .map { (directionId, routeDirections) ->
+            directionId ?: return@map null
+            routeDirections ?: return@map null
             routeDirections.indexOfFirst { it.id == directionId }.coerceAtLeast(0)
         }
-    }
 }

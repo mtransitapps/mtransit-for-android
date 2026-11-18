@@ -15,21 +15,23 @@ public interface CrashReporter {
 
 	void reportNonFatal(@Nullable Throwable throwable);
 
-	void reportNonFatal(@Nullable String msg, @NonNull Object... args);
+	void reportNonFatal(@NonNull String msg, @NonNull Object... args);
 
-	void reportNonFatal(@Nullable Throwable throwable, @Nullable String msg, @NonNull Object... args);
+	void reportNonFatal(@Nullable Throwable throwable, @NonNull String msg, @NonNull Object... args);
 
 	void shouldNotHappen(@Nullable Throwable throwable) throws RuntimeException;
 
-	void shouldNotHappen(@Nullable String msg, @NonNull Object... args) throws RuntimeException;
+	void shouldNotHappen(@NonNull String msg, @NonNull Object... args) throws RuntimeException;
 
-	void shouldNotHappen(@Nullable Throwable throwable, @Nullable String msg, @NonNull Object... args) throws RuntimeException;
+	void shouldNotHappen(@Nullable Throwable throwable, @NonNull String msg, @NonNull Object... args) throws RuntimeException;
 
-	void w(@NonNull MTLog.Loggable loggable, @Nullable String msg, @NonNull Object... args);
+	void w(@NonNull MTLog.Loggable loggable, @NonNull String msg, @NonNull Object... args);
 
-	void w(@NonNull String tag, @Nullable String msg, @NonNull Object... args);
+	void w(@NonNull String tag, @NonNull String msg, @NonNull Object... args);
 
-	void w(@NonNull MTLog.Loggable loggable, @Nullable Throwable t, @Nullable String msg, @NonNull Object... args);
+	void w(@NonNull MTLog.Loggable loggable, @Nullable Throwable t, @NonNull String msg, @NonNull Object... args);
 
-	void w(@NonNull String tag, @Nullable Throwable t, @Nullable String msg, @NonNull Object... args);
+	void w(@NonNull String tag, @Nullable Throwable t, @NonNull String msg, @NonNull Object... args);
+
+	void log(@NonNull String message);
 }

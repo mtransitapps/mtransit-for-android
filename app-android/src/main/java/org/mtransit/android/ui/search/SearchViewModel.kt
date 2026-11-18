@@ -1,8 +1,11 @@
 package org.mtransit.android.ui.search
 
+import androidx.collection.SimpleArrayMap
+import androidx.core.content.edit
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
@@ -11,21 +14,25 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.ComparatorUtils
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.StringUtils
+import org.mtransit.android.commons.pref.liveData
 import org.mtransit.android.commons.provider.GTFSProviderContract
-import org.mtransit.android.commons.provider.POIProviderContract
+import org.mtransit.android.commons.provider.poi.POIProviderContract
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.IAgencyProperties
 import org.mtransit.android.data.POIManager
+import org.mtransit.android.data.distanceOrNull
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
 import org.mtransit.android.provider.FavoriteRepository
 import org.mtransit.android.ui.MTViewModelWithLocation
-import org.mtransit.android.ui.view.common.TripleMediatorLiveData
+import org.mtransit.android.ui.view.common.MediatorLiveData3
 import org.mtransit.android.ui.view.common.getLiveDataDistinct
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.milliseconds
 
 @HiltViewModel
 class SearchViewModel @Inject constructor(
@@ -33,15 +40,23 @@ class SearchViewModel @Inject constructor(
     private val dataSourcesRepository: DataSourcesRepository,
     private val poiRepository: POIRepository,
     private val favoriteRepository: FavoriteRepository,
+    private val lclPrefRepository: LocalPreferenceRepository
 ) : MTViewModelWithLocation(), MTLog.Loggable {
 
     companion object {
-        private val LOG_TAG = SearchViewModel::class.java.simpleName
+        private val LOG_TAG: String = SearchViewModel::class.java.simpleName
 
         internal const val EXTRA_QUERY = "extra_query"
         internal const val EXTRA_QUERY_DEFAULT = StringUtils.EMPTY
+
         internal const val EXTRA_TYPE_FILTER = "extra_type_filter"
+        private val EXTRA_TYPE_FILTER_DEFAULT: Int? = null // default need to trigger initial UI
+
         internal const val EXTRA_SEARCH_HAS_FOCUS = "extra_search_has_focus"
+        private const val EXTRA_SEARCH_HAS_FOCUS_DEFAULT = true // default need to trigger initial UI
+
+        @Suppress("SpellCheckingInspection")
+        private const val DEV_QUERY = "MTDEV"
     }
 
     fun onScreenVisible() {
@@ -54,7 +69,7 @@ class SearchViewModel @Inject constructor(
         }
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     private val _searchableAgencies: LiveData<List<IAgencyProperties>> = this.dataSourcesRepository.readingAllAgenciesBase().map { list ->
         list.filter { agency -> agency.getSupportedType().isSearchable }
@@ -72,7 +87,18 @@ class SearchViewModel @Inject constructor(
 
     private var favoriteUUIDs = emptySet<String>()
 
+    val devEnabled: LiveData<Boolean> by lazy {
+        lclPrefRepository.pref.liveData(
+            LocalPreferenceRepository.PREFS_LCL_DEV_MODE_ENABLED, LocalPreferenceRepository.PREFS_LCL_DEV_MODE_ENABLED_DEFAULT
+        ).distinctUntilChanged()
+    }
+
     fun onNewQuery(queryOrNull: String?) {
+        if (DEV_QUERY == queryOrNull) {
+            val newDevEnabled = devEnabled.value != true // flip
+            lclPrefRepository.pref.edit { putBoolean(LocalPreferenceRepository.PREFS_LCL_DEV_MODE_ENABLED, newDevEnabled) }
+            return
+        }
         val newQuery: String = queryOrNull.orEmpty()
         if (newQuery.trim() == this.query.value) {
             MTLog.d(this, "onNewQuery() > SKIP same value '$newQuery'.")
@@ -84,7 +110,7 @@ class SearchViewModel @Inject constructor(
         }
         searchJob = viewModelScope.launch {
             if (newQuery.isNotBlank()) {
-                delay(777L) // debounce / throttle
+                delay(777L.milliseconds) // debounce / throttle
             }
             setQuery(newQuery)
         }
@@ -104,7 +130,7 @@ class SearchViewModel @Inject constructor(
         savedStateHandle[EXTRA_TYPE_FILTER] = typeFilterId
     }
 
-    private val _typeFilterId = savedStateHandle.getLiveDataDistinct<Int?>(EXTRA_TYPE_FILTER)
+    private val _typeFilterId = savedStateHandle.getLiveDataDistinct(EXTRA_TYPE_FILTER, EXTRA_TYPE_FILTER_DEFAULT)
 
     val typeFilter: LiveData<DataSourceType?> = _typeFilterId.map { typeId ->
         typeId?.let { DataSourceType.parseId(typeId) }
@@ -114,12 +140,12 @@ class SearchViewModel @Inject constructor(
         savedStateHandle[EXTRA_SEARCH_HAS_FOCUS] = focus
     }
 
-    private val _searchHasFocus = savedStateHandle.getLiveDataDistinct(EXTRA_SEARCH_HAS_FOCUS, true)
+    private val _searchHasFocus = savedStateHandle.getLiveDataDistinct(EXTRA_SEARCH_HAS_FOCUS, EXTRA_SEARCH_HAS_FOCUS_DEFAULT)
 
     val searchHasFocus: LiveData<Boolean> = _searchHasFocus
 
-    val searchResults: LiveData<List<POIManager>?> =
-        TripleMediatorLiveData(query, _typeFilterId, _searchableAgencies).switchMap { (query, typeFilterId, searchableAgencies) ->
+    val searchResults: LiveData<List<POIManager>?> = MediatorLiveData3(query, _typeFilterId, _searchableAgencies)
+        .switchMap { (query, typeFilterId, searchableAgencies) ->
             var keepAll = false
             this.poiRepository.loadingPOIMs(
                 typeToProviders = searchableAgencies
@@ -129,14 +155,17 @@ class SearchViewModel @Inject constructor(
                     ?.also { typeToAgencies ->
                         keepAll = typeToAgencies.keys.size == 1
                     },
-                filter = if (query.isNullOrBlank()) null else {
-                    POIProviderContract.Filter.getNewSearchFilter(query).apply {
-                        addExtra(GTFSProviderContract.POI_FILTER_EXTRA_NO_PICKUP, true)
-                        deviceLocation.value?.let {
-                            addExtra("lat", it.latitude)
-                            addExtra("lng", it.longitude)
-                        }
-                    }
+                filter = query?.takeIf { it.isNotBlank() }?.let {
+                    POIProviderContract.Filter.getNewSearchFilter(it).copy(
+                        extras = SimpleArrayMap<String, Any>().apply {
+                            put(POIProviderContract.POI_FILTER_EXTRA_AVOID_LOADING, true)
+                            put(GTFSProviderContract.POI_FILTER_EXTRA_NO_PICKUP, true)
+                            deviceLocation.value?.let {
+                                put("lat", it.latitude)
+                                put("lng", it.longitude)
+                            }
+                        },
+                    )
                 },
                 deviceLocation = deviceLocation.value,
                 typeComparator = POISearchComparator(this.favoriteUUIDs),
@@ -154,15 +183,8 @@ class SearchViewModel @Inject constructor(
             )
         }
 
-    class POISearchComparator(private val favoriteUUIDs: Set<String>) : Comparator<POIManager?> {
-        override fun compare(lhs: POIManager?, rhs: POIManager?): Int {
-            if (lhs == null && rhs == null) {
-                return ComparatorUtils.SAME
-            } else if (lhs == null) {
-                return ComparatorUtils.AFTER
-            } else if (rhs == null) {
-                return ComparatorUtils.BEFORE
-            }
+    class POISearchComparator(private val favoriteUUIDs: Set<String>) : Comparator<POIManager> {
+        override fun compare(lhs: POIManager, rhs: POIManager): Int {
             val lScore = lhs.poi.score ?: 0
             val rScore = rhs.poi.score ?: 0
             if (lScore > rScore) {
@@ -177,8 +199,15 @@ class SearchViewModel @Inject constructor(
             } else if (!lFav && rFav) {
                 return ComparatorUtils.AFTER
             }
-            val ld = lhs.distance
-            val rd = rhs.distance
+            val ld = lhs.distanceOrNull
+            val rd = rhs.distanceOrNull
+            if (ld == null && rd == null) {
+                return ComparatorUtils.SAME
+            } else if (ld == null) {
+                return ComparatorUtils.AFTER
+            } else if (rd == null) {
+                return ComparatorUtils.BEFORE
+            }
             if (ld > rd) {
                 return ComparatorUtils.AFTER
             } else if (ld < rd) {

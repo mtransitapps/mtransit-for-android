@@ -20,60 +20,65 @@ import org.mtransit.android.commons.isAppEnabled
 import org.mtransit.android.data.AUTHORITY_INVALID
 import org.mtransit.android.data.AuthorityAndUuid
 import org.mtransit.android.data.UUID_INVALID
-import org.mtransit.android.data.getAuthority
-import org.mtransit.android.data.getUuid
+import org.mtransit.android.data.authority
+import org.mtransit.android.data.authorityAndUuidT
+import org.mtransit.android.data.hasVideo
+import org.mtransit.android.data.isAuthorityAndUuidValid
+import org.mtransit.android.data.uuid
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.NewsRepository
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAwareViewModel
-import org.mtransit.android.ui.view.common.PairMediatorLiveData
-import org.mtransit.android.ui.view.common.TripleMediatorLiveData
+import org.mtransit.android.ui.view.common.MediatorLiveData2
+import org.mtransit.android.ui.view.common.MediatorLiveData3
 import org.mtransit.android.ui.view.common.getLiveDataDistinct
 import javax.inject.Inject
 
 @HiltViewModel
 class NewsListViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
-    private val newsRepository: NewsRepository,
+    newsRepository: NewsRepository,
     private val dataSourcesRepository: DataSourcesRepository,
     private val adManager: IAdManager,
-    private val pm: PackageManager,
+    pm: PackageManager,
 ) : ViewModel(),
     ModuleDisabledAwareViewModel,
     MTLog.Loggable {
 
     companion object {
-        private val LOG_TAG = NewsListViewModel::class.java.simpleName
+        private val LOG_TAG: String = NewsListViewModel::class.java.simpleName
 
         internal const val EXTRA_COLOR = "extra_color"
         internal val EXTRA_COLOR_DEFAULT: String? = null
         internal const val EXTRA_SUB_TITLE = "extra_subtitle"
         internal const val EXTRA_FILTER_TARGET_AUTHORITIES = "extra_filter_target_authorities"
         internal val EXTRA_FILTER_TARGET_AUTHORITIES_DEFAULT: Array<String> = emptyArray()
-        internal const val EXTRA_FILTER_TARGETS = "extra_filter_targets"
-        internal val EXTRA_FILTER_TARGETS_DEFAULT: Array<String> = emptyArray()
-        internal const val EXTRA_FILTER_UUIDS = "extra_filter_uuids"
-        internal val EXTRA_FILTER_UUIDS_DEFAULT: Array<String> = emptyArray()
+        internal const val EXTRA_FILTER_TARGETS_UUIDS = "extra_filter_targets"
+        internal val EXTRA_FILTER_TARGETS_UUIDS_DEFAULT: Array<String> = emptyArray()
+        internal const val EXTRA_FILTER_ARTICLE_UUIDS = "extra_filter_uuids"
+        internal val EXTRA_FILTER_ARTICLE_UUIDS_DEFAULT: Array<String> = emptyArray()
 
         internal const val EXTRA_SELECTED_ARTICLE_AUTHORITY = "extra_selected_article_agency_authority"
         internal const val EXTRA_SELECTED_ARTICLE_UUID = "extra_selected_article_uuid"
+        internal const val EXTRA_FULL_SCREEN_MODE = "extra_full_screen"
+        internal const val EXTRA_FULL_SCREEN_MODE_DEFAULT = false
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
-    val colorInt = savedStateHandle.getLiveDataDistinct(EXTRA_COLOR, EXTRA_COLOR_DEFAULT)
-        .map { it?.let { ColorUtils.parseColor(it) } }
+    val colorString = savedStateHandle.getLiveDataDistinct(EXTRA_COLOR, EXTRA_COLOR_DEFAULT)
 
     val subTitle = savedStateHandle.getLiveDataDistinct<String?>(EXTRA_SUB_TITLE)
 
     private val _targetAuthorities = savedStateHandle.getLiveDataDistinct(EXTRA_FILTER_TARGET_AUTHORITIES, EXTRA_FILTER_TARGET_AUTHORITIES_DEFAULT)
 
-    private val _filterTargets = savedStateHandle.getLiveDataDistinct(EXTRA_FILTER_TARGETS, EXTRA_FILTER_TARGETS_DEFAULT)
+    private val _filterTargetsUUIDs = savedStateHandle.getLiveDataDistinct(EXTRA_FILTER_TARGETS_UUIDS, EXTRA_FILTER_TARGETS_UUIDS_DEFAULT)
 
-    private val _filterUUIDs = savedStateHandle.getLiveDataDistinct(EXTRA_FILTER_UUIDS, EXTRA_FILTER_UUIDS_DEFAULT)
+    private val _filterArticlesUUIDs = savedStateHandle.getLiveDataDistinct(EXTRA_FILTER_ARTICLE_UUIDS, EXTRA_FILTER_ARTICLE_UUIDS_DEFAULT)
 
-    private val _filters = TripleMediatorLiveData(_targetAuthorities, _filterTargets, _filterUUIDs).map {
-        Filters(it.first?.toList(), it.second?.toList(), it.third?.toList())
-    }.distinctUntilChanged()
+    private val _filters = MediatorLiveData3(_targetAuthorities, _filterTargetsUUIDs, _filterArticlesUUIDs)
+        .map { (targetAuthorities, filterTargetsUUIDs, filterArticlesUUIDs) ->
+            Filters(targetAuthorities?.toList(), filterTargetsUUIDs?.toList(), filterArticlesUUIDs?.toList())
+        }.distinctUntilChanged()
 
     private val _allNewsProviders = this.dataSourcesRepository.readingAllNewsProviders() // #onModulesUpdated
 
@@ -83,13 +88,14 @@ class NewsListViewModel @Inject constructor(
 
     private val _selectedNewsArticleUUID = savedStateHandle.getLiveDataDistinct<String?>(EXTRA_SELECTED_ARTICLE_UUID)
 
-    val selectedNewsArticleAuthorityAndUUID = PairMediatorLiveData(_selectedNewsArticleAgencyAuthority, _selectedNewsArticleUUID).map { (authority, uuid) ->
-        authority?.let {
-            uuid?.let {
-                AuthorityAndUuid(authority, uuid)
+    val validSelectedNewsArticleAuthorityAndUUID = MediatorLiveData2(_selectedNewsArticleAgencyAuthority, _selectedNewsArticleUUID)
+        .map { (authority, uuid) ->
+            authority?.let {
+                uuid?.let {
+                    AuthorityAndUuid(authority, uuid).takeIf { it.isAuthorityAndUuidValid }
+                }
             }
-        }
-    }.distinctUntilChanged()
+        }.distinctUntilChanged()
 
     private var _lastReadArticleAuthorityAndUUID = MutableLiveData<AuthorityAndUuid?>(null)
 
@@ -104,15 +110,16 @@ class NewsListViewModel @Inject constructor(
 
     val loading: LiveData<Boolean> = _loading
 
-    val newsArticles: LiveData<List<News>?> =
-        TripleMediatorLiveData(_allNewsProviders, _filters, _refreshRequestedTrigger).switchMap { (allNewsProviders, filters, trigger) ->
+    val newsArticles: LiveData<List<News>?> = MediatorLiveData3(_allNewsProviders, _filters, _refreshRequestedTrigger)
+        .switchMap { (allNewsProviders, vmFilters, _) ->
             _loading.value = true
             newsRepository.loadingNewsArticles(
                 allProviders = allNewsProviders,
-                targetProviderAuthorities = filters?.targetAuthorities,
-                filterTargets = filters?.filterTargets,
-                filterUUIDs = filters?.filterUUIDs,
+                targetProviderAuthorities = vmFilters?.targetAuthorities,
+                filterTargetUUIDs = vmFilters?.filterTargetsUUIDs,
+                filterArticleUUIDs = vmFilters?.filterArticlesUUIDs,
                 comparator = News.NEWS_COMPARATOR,
+                inFocus = vmFilters?.filterTargetsUUIDs?.isNotEmpty() == true,
                 firstLoad = newsArticles.value == null,
                 onSuccess = {
                     _loading.postValue(false)
@@ -125,8 +132,8 @@ class NewsListViewModel @Inject constructor(
 
     fun onNewsArticleSelected(newAuthorityAndUuid: AuthorityAndUuid?) {
         // 1st: make sure it's null to avoid INVALID authority+uuid pair
-        val newAuthority = newAuthorityAndUuid?.getAuthority()
-        val newUuid = newAuthorityAndUuid?.getUuid()
+        val newAuthority = newAuthorityAndUuid?.authority
+        val newUuid = newAuthorityAndUuid?.uuid
         if (newAuthority != null && newAuthority != savedStateHandle[EXTRA_SELECTED_ARTICLE_AUTHORITY]) {
             savedStateHandle[EXTRA_SELECTED_ARTICLE_AUTHORITY] = AUTHORITY_INVALID
         }
@@ -141,6 +148,31 @@ class NewsListViewModel @Inject constructor(
         }
     }
 
+    val fullscreenAvailable: LiveData<Boolean?> = MediatorLiveData2(newsArticles, validSelectedNewsArticleAuthorityAndUUID)
+        .map { (newsArticles, validSelectedNewsArticleAuthorityAndUUID) ->
+            newsArticles ?: return@map null
+            validSelectedNewsArticleAuthorityAndUUID ?: return@map null
+            newsArticles.singleOrNull { it.authorityAndUuidT == validSelectedNewsArticleAuthorityAndUUID }?.hasVideo == true
+        }
+
+    val fullscreen = savedStateHandle.getLiveDataDistinct(EXTRA_FULL_SCREEN_MODE, EXTRA_FULL_SCREEN_MODE_DEFAULT)
+
+    val fullscreenAndAvailable = MediatorLiveData2(fullscreenAvailable, fullscreen)
+        .map { (available, isFullscreen) ->
+            available == true && isFullscreen == true
+        }
+
+    val abColorString = MediatorLiveData2(colorString, fullscreenAndAvailable)
+        .map { (colorString, fullscreenAndAvailable) ->
+            fullscreenAndAvailable ?: return@map null
+            if (fullscreenAndAvailable) return@map ColorUtils.BLACK
+            return@map colorString
+        }
+
+    fun setFullscreenMode(newFullscreenMode: Boolean) {
+        savedStateHandle[EXTRA_FULL_SCREEN_MODE] = newFullscreenMode
+    }
+
     override fun getAdBannerHeightInPx(activity: IAdScreenActivity?) = this.adManager.getBannerHeightInPx(activity)
 
     override val moduleDisabled = this.dataSourcesRepository.readingAllAgenciesBase().map {
@@ -153,7 +185,7 @@ class NewsListViewModel @Inject constructor(
 
     private data class Filters(
         val targetAuthorities: List<String>?,
-        val filterTargets: List<String>?,
-        val filterUUIDs: List<String>?,
+        val filterTargetsUUIDs: List<String>?,
+        val filterArticlesUUIDs: List<String>?,
     )
 }

@@ -1,0 +1,73 @@
+package org.mtransit.android.ui.view.map
+
+import org.mtransit.android.R
+import org.mtransit.android.commons.data.POI
+import org.mtransit.android.commons.data.RouteDirectionStop
+import org.mtransit.android.commons.dpToPx
+import org.mtransit.android.data.DataSourceType
+import org.mtransit.commons.FeatureFlags
+
+@Suppress("ArgumentListWrapping", "MaxLineLength")
+object MTMapIconsProvider {
+
+    // @formatter:off
+
+    @JvmStatic
+    val selectedDefaultIconDef = MTMapIconDef(
+        R.drawable.map_icon_place_replace_slim_original_nodpi,
+        flat = false,
+        anchorU = 0.5f, anchorV = 1.0f,
+        infoWindowAnchorU = 0.5f, infoWindowAnchorV = 0.0f,
+        oneSize = true, size = 36.dpToPx,
+        replaceColor = true,
+    )
+
+    @JvmStatic
+    val defaultIconDef = MTMapIconDef(R.drawable.map_icon_stop_replace_flat_nodpi, size = 21.dpToPx, replaceColor = true)
+
+    @JvmStatic
+    val arrowIconDef = MTMapIconDef(R.drawable.map_icon_stop_replace_flat_arrow_nodpi, size = 21.dpToPx, replaceColor = true)
+
+    @JvmStatic
+    val defaultClusterIconDef = MTMapIconDef(R.drawable.map_icon_cluster_blur_replace_nodpi, oneSize = true, size = 48.dpToPx, replaceColor = true)
+
+    @JvmStatic
+    val lightRailVehicleIconDef = MTMapIconDef(R.drawable.map_icon_stop_replace_flat_filled_tram_nodpi, size = 41.dpToPx, replaceColor = true)
+
+    @JvmStatic
+    val subwayVehicleIconDef = MTMapIconDef(R.drawable.map_icon_stop_replace_flat_filled_subway_nodpi, size = 41.dpToPx, replaceColor = true)
+
+    @JvmStatic
+    val railVehicleIconDef = MTMapIconDef(R.drawable.map_icon_stop_replace_flat_filled_railway_nodpi, size = 41.dpToPx, replaceColor = true)
+
+    @JvmStatic
+    val busVehicleIconDef = MTMapIconDef(R.drawable.map_icon_stop_replace_flat_filled_bus_nodpi, size = 41.dpToPx, replaceColor = true)
+
+    @JvmStatic
+    val ferryVehicleIconDef = MTMapIconDef(R.drawable.map_icon_stop_replace_flat_filled_boat_nodpi, size = 41.dpToPx, replaceColor = true)
+
+    // @formatter:on
+
+    @JvmStatic
+    fun getIconDefForRotation(rotation: Float?, poi: POI): MTMapIconDef {
+        @Suppress("SimplifyBooleanWithConstants")
+        if (FeatureFlags.F_EXPORT_DIRECTION_STOP_LAST
+            && poi is RouteDirectionStop
+            && poi.isAlwaysLastTripStop
+        ) {
+            return defaultIconDef
+        }
+        return if (rotation != null) arrowIconDef else defaultIconDef
+    }
+
+    @JvmStatic
+    val DataSourceType?.vehicleIconDef: MTMapIconDef
+        get() = when (this) {
+            DataSourceType.TYPE_LIGHT_RAIL, DataSourceType.TYPE_TRAM -> lightRailVehicleIconDef
+            DataSourceType.TYPE_SUBWAY -> subwayVehicleIconDef
+            DataSourceType.TYPE_RAIL -> railVehicleIconDef
+            DataSourceType.TYPE_BUS -> busVehicleIconDef
+            DataSourceType.TYPE_FERRY -> ferryVehicleIconDef
+            else -> defaultIconDef // should not happen?
+        }
+}

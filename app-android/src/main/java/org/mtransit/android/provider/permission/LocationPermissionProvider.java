@@ -1,6 +1,7 @@
 package org.mtransit.android.provider.permission;
 
 import android.Manifest;
+import android.content.Context;
 
 import androidx.annotation.NonNull;
 
@@ -11,6 +12,8 @@ import java.util.Arrays;
 import java.util.Collection;
 
 import javax.inject.Inject;
+
+import dagger.hilt.android.qualifiers.ApplicationContext;
 
 public class LocationPermissionProvider extends PermissionProviderImpl implements MTLog.Loggable {
 
@@ -31,8 +34,10 @@ public class LocationPermissionProvider extends PermissionProviderImpl implement
 	}
 
 	@Inject
-	public LocationPermissionProvider() {
-		// DO NOTHING
+	public LocationPermissionProvider(
+			@NonNull @ApplicationContext Context appContext
+	) {
+		super(appContext);
 	}
 
 	@NonNull

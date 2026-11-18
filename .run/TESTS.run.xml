@@ -9,7 +9,7 @@
             </option>
             <option name="taskNames">
                 <list>
-                    <option value=":commons-java:test :parser:test :common-android:testDebugUnitTest :app-android:testDebugUnitTest" />
+                    <option value="testAll" />
                 </list>
             </option>
             <option name="vmOptions" value="" />

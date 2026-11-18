@@ -7,34 +7,63 @@
     android:minHeight="@dimen/list_view_item_height"
     android:orientation="horizontal"
     android:paddingHorizontal="@dimen/baseline_8"
-    tools:background="@color/mt_blue_malibu">
-
+    tools:background="#FFFF00"
+    tools:paddingHorizontal="@dimen/baseline_4">
+    <!-- RSN / LOGO + SERVICE UPDATE -->
     <FrameLayout
-        android:id="@+id/rsn_or_logo"
-        android:layout_width="@dimen/poi_extra_width"
+        android:id="@+id/rsn_img_service_update"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="center"
-        android:gravity="center">
-        <!-- ROUTE SHORT NAME -->
-        <TextView
-            android:id="@+id/route_short_name"
-            style="@style/MTTextRouteShortName"
-            android:visibility="gone"
-            tools:text="RSN Route Short Name"
-            tools:visibility="visible" />
-        <!-- ROUTE TYPE IMG -->
-        <org.mtransit.android.ui.view.MTJPathsView
-            android:id="@+id/route_type_img"
+        tools:background="#0000FF"
+        tools:layout_width="@dimen/poi_extra_width">
+        <!-- RSN / LOGO -->
+        <LinearLayout
+            android:id="@+id/rsn_img"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_gravity="center"
-            android:padding="4dp"
-            android:visibility="gone"
-            tools:visibility="visible" />
-
+            android:gravity="center"
+            android:orientation="horizontal"
+            tools:background="#00FF00">
+            <Space
+                android:id="@+id/route_space_start"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:visibility="gone"
+                tools:visibility="visible" />
+            <!-- ROUTE TYPE IMG -->
+            <org.mtransit.android.ui.view.MTJPathsView
+                android:id="@+id/route_type_img"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="4"
+                android:padding="4dp"
+                android:visibility="gone"
+                tools:background="#00FFFF"
+                tools:foreground="@drawable/ic_directions_subway_black_24dp"
+                tools:layout_weight="2"
+                tools:visibility="visible" />
+            <!-- ROUTE SHORT NAME -->
+            <TextView
+                android:id="@+id/route_short_name"
+                style="@style/MTTextRouteShortName"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="4"
+                android:maxWidth="@dimen/poi_extra_width"
+                android:visibility="gone"
+                tools:background="#FF00FF"
+                tools:layout_weight="2"
+                tools:text="1"
+                tools:visibility="visible" />
+        </LinearLayout>
+        <!-- SERVICE UPDATE -->
         <include
             android:id="@+id/service_update_layout"
-            layout="@layout/layout_route_service_update_img" />
+            layout="@layout/layout_route_service_update_img"
+            tools:background="#FF0000"
+            tools:visibility="visible" />
     </FrameLayout>
     <!-- ROUTE LONG NAME -->
     <TextView

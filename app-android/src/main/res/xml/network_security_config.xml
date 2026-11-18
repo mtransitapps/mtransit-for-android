@@ -4,6 +4,12 @@
         cleartextTrafficPermitted="true"
         tools:ignore="InsecureBaseConfiguration">
         <!-- WebView may open any url -->
+        <trust-anchors>
+            <!-- Preinstalled system CAs -->
+            <certificates src="system"/>
+            <!-- Mozilla included CAs https://wiki.mozilla.org/CA/Included_Certificates -->
+            <certificates src="@raw/mozilla_roots_pem"/>
+        </trust-anchors>
     </base-config>
     <!-- trust-anchors certificates must be added to /.github/workflows/mt-update-ssl-cert.yml -->
     <!-- octranspo.com custom CA: used for RSS... -->

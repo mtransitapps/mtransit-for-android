@@ -1,49 +1,54 @@
 package org.mtransit.android.ui.view
 
 import android.content.Context
-import androidx.annotation.AnyThread
+import androidx.annotation.MainThread
 import com.google.android.gms.maps.MapsInitializer
-import com.google.android.gms.maps.OnMapsSdkInitializedCallback
 import org.mtransit.android.commons.MTLog
-import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicReference
 
 object MapsInitializerUtil : MTLog.Loggable {
 
-    private val LOG_TAG = MapsInitializerUtil::class.java.simpleName
+    private val LOG_TAG: String = MapsInitializerUtil::class.java.simpleName
 
-    private val RENDERER = MapsInitializer.Renderer.LATEST
+    private val PREFERRED_RENDERER = MapsInitializer.Renderer.LATEST
 
-    private val mapInitialized = AtomicBoolean(false)
+    private val rendererInitialized = AtomicReference<MapsInitializer.Renderer>(null)
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
-    @AnyThread
+    /**
+     * [MapsInitializer.initialize] has to be called from **Main Thread**.
+     * There was wrong advice in on the Google Issue Tracker, but they since officially reversed that advice.
+     * (do not call from [android.app.Application.onCreate] to avoid ANRs)
+     * https://developers.google.com/android/reference/com/google/android/gms/maps/MapsInitializer
+     */
     @JvmStatic
     @JvmOverloads
-    fun initMap(appContext: Context, callback: OnMapsSdkInitializedCallback? = null) {
-        if (mapInitialized.getAndSet(true)) {
+    @MainThread
+    fun initMap(context: Context, onMapInitialized: (MapsInitializer.Renderer?) -> (Unit) = {}) {
+        rendererInitialized.get()?.let { renderer ->
             MTLog.d(this, "initMap() > SKIP (already running)")
-            callback?.onMapsSdkInitialized(RENDERER)
+            onMapInitialized(renderer)
             return
         }
         try {
-            // Initializes the Google Maps SDK for Android so that its classes are ready for use
-            MapsInitializer.initialize(appContext, RENDERER) { renderer ->
+            @Suppress("DEPRECATION")
+            MapsInitializer.initialize(context.applicationContext, PREFERRED_RENDERER) { renderer ->
                 when (renderer) {
                     MapsInitializer.Renderer.LATEST -> {
                         MTLog.d(this, "The latest version of the renderer is used.")
                     }
-                    //noinspection deprecation
+
                     MapsInitializer.Renderer.LEGACY -> {
                         MTLog.d(this, "The legacy version of the renderer is used.")
                     }
                 }
-                callback?.onMapsSdkInitialized(renderer)
-                mapInitialized.set(true)
+                rendererInitialized.set(renderer)
+                onMapInitialized(renderer)
             }
         } catch (e: Exception) {
             MTLog.w(this, e, "Error while initializing map!")
-            mapInitialized.set(false)
+            rendererInitialized.set(null)
         }
     }
 }

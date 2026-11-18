@@ -1,48 +1,52 @@
-@file:JvmName("PickPOIDialogFragment") // ANALYTICS
 package org.mtransit.android.ui.pick
 
 import android.app.Dialog
 import android.app.PendingIntent
 import android.content.Context
-import android.location.Location
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.collection.ArrayMap
 import androidx.core.content.ContextCompat
-import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.FragmentNavigator
+import androidx.navigation.fragment.findNavController
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
-import org.mtransit.android.common.repository.DefaultPreferenceRepository
-import org.mtransit.android.common.repository.LocalPreferenceRepository
-import org.mtransit.android.commons.getDimensionInt
+import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.data.POIArrayAdapter
+import org.mtransit.android.data.setPoisUpdateDistanceAndClosest
 import org.mtransit.android.databinding.FragmentDialogPickPoiBinding
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
-import org.mtransit.android.provider.FavoriteManager
+import org.mtransit.android.device.DevicePrefManager
+import org.mtransit.android.provider.FavoriteRepository
 import org.mtransit.android.provider.sensor.MTSensorManager
 import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.task.StatusLoader
 import org.mtransit.android.ui.MTActivityWithLocation
 import org.mtransit.android.ui.MTActivityWithLocation.DeviceLocationListener
+import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.fragment.MTBottomSheetDialogFragmentX
-import org.mtransit.android.ui.view.common.EventObserver
+import org.mtransit.android.ui.nearby.NearbyFragment
 import org.mtransit.android.ui.view.common.IFragment
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
+import org.mtransit.android.ui.view.common.observeEvent
+import org.mtransit.android.user.UserPrefManager
+import org.mtransit.commons.FeatureFlags
 import javax.inject.Inject
+import android.location.Location as AndroidLocation
 
 @AndroidEntryPoint
 class PickPOIDialogFragment : MTBottomSheetDialogFragmentX(), DeviceLocationListener, IFragment {
 
     companion object {
-        private val LOG_TAG = PickPOIDialogFragment::class.java.simpleName
+        private val LOG_TAG: String = PickPOIDialogFragment::class.java.simpleName
 
         @JvmStatic
         fun newInstance(
@@ -60,15 +64,28 @@ class PickPOIDialogFragment : MTBottomSheetDialogFragmentX(), DeviceLocationList
             authorities: ArrayList<String>
         ): PickPOIDialogFragment {
             return PickPOIDialogFragment().apply {
-                arguments = bundleOf(
-                    PickPOIViewModel.EXTRA_POI_UUIDS to uuids,
-                    PickPOIViewModel.EXTRA_POI_AUTHORITIES to authorities,
-                )
+                arguments = Bundle().apply {
+                    putStringArrayList(PickPOIViewModel.EXTRA_POI_UUIDS, uuids)
+                    putStringArrayList(PickPOIViewModel.EXTRA_POI_AUTHORITIES, authorities)
+                }
+            }
+        }
+
+        @JvmStatic
+        fun newInstance(
+            fixedOnLat: Double,
+            fixedOnLng: Double,
+        ): PickPOIDialogFragment {
+            return PickPOIDialogFragment().apply {
+                arguments = Bundle().apply {
+                    putDouble(PickPOIViewModel.EXTRA_FIXED_ON_LAT, fixedOnLat)
+                    putDouble(PickPOIViewModel.EXTRA_FIXED_ON_LNG, fixedOnLng)
+                }
             }
         }
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     private val viewModel by viewModels<PickPOIViewModel>()
     private val attachedViewModel
@@ -81,22 +98,25 @@ class PickPOIDialogFragment : MTBottomSheetDialogFragmentX(), DeviceLocationList
     lateinit var dataSourcesRepository: DataSourcesRepository
 
     @Inject
-    lateinit var defaultPrefRepository: DefaultPreferenceRepository
+    lateinit var userPrefManager: UserPrefManager
 
     @Inject
-    lateinit var localPreferenceRepository: LocalPreferenceRepository
+    lateinit var devicePrefManager: DevicePrefManager
 
     @Inject
     lateinit var poiRepository: POIRepository
 
     @Inject
-    lateinit var favoriteManager: FavoriteManager
+    lateinit var favoriteRepository: FavoriteRepository
 
     @Inject
     lateinit var statusLoader: StatusLoader
 
     @Inject
     lateinit var serviceUpdateLoader: ServiceUpdateLoader
+
+    @Inject
+    lateinit var analyticsManager: IAnalyticsManager
 
     private var binding: FragmentDialogPickPoiBinding? = null
 
@@ -114,12 +134,13 @@ class PickPOIDialogFragment : MTBottomSheetDialogFragmentX(), DeviceLocationList
             this,
             this.sensorManager,
             this.dataSourcesRepository,
-            this.defaultPrefRepository,
-            this.localPreferenceRepository,
+            this.userPrefManager,
+            this.devicePrefManager,
             this.poiRepository,
-            this.favoriteManager,
+            this.favoriteRepository,
             this.statusLoader,
-            this.serviceUpdateLoader
+            this.serviceUpdateLoader,
+            this.analyticsManager
         ).apply {
             logTag = this@PickPOIDialogFragment.logTag
             setOnClickHandledListener(onClickHandledListener)
@@ -128,14 +149,14 @@ class PickPOIDialogFragment : MTBottomSheetDialogFragmentX(), DeviceLocationList
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        this.adapter.setActivity(this)
+        this.adapter.setFragment(this)
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return super.onCreateDialog(savedInstanceState).apply {
             behavior = (this as? BottomSheetDialog)?.behavior
                 ?.apply {
-                    resources.getDimensionInt(R.dimen.bottom_sheet_min_height).takeIf { it > 0 }?.let {
+                    resources.getDimensionPixelSize(R.dimen.bottom_sheet_min_height).takeIf { it > 0 }?.let {
                         peekHeight = it
                     }
                 }
@@ -156,45 +177,97 @@ class PickPOIDialogFragment : MTBottomSheetDialogFragmentX(), DeviceLocationList
                 root.setBackgroundColor(ContextCompat.getColor(root.context, R.color.color_background))
             }
         }
-        viewModel.poiList.observe(viewLifecycleOwner) { poiList ->
-            adapter.setPois(poiList)
-            adapter.updateDistanceNowAsync(viewModel.deviceLocation.value)
+        adapter.onCreateView(viewLifecycleOwner)
+        setupListLoadingEmpty()
+        viewModel.poiNearbyList.observe(viewLifecycleOwner) { poiList ->
+            adapter.setPoisUpdateDistanceAndClosest(poiList, viewModel.deviceLocation.value)
             adapter.initManual()
-            binding?.apply {
-                when {
-                    !adapter.isInitialized -> {
-                        emptyLayout.isVisible = false
-                        list.isVisible = false
-                        loadingLayout.isVisible = true
-                    }
-
-                    adapter.poisCount == 0 -> {
-                        loadingLayout.isVisible = false
-                        list.isVisible = false
-                        emptyLayout.isVisible = true
-                    }
-
-                    else -> {
-                        loadingLayout.isVisible = false
-                        emptyLayout.isVisible = false
-                        list.isVisible = true
-                    }
-                }
-            }
+            setupListLoadingEmpty()
         }
         viewModel.deviceLocation.observe(viewLifecycleOwner) { deviceLocation ->
             adapter.setLocation(deviceLocation)
         }
-        viewModel.dataSourceRemovedEvent.observe(viewLifecycleOwner, EventObserver { removed ->
-            if (removed == true) {
+        viewModel.dataSourceRemovedEvent.observeEvent(viewLifecycleOwner) { removed ->
+            if (removed) {
                 dismiss()
             }
-        })
+        }
+        viewModel.nearbyLatLng.observe(viewLifecycleOwner) { nearbyLatLng ->
+            binding?.apply {
+                nearbyLatLng?.let { (lat, lng) ->
+                    nearbyPoisTitle.moreBtn.setOnClickListener {
+                        onNearbyMoreButtonClick(lat, lng)
+                    }
+                    nearbyPoisTitle.isVisible = true
+                    nearbyPoisTitle.moreBtn.isVisible = true
+
+                    spaceForDragHandle.isVisible = false
+                } ?: run {
+                    spaceForDragHandle.isVisible = true
+
+                    nearbyPoisTitle.isVisible = false
+                    nearbyPoisTitle.moreBtn.isVisible = false
+                }
+            }
+        }
+    }
+
+    private fun setupListLoadingEmpty() = binding?.apply {
+        when {
+            !adapter.isInitialized -> {
+                emptyLayout.isVisible = false
+                list.isVisible = false
+                loadingLayout.isVisible = true
+            }
+
+            adapter.poisCount == 0 -> {
+                loadingLayout.isVisible = false
+                list.isVisible = false
+                emptyLayout.isVisible = true
+            }
+
+            else -> {
+                loadingLayout.isVisible = false
+                emptyLayout.isVisible = false
+                list.isVisible = true
+            }
+        }
+    }
+
+    private fun onNearbyMoreButtonClick(lat: Double, lng: Double) {
+        onClickHandledListener.onLeaving()
+        if (FeatureFlags.F_NAVIGATION) {
+            var extras: FragmentNavigator.Extras? = null
+            if (FeatureFlags.F_TRANSITION) {
+                extras = null // TODO button ? extras = FragmentNavigatorExtras(view to view.transitionName)
+            }
+            findNavController().navigate(
+                R.id.nav_to_nearby_screen,
+                NearbyFragment.newFixedOnInstanceArgs(
+                    optTypeId = null,
+                    fixedOnLat = lat,
+                    fixedOnLng = lng,
+                    fixedOnName = null
+                ),
+                null,
+                extras
+            )
+        } else {
+            (activity as? MainActivity)?.addFragmentToStack(
+                NearbyFragment.newFixedOnInstance(
+                    optTypeId = null,
+                    fixedOnLat = lat,
+                    fixedOnLng = lng,
+                    fixedOnName = null
+                ),
+                this@PickPOIDialogFragment
+            )
+        }
     }
 
     override fun onResume() {
         super.onResume()
-        this.adapter.onResume(this, viewModel.deviceLocation.value)
+        this.adapter.onVisible(this, viewModel.deviceLocation.value)
         (activity as? MTActivityWithLocation)?.let { onLocationSettingsResolution(it.lastLocationSettingsResolution) }
         (activity as? MTActivityWithLocation)?.let { onDeviceLocationChanged(it.lastLocation) }
     }
@@ -203,13 +276,13 @@ class PickPOIDialogFragment : MTBottomSheetDialogFragmentX(), DeviceLocationList
         attachedViewModel?.onLocationSettingsResolution(resolution)
     }
 
-    override fun onDeviceLocationChanged(newLocation: Location?) {
+    override fun onDeviceLocationChanged(newLocation: AndroidLocation?) {
         attachedViewModel?.onDeviceLocationChanged(newLocation)
     }
 
     override fun onPause() {
         super.onPause()
-        this.adapter.onPause()
+        this.adapter.onInvisible()
     }
 
     override fun onDestroyView() {

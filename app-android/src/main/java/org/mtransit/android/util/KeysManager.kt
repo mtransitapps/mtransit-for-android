@@ -4,16 +4,20 @@ import android.content.Context
 import dagger.hilt.android.qualifiers.ApplicationContext
 import org.mtransit.android.BuildConfig
 import org.mtransit.android.R
+import org.mtransit.android.billing.IBillingManager
 import org.mtransit.android.commons.KeysIds
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.StringUtils.EMPTY
 import org.mtransit.android.data.ITargetedProviderProperties
+import org.mtransit.android.provider.remoteconfig.RemoteConfigProvider
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class KeysManager @Inject constructor(
     @param:ApplicationContext private val appContext: Context,
+    private val billingManager: IBillingManager,
+    private val remoteConfigProvider: RemoteConfigProvider,
 ) {
 
     companion object {
@@ -32,6 +36,7 @@ class KeysManager @Inject constructor(
         @JvmStatic
         fun getKey(context: Context, key: String) = when (key) {
             KeysIds.GOOGLE_PLACES_NEW_API_KEY -> context.resources.getStringArray(R.array.google_places_new_api_key).join()
+            KeysIds.GOOGLE_MAPS_EMBED_API_KEY -> context.resources.getStringArray(R.array.google_maps_embed_api_key).join()
             KeysIds.TWITTER_CACHED_API_URL -> context.resources.getStringArray(R.array.twitter_cached_api_url).join()
             KeysIds.TWITTER_BEARER_TOKEN -> context.resources.getStringArray(R.array.twitter_bearer_token).join()
             KeysIds.YOUTUBE_API_KEY -> context.resources.getStringArray(R.array.youtube_api_key).join()
@@ -45,21 +50,30 @@ class KeysManager @Inject constructor(
 
         private fun getKeyEntry(context: Context, key: String) = getKey(context, key)?.let { key to it }
 
-        @JvmStatic
-        fun getKeysMap(context: Context, authority: String): Map<String, String>? = when {
+        private fun getKeysMap(
+            context: Context,
+            billingManager: IBillingManager,
+            remoteConfigProvider: RemoteConfigProvider,
+            authority: String
+        ): Map<String, String>? = when {
             // MAIN
             authority.endsWith("$debugS.provider.place") -> getKeyEntry(context, KeysIds.GOOGLE_PLACES_NEW_API_KEY)?.let { mapOf(it) }
             // NEWS
             authority.endsWith("$debugS.news.twitter") -> {
                 buildMap {
-                    getKeyEntry(context, KeysIds.TWITTER_BEARER_TOKEN)?.let { (key, value) ->
-                        put(key, value)
-                    }
-                    getKeyEntry(context, KeysIds.TWITTER_CACHED_API_URL)?.let { (key, value) ->
-                        put(key, value)
-                    }
+                    getKeyEntry(context, KeysIds.TWITTER_BEARER_TOKEN)
+                        ?.takeIf { billingManager.showPaidFeatures.value == true } // main app token $$ for paid users only
+                        ?.let { (key, value) ->
+                            put(key, value)
+                        }
+                    getKeyEntry(context, KeysIds.TWITTER_CACHED_API_URL)
+                        ?.takeIf { remoteConfigProvider.getNowOrDefault().allowTwitterNewsOrDefault }
+                        ?.let { (key, value) ->
+                            put(key, value)
+                        }
                 }.takeIf { it.isNotEmpty() }
             }
+
             authority.endsWith("$debugS.news.youtube") -> getKeyEntry(context, KeysIds.YOUTUBE_API_KEY)?.let { mapOf(it) }
             // GTFS
             authority.endsWith("$debugS.gtfs") -> null // no keys (static)
@@ -120,14 +134,16 @@ class KeysManager @Inject constructor(
                 }
             }
             // CUSTOM
+            authority.endsWith("$debugS.mybus") -> getKeyEntry(context, KeysIds.CA_SUDBURY_TRANSIT_AUTH_TOKEN)?.let { mapOf(it) }
             authority.endsWith("$debugS.winnipeg_transit") -> getKeyEntry(context, KeysIds.CA_WINNIPEG_TRANSIT_API_KEY)?.let { mapOf(it) }
             else -> {
-                if (DEBUGGING_KEYS)  MTLog.d(LOG_TAG, "No key for '$authority'.")
+                if (DEBUGGING_KEYS) MTLog.d(LOG_TAG, "No key for '$authority'.")
                 null
             }
         }
     }
 
+    @Suppress("unused")
     fun getKeysMap(targetedProviders: Iterable<ITargetedProviderProperties>?): Map<String, String>? {
         targetedProviders ?: return null
         val map = mutableMapOf<String, String>()
@@ -137,9 +153,9 @@ class KeysManager @Inject constructor(
         return map
     }
 
-    fun getKeysMap(targetedProvider: ITargetedProviderProperties) = getKeysMap(targetedProvider.authority)
+    private fun getKeysMap(targetedProvider: ITargetedProviderProperties) = getKeysMap(targetedProvider.authority)
 
-    fun getKeysMap(authority: String) = getKeysMap(appContext, authority)
+    fun getKeysMap(authority: String) = getKeysMap(appContext, billingManager, remoteConfigProvider, authority)
 }
 
 /**

@@ -6,11 +6,10 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewConfiguration
 import android.widget.FrameLayout
+import androidx.core.view.isNotEmpty
 import androidx.viewpager2.widget.ViewPager2
-import androidx.viewpager2.widget.ViewPager2.ORIENTATION_HORIZONTAL
 import kotlin.math.absoluteValue
 import kotlin.math.sign
-import androidx.core.view.isNotEmpty
 
 /**
  * Layout to wrap a scrollable component inside a ViewPager2. Provided as a solution to the problem
@@ -35,7 +34,7 @@ class NestedScrollableHost : FrameLayout {
             while (v != null && v !is ViewPager2) {
                 v = v.parent as? View
             }
-            return v as? ViewPager2
+            return v
         }
 
     private val child: View? get() = if (isNotEmpty()) getChildAt(0) else null
@@ -44,12 +43,12 @@ class NestedScrollableHost : FrameLayout {
         touchSlop = ViewConfiguration.get(context).scaledTouchSlop
     }
 
-    private fun canChildScroll(orientation: Int, delta: Float): Boolean {
+    private fun canChildScroll(@ViewPager2.Orientation orientation: Int, delta: Float): Boolean {
         val direction = -delta.sign.toInt()
         return when (orientation) {
-            0 -> child?.canScrollHorizontally(direction) ?: false
-            1 -> child?.canScrollVertically(direction) ?: false
-            else -> throw IllegalArgumentException()
+            ViewPager2.ORIENTATION_HORIZONTAL -> child?.canScrollHorizontally(direction) ?: false
+            ViewPager2.ORIENTATION_VERTICAL -> child?.canScrollVertically(direction) ?: false
+            else -> error("Unexpected view pager 2 orientation!")
         }
     }
 
@@ -73,7 +72,7 @@ class NestedScrollableHost : FrameLayout {
         } else if (e.action == MotionEvent.ACTION_MOVE) {
             val dx = e.x - initialX
             val dy = e.y - initialY
-            val isVpHorizontal = orientation == ORIENTATION_HORIZONTAL
+            val isVpHorizontal = orientation == ViewPager2.ORIENTATION_HORIZONTAL
 
             // assuming ViewPager2 touch-slop is 2x touch-slop of child
             val scaledDx = dx.absoluteValue * if (isVpHorizontal) .5f else 1f

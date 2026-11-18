@@ -29,6 +29,7 @@ val News.authorWithUserName: String
         authorUsername?.takeIf { it.isNotBlank() }?.let { append(" ($it)") }
     }
 
+@Suppress("unused")
 val News.sourceLabelWithUserName: String
     get() = buildString {
         authorUsername?.takeIf { it.isNotBlank() }?.let { append("$it - ") }
@@ -49,7 +50,7 @@ val News.hasImagesOrVideoThumbnail: Boolean
 // region Twitter
 
 val News.isTwitterVideo: Boolean
-    get() = this.imageUrls.any { it.isTwitterVideo }
+    get() = this.imageUrls.any { it.isTwitterVideo } || this.textHTML.contains("https://video.twimg.com/ext_tw_video/")
 
 val NewsImage.isTwitterVideo: Boolean
     get() = this.imageUrl.contains("video_thumb")
@@ -90,6 +91,10 @@ fun News.getYouTubeVideoId(): String? = this.takeIf { it.isYouTubeVideo }?.webUR
 private const val TRUE = "1"
 private const val FALSE = "0"
 
+val YOUTUBE_HTTP_HEADERS = mapOf(
+    "Referer" to "https://mtransitapps.github.io/", // solves "Error 153: Video player configuration error"
+)
+
 fun makeYouTubeEmbedVideoPlayerUrl(videoId: String, autoPlay: Boolean, mute: Boolean = autoPlay) = Uri.Builder().apply {
     scheme("https")
     authority("www.youtube.com")
@@ -98,11 +103,14 @@ fun makeYouTubeEmbedVideoPlayerUrl(videoId: String, autoPlay: Boolean, mute: Boo
     appendQueryParameter("autoplay", if (autoPlay) TRUE else FALSE)
     appendQueryParameter("fs", FALSE) // full screen
     appendQueryParameter("controls", TRUE) // needs native control
+    @Suppress("SpellCheckingInspection")
     appendQueryParameter("modestbranding", TRUE) // deprecated (less YouTube branding)
     appendQueryParameter("rel", FALSE) // only related videos from same channel
+    @Suppress("SpellCheckingInspection")
     appendQueryParameter("showinfo", FALSE) // deprecated (no video title)
+    @Suppress("SpellCheckingInspection")
     appendQueryParameter("disablekb", FALSE) // keyboard control
-    appendQueryParameter("mute", if (mute) TRUE else FALSE) // muted by default if auto-play
+    appendQueryParameter("mute", if (mute) TRUE else FALSE) // muted by default if autoplay
     appendQueryParameter("hl", Locale.getDefault().language) // language
 }.build().toString()
 

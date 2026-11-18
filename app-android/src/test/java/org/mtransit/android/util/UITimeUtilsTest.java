@@ -73,7 +73,7 @@ public class UITimeUtilsTest {
 		long precisionInMs = TimeUnit.MINUTES.toMillis(1L);
 		boolean isRealTime = false;
 		boolean isOldSchedule = false;
-		when(resources.getQuantityString(R.plurals.minutes_capitalized, 9)).thenReturn("Minutes");
+		when(resources.getQuantityString(R.plurals.number_of_minutes_part_2, 9)).thenReturn("minutes");
 		// Act
 		Pair<CharSequence, CharSequence> result = UITimeUtils.getShortTimeSpanNumber(context,
 				diffInMs, precisionInMs,
@@ -81,7 +81,7 @@ public class UITimeUtilsTest {
 				shortTimeSpan1SSB, shortTimeSpan2SSB);
 		// Assert
 		verify(shortTimeSpan1SSB).append(eq("9"));
-		verify(shortTimeSpan2SSB).append(eq("Minutes"));
+		verify(shortTimeSpan2SSB).append(eq("minutes"));
 	}
 
 	@Test

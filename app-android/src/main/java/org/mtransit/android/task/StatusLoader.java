@@ -1,20 +1,22 @@
 package org.mtransit.android.task;
 
-import android.content.Context;
+import android.annotation.SuppressLint;
 
+import androidx.annotation.Discouraged;
+import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.WorkerThread;
 
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.RuntimeUtils;
 import org.mtransit.android.commons.data.POIStatus;
-import org.mtransit.android.commons.provider.StatusProviderContract;
+import org.mtransit.android.commons.provider.status.StatusProviderContract;
 import org.mtransit.android.commons.task.MTCancellableAsyncTask;
-import org.mtransit.android.data.DataSourceManager;
 import org.mtransit.android.data.POIManager;
 import org.mtransit.android.data.StatusProviderProperties;
+import org.mtransit.android.datasource.DataSourceRequestManager;
 import org.mtransit.android.datasource.DataSourcesRepository;
-import org.mtransit.android.util.KeysManager;
 
 import java.lang.ref.WeakReference;
 import java.util.Collection;
@@ -28,8 +30,6 @@ import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import dagger.hilt.android.qualifiers.ApplicationContext;
-
 @Singleton
 public class StatusLoader implements MTLog.Loggable {
 
@@ -42,23 +42,18 @@ public class StatusLoader implements MTLog.Loggable {
 	}
 
 	@NonNull
-	private final Context appContext;
-
-	@NonNull
 	private final DataSourcesRepository dataSourcesRepository;
 
 	@NonNull
-	private final KeysManager keysManager;
+	private final DataSourceRequestManager dataSourceRequestManager;
 
 	@Inject
 	public StatusLoader(
-			@NonNull @ApplicationContext Context appContext,
 			@NonNull DataSourcesRepository dataSourcesRepository,
-			@NonNull KeysManager keysManager
+			@NonNull DataSourceRequestManager dataSourceRequestManager
 	) {
-		this.appContext = appContext;
 		this.dataSourcesRepository = dataSourcesRepository;
-		this.keysManager = keysManager;
+		this.dataSourceRequestManager = dataSourceRequestManager;
 	}
 
 	@NonNull
@@ -93,6 +88,7 @@ public class StatusLoader implements MTLog.Loggable {
 		return false;
 	}
 
+	@Discouraged(message = "No guarantee we are only cancelling the right status fetches")
 	public void clearAllTasks() {
 		final Iterator<Map.Entry<String, ThreadPoolExecutor>> it = this.fetchStatusExecutors.entrySet().iterator();
 		while (it.hasNext()) {
@@ -104,30 +100,31 @@ public class StatusLoader implements MTLog.Loggable {
 		}
 	}
 
-	public boolean findStatus(@NonNull POIManager poim,
-							  @NonNull StatusProviderContract.Filter statusFilter,
-							  @Nullable StatusLoader.StatusLoaderListener listener,
-							  boolean skipIfBusy) {
-		if (skipIfBusy && isBusy()) {
-			return false;
-		}
+	@MainThread
+	public boolean triggerRefresh(
+			@NonNull POIManager poim,
+			@NonNull StatusProviderContract.Filter statusFilter,
+			@Nullable StatusLoader.StatusLoaderListener listener,
+			boolean skipIfBusy
+	) {
+		if (skipIfBusy && isBusy()) return false;
 		final Collection<StatusProviderProperties> providers = this.dataSourcesRepository.getStatusProviders(poim.poi.getAuthority());
 		if (!providers.isEmpty()) {
 			for (StatusProviderProperties provider : providers) {
-				if (provider == null) {
-					continue;
-				}
-				new StatusFetcherCallable(this.appContext,
+				if (provider == null) continue;
+				new StatusFetcherCallable(
+						this.dataSourceRequestManager,
 						listener,
 						provider,
 						poim,
-						statusFilter.appendProvidedKeys(this.keysManager.getKeysMap(provider.getAuthority()))
+						statusFilter
 				).executeOnExecutor(getFetchStatusExecutor(provider.getAuthority()));
 			}
 		}
 		return true;
 	}
 
+	@SuppressLint("DeprecatedCall")
 	@SuppressWarnings("deprecation")
 	private static class StatusFetcherCallable extends MTCancellableAsyncTask<Void, Void, POIStatus> {
 
@@ -140,7 +137,7 @@ public class StatusLoader implements MTLog.Loggable {
 		}
 
 		@NonNull
-		private final WeakReference<Context> contextWR;
+		private final DataSourceRequestManager dataSourceRequestManager;
 		@NonNull
 		private final StatusProviderProperties statusProvider;
 		@NonNull
@@ -150,12 +147,14 @@ public class StatusLoader implements MTLog.Loggable {
 		@NonNull
 		private final StatusProviderContract.Filter statusFilter;
 
-		StatusFetcherCallable(@Nullable Context context,
-							  @Nullable StatusLoader.StatusLoaderListener listener,
-							  @NonNull StatusProviderProperties statusProvider,
-							  @Nullable POIManager poim,
-							  @NonNull StatusProviderContract.Filter statusFilter) {
-			this.contextWR = new WeakReference<>(context);
+		StatusFetcherCallable(
+				@NonNull DataSourceRequestManager dataSourceRequestManager,
+				@Nullable StatusLoader.StatusLoaderListener listener,
+				@NonNull StatusProviderProperties statusProvider,
+				@Nullable POIManager poim,
+				@NonNull StatusProviderContract.Filter statusFilter
+		) {
+			this.dataSourceRequestManager = dataSourceRequestManager;
 			this.listenerWR = new WeakReference<>(listener);
 			this.statusProvider = statusProvider;
 			this.poiWR = new WeakReference<>(poim);
@@ -163,9 +162,19 @@ public class StatusLoader implements MTLog.Loggable {
 		}
 
 		@Override
+		public boolean isCancelledMT() {
+			return super.isCancelledMT()
+					|| (this.poiWR.get() == null && this.listenerWR.get() == null);
+		}
+
+		@WorkerThread
+		@Override
 		protected POIStatus doInBackgroundNotCancelledMT(Void... params) {
 			try {
-				return call();
+				final POIManager poim = this.poiWR.get();
+				if (poim == null) return null;
+				//noinspection DiscouragedApi
+				return dataSourceRequestManager.findStatusSync(this.statusProvider, this.statusFilter);
 			} catch (Exception e) {
 				MTLog.w(this, e, "Error while running task!");
 				return null;
@@ -174,34 +183,19 @@ public class StatusLoader implements MTLog.Loggable {
 
 		@Override
 		protected void onPostExecuteNotCancelledMT(@Nullable POIStatus result) {
-			if (result == null) {
-				return;
-			}
-			final POIManager poim = this.poiWR.get();
-			if (poim == null) {
-				return;
-			}
-			final boolean statusChanged = poim.setStatus(result);
-			if (statusChanged) {
-				final StatusLoader.StatusLoaderListener listener = this.listenerWR.get();
-				if (listener == null) {
-					return;
-				}
-				listener.onStatusLoaded(result);
-			}
+			onStatusLoaded(result);
 		}
 
-		@Nullable
-		POIStatus call() {
-			final Context context = this.contextWR.get();
-			if (context == null) {
-				return null;
-			}
+		private void onStatusLoaded(@Nullable POIStatus status) {
+			if (status == null) return;
 			final POIManager poim = this.poiWR.get();
-			if (poim == null) {
-				return null;
+			if (poim == null) return;
+			final boolean statusChanged = poim.setStatus(status); // filter no data or not useful or older than current status
+			if (statusChanged) {
+				final StatusLoaderListener listener = this.listenerWR.get();
+				if (listener == null) return;
+				listener.onStatusLoaded(status);
 			}
-			return DataSourceManager.findStatus(context, this.statusProvider.getAuthority(), this.statusFilter);
 		}
 	}
 

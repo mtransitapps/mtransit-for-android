@@ -1,16 +1,17 @@
 package org.mtransit.android.ad.banner
 
+// import com.google.android.gms.ads.AdView // #gmaLegacy
 import android.view.ViewGroup
 import androidx.annotation.MainThread
+import androidx.annotation.StringRes
 import androidx.annotation.WorkerThread
 import androidx.core.view.isVisible
-import com.google.android.gms.ads.AdView
+import com.google.android.libraries.ads.mobile.sdk.banner.AdView // #gmaNextGen
 import org.mtransit.android.R
 import org.mtransit.android.ad.AdConstants
 import org.mtransit.android.ad.AdManager
 import org.mtransit.android.ad.GlobalAdManager
 import org.mtransit.android.ad.IAdScreenActivity
-import org.mtransit.android.commons.MTLog
 import org.mtransit.android.dev.CrashReporter
 import org.mtransit.android.util.UIFeatureFlags
 import java.lang.ref.WeakReference
@@ -21,7 +22,7 @@ class SetupBannerAdTask(
     private val bannerAdManager: BannerAdManager,
     private val crashReporter: CrashReporter,
     private val activityWR: WeakReference<IAdScreenActivity>,
-) : org.mtransit.android.commons.task.MTCancellableAsyncTask<Void?, Void?, Boolean?>() {
+) : org.mtransit.android.commons.task.MTCancellableAsyncTask<Any?, Any?, Boolean?>() {
 
     constructor(
         globalAdManager: GlobalAdManager,
@@ -32,7 +33,7 @@ class SetupBannerAdTask(
         globalAdManager,
         bannerAdManager,
         crashReporter,
-        WeakReference<IAdScreenActivity>(activity),
+        WeakReference(activity),
     )
 
     companion object {
@@ -42,54 +43,60 @@ class SetupBannerAdTask(
     override fun getLogTag() = LOG_TAG
 
     @WorkerThread
-    override fun doInBackgroundNotCancelledMT(vararg params: Void?): Boolean? {
-        MTLog.d(this, "doInBackgroundNotCancelledMT()")
-        if (!AdConstants.AD_ENABLED) {
-            return false
-        }
-        return !isCancelled && this.globalAdManager.isShowingAds() // TODO can be called from any thread
+    override fun doInBackgroundNotCancelledMT(vararg params: Any?): Boolean {
+        if (!AdConstants.AD_ENABLED) return false
+        return this.globalAdManager.adsAllowed() // TODO can be called from any thread
     }
 
     @MainThread
     override fun onPostExecuteNotCancelledMT(result: Boolean?) {
-        val isShowingAds = result
-        val activity = this.activityWR.get()
-        if (activity == null) {
-            return
-        }
-        if (isShowingAds == true && !isCancelled) { // show ads
-            val adLayout = this.bannerAdManager.getAdLayout(activity)
-            if (adLayout != null) {
-                var adView = this.bannerAdManager.getAdView(adLayout)
-                if (adView == null) {
-                    adView = makeNewAdView(activity, adLayout)
-                } else {
-                }
-
-                adView.loadAd(AdManager.getAdRequest(activity, collapsible = UIFeatureFlags.F_ADS_BANNER_COLLAPSIBLE))
+        val activity = this.activityWR.get() ?: return
+        val adsAllowed = result == true
+        if (adsAllowed && !isCancelled) { // show ads
+            this.bannerAdManager.getAdLayout(activity)?.let { adLayout ->
+                val adView = this.bannerAdManager.getAdView(adLayout)
+                    ?: makeNewAdView(activity, adLayout)
+                // there is no way to manually trigger loading a new ad from the same AdView
+                // so we have to call loadAd() on the same AdView every time
+                val adRequest = AdManager.makeBannerAdRequest(
+                    adUnitId = activity.requireActivity().getString(adUnitStringResId),
+                    adSize = bannerAdManager.getAdSize(activity),
+                    collapsible = UIFeatureFlags.F_ADS_BANNER_COLLAPSIBLE
+                )
+                adView.loadAd( // triggers CANCELLED on previous callback: "Ad request cancelled by publisher action"
+                    adRequest = // #gmaNextGen
+                    adRequest,
+                    adLoadCallback = BannerAdListener(bannerAdManager, crashReporter, adRequest.hashCode(), activity) // #gmaNextGen
+                )
+                this.bannerAdManager.setAdBannerLoading(adRequest.hashCode(), true)
             }
-        } else { // hide ads
+        } else if (!adsAllowed) { // hide ads
             this.bannerAdManager.hideBannerAd(activity)
         }
     }
 
-    private fun makeNewAdView(activity: IAdScreenActivity, adLayout: ViewGroup): AdView {
-        val adView = AdView(activity.requireActivity()).apply {
-            layoutParams = ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            )
-            isVisible = false
-            id = R.id.ad
-            adUnitId = activity.requireContext().getString(R.string.google_ads_banner_ad_unit_id)
+    @get:StringRes
+    private val adUnitStringResId: Int
+        get() = when {
+            bannerAdManager.loadOnScreenResume -> R.string.google_ads_banner_manual_refresh_ad_unit_id
+            else -> R.string.google_ads_banner_ad_unit_id
         }
-        adLayout.removeAllViews()
-        adLayout.addView(adView)
 
-        adView.apply {
-            setAdSize(bannerAdManager.getAdSize(activity)) // ad size can only be set once
-            adListener = BannerAdListener(bannerAdManager, crashReporter, activity, adView)
-        }
-        return adView
-    }
+    private fun makeNewAdView(activity: IAdScreenActivity, adLayout: ViewGroup) =
+        AdView(activity.requireActivity())
+            .apply {
+                layoutParams = ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, // width
+                    ViewGroup.LayoutParams.WRAP_CONTENT, // height
+                )
+                isVisible = false
+                id = R.id.ad
+                // adUnitId = activity.requireContext().getString(adUnitStringResId) // #gmaLegacy
+            }.also {
+                adLayout.removeAllViews()
+                adLayout.addView(it)
+                // }.apply { // #gmaLegacy
+                // setAdSize(bannerAdManager.getAdSize(activity)) // ad size can only be set once // #gmaLegacy
+                // adListener = BannerAdListener(bannerAdManager, crashReporter, activity, adView = this) // #gmaLegacy
+            }
 }

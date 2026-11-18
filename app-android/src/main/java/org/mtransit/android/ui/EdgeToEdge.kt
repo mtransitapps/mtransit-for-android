@@ -24,9 +24,8 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
 import com.google.android.gms.maps.MapView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import org.mtransit.android.BuildConfig
 import org.mtransit.android.R
-import org.mtransit.android.commons.dpToPx
+import org.mtransit.android.commons.pxToDp
 import org.mtransit.android.ui.view.MapViewController
 import org.mtransit.android.ui.view.common.end
 import org.mtransit.android.ui.view.common.endMargin
@@ -57,21 +56,9 @@ private const val LOG_TAG = "EdgeToEdge"
 
 fun ComponentActivity.enableEdgeToEdgeMT() {
     if (!UIFeatureFlags.F_EDGE_TO_EDGE) {
-        edgeToEdgeOptOut()
         return
     }
     enableEdgeToEdge()
-}
-
-private fun ComponentActivity.edgeToEdgeOptOut() {
-    if (UIFeatureFlags.F_EDGE_TO_EDGE) {
-        return
-    }
-    if (BuildConfig.TARGET_SDK_VERSION < Build.VERSION_CODES.VANILLA_ICE_CREAM) {
-        return
-    }
-    // Call before the DecorView is accessed in setContentView
-    theme.applyStyle(R.style.OptOutEdgeToEdgeEnforcement, /* force */ false)
 }
 
 fun ViewBinding.applyStatusBarsInsetsEdgeToEdge() {
@@ -145,17 +132,16 @@ fun Activity.setStatusBarsThemeEdgeToEdge(isDark: Boolean = isDarkMode(resources
     if (!UIFeatureFlags.F_EDGE_TO_EDGE) {
         return
     }
-    WindowCompat.getInsetsController(window, findViewById(android.R.id.content)).apply {
-        isAppearanceLightStatusBars = !isDark && false // top bar is always dark
-    }
+    WindowCompat.getInsetsController(window, findViewById(android.R.id.content))
+        .isAppearanceLightStatusBars = !isDark && false // top bar is always dark
 }
 
 @JvmOverloads
-fun View.applyStatusBarsHeightEdgeToEdge(@Px initialHeightPx: Int = 0) {
+fun View?.applyStatusBarsHeightEdgeToEdge(@Px initialHeightPx: Int = 0) {
     if (!UIFeatureFlags.F_EDGE_TO_EDGE) {
         return
     }
-    applyWindowInsetsEdgeToEdge(WindowInsetsCompat.Type.statusBars(), consumed = false) { insets ->
+    this?.applyWindowInsetsEdgeToEdge(WindowInsetsCompat.Type.statusBars(), consumed = false) { insets ->
         updateLayoutParams<ViewGroup.MarginLayoutParams> {
             height = initialHeightPx + insets.height
         }
@@ -163,12 +149,11 @@ fun View.applyStatusBarsHeightEdgeToEdge(@Px initialHeightPx: Int = 0) {
     }
 }
 
-@Suppress("DeprecatedCall")
 @JvmOverloads
 fun MapView.setUpMapEdgeToEdge(
     mapViewController: MapViewController,
-    topPaddingSp: Int?,
-    bottomPaddingSp: Int?,
+    topPaddingDp: Int?,
+    bottomPaddingDp: Int?,
     @Px originalHeightPx: Int? = null,
 ) {
     if (!UIFeatureFlags.F_EDGE_TO_EDGE) {
@@ -176,11 +161,11 @@ fun MapView.setUpMapEdgeToEdge(
     }
     applyWindowInsetsEdgeToEdge(WindowInsetsCompat.Type.systemBars(), consumed = true) { insets ->
         mapViewController.apply {
-            topPaddingSp?.takeIf { it > 0 }?.let {
-                setPaddingTopSp(topPaddingSp + insets.top.dpToPx)
+            topPaddingDp?.takeIf { it > 0 }?.let {
+                setPaddingTopDp(it + insets.top.pxToDp)
             }
-            bottomPaddingSp?.takeIf { UIFeatureFlags.F_EDGE_TO_EDGE_NAV_BAR_BELOW }?.let {
-                setPaddingBottomSp(it + insets.bottom.dpToPx)
+            bottomPaddingDp?.takeIf { UIFeatureFlags.F_EDGE_TO_EDGE_NAV_BAR_BELOW }?.let {
+                setPaddingBottomDp(it + insets.bottom.pxToDp)
             }
             applyPaddings()
         }
@@ -236,9 +221,8 @@ fun Activity.setNavBarThemeEdgeToEdge(isDark: Boolean = isDarkMode(resources)) {
     if (!UIFeatureFlags.F_EDGE_TO_EDGE_NAV_BAR_BELOW) {
         return // !!! CAN NOT DRAW BEHIND NAVIGATION BAR AS LONG AS ANCHORED BOTTOM BANNER ADS IN ACTIVITY !!!
     }
-    WindowCompat.getInsetsController(window, findViewById(android.R.id.content)).apply {
-        isAppearanceLightNavigationBars = !isDark
-    }
+    WindowCompat.getInsetsController(window, findViewById(android.R.id.content))
+        .isAppearanceLightNavigationBars = !isDark
 }
 
 private const val ALWAYS_DISABLE_CONTRAST = false
@@ -258,5 +242,5 @@ fun Activity.setNavBarProtectionEdgeToEdge(contrastEnforced: Boolean = true) {
 
 private fun isDarkMode(resources: Resources): Boolean {
     return (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) ==
-            Configuration.UI_MODE_NIGHT_YES
+        Configuration.UI_MODE_NIGHT_YES
 }

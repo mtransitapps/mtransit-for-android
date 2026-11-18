@@ -1,5 +1,6 @@
 package org.mtransit.android.ui.view.poi.serviceupdate
 
+import android.graphics.Color
 import android.view.View
 import android.widget.ImageView
 import androidx.core.view.isVisible
@@ -7,50 +8,63 @@ import org.mtransit.android.R
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.POI
 import org.mtransit.android.commons.data.RouteDirectionStop
-import org.mtransit.android.commons.data.ServiceUpdate
-import org.mtransit.android.commons.data.distinctByOriginalId
-import org.mtransit.android.commons.data.isSeverityWarningInfo
+import org.mtransit.android.commons.data.ServiceUpdates
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.task.serviceupdate.ServiceUpdateLoaderProvider
+import org.mtransit.android.ui.view.common.setImageResourceAndVisibility
 
 data class POIServiceUpdateViewHolder @JvmOverloads constructor(
-    private var _uuid: String,
+    private val initialTargetUUID: String,
     val serviceUpdateImg: ImageView?,
     val otherServiceUpdateImg: ImageView? = null,
     var ignoredOtherTargetUUIDsOrUnknown: Collection<String>? = null,
 ) : MTLog.Loggable {
 
+    var targetUUID: String = initialTargetUUID
+        private set
+
+    constructor(
+        poi: POI,
+        serviceUpdateImg: ImageView?,
+        otherServiceUpdateImg: ImageView? = null,
+    ) : this(
+        initialTargetUUID = poi.uuid,
+        serviceUpdateImg = serviceUpdateImg,
+        otherServiceUpdateImg = otherServiceUpdateImg,
+        ignoredOtherTargetUUIDsOrUnknown = (poi as? RouteDirectionStop)?.routeDirectionAllUUIDs
+    )
+
     override fun getLogTag() = LOG_TAG
 
-    val uuid: String get() = _uuid
-
     fun setTarget(poi: POI) {
-        _uuid = poi.uuid
+        targetUUID = poi.uuid
         ignoredOtherTargetUUIDsOrUnknown = (poi as? RouteDirectionStop)?.routeDirectionAllUUIDs
     }
 
     fun fetchAndUpdate(poim: POIManager, dataProvider: ServiceUpdateLoaderProvider) {
-        val allServiceUpdates = fetch(dataProvider, poim)
-        serviceUpdateImg?.update(allServiceUpdates, dataProvider, other = false)
-        otherServiceUpdateImg?.update(allServiceUpdates, dataProvider, other = true)
+        update(
+            allServiceUpdates = fetch(dataProvider, poim),
+            dataProvider,
+        )
     }
 
-    @Suppress("MemberVisibilityCanBePrivate")
     fun fetch(
         dataProvider: ServiceUpdateLoaderProvider,
         poim: POIManager
-    ): List<ServiceUpdate>? {
+    ): ServiceUpdates {
         return if (dataProvider.isShowingServiceUpdates && serviceUpdateImg != null) {
             poim.addServiceUpdateLoaderListener(dataProvider)
             poim.getServiceUpdates(
                 dataProvider.providesServiceUpdateLoader(),
                 emptyList() // filter later
             )
-        } else null
+        } else {
+            ServiceUpdates.newEmpty()
+        }
     }
 
     fun update(
-        allServiceUpdates: List<ServiceUpdate>?,
+        allServiceUpdates: ServiceUpdates,
         dataProvider: ServiceUpdateLoaderProvider,
     ) {
         serviceUpdateImg?.update(allServiceUpdates, dataProvider, other = false)
@@ -58,7 +72,7 @@ data class POIServiceUpdateViewHolder @JvmOverloads constructor(
     }
 
     private fun ImageView.update(
-        allServiceUpdates: List<ServiceUpdate>?,
+        allServiceUpdates: ServiceUpdates,
         dataProvider: ServiceUpdateLoaderProvider,
         other: Boolean,
     ) {
@@ -67,22 +81,26 @@ data class POIServiceUpdateViewHolder @JvmOverloads constructor(
             return
         }
         val filteredServiceUpdates = allServiceUpdates
-            ?.filter { !dataProvider.ignoredTargetUUIDsOrUnknown.orEmpty().contains(it.targetUUID) }
-            ?.filter {
-                if (other) ignoredOtherTargetUUIDsOrUnknown.orEmpty().contains(it.targetUUID)
-                else !ignoredOtherTargetUUIDsOrUnknown.orEmpty().contains(it.targetUUID)
+            .filter { !dataProvider.ignoredTargetUUIDsOrUnknown.orEmpty().contains(it.targetUUID) }
+            .filter {
+                if (other) {
+                    ignoredOtherTargetUUIDsOrUnknown.orEmpty().contains(it.targetUUID)
+                } else {
+                    !ignoredOtherTargetUUIDsOrUnknown.orEmpty().contains(it.targetUUID)
+                }
             }
-            ?.distinctByOriginalId()
-        val (isWarning, isInfo) = filteredServiceUpdates.isSeverityWarningInfo()
+            .distinctByOriginalId()
+        val (isWarning, isInfo) = filteredServiceUpdates.isSeverityWarningXorInfo()
         if (isWarning) {
-            this.setImageResource(R.drawable.ic_warning_on_surface_16dp)
-            this.isVisible = true
+            this.setImageResourceAndVisibility(R.drawable.ic_warning_on_surface_16dp)
         } else if (isInfo) {
-            this.setImageResource(R.drawable.ic_info_outline_on_surface_16dp)
-            this.isVisible = true
+            this.setImageResourceAndVisibility(R.drawable.ic_info_outline_on_surface_16dp)
         } else {
-            this.setImageDrawable(null)
-            this.isVisible = false
+            this.setImageResourceAndVisibility(null)
+        }
+        if (DEBUG_LAYOUT) {
+            this.setImageResourceAndVisibility(R.drawable.ic_warning_on_surface_16dp)
+            this.setBackgroundColor(Color.RED)
         }
     }
 
@@ -90,20 +108,21 @@ data class POIServiceUpdateViewHolder @JvmOverloads constructor(
 
         private val LOG_TAG: String = POIServiceUpdateViewHolder::class.java.simpleName
 
+        private const val DEBUG_LAYOUT = false
+        // private const val DEBUG_LAYOUT = true // DEBUG
+
         @JvmOverloads
         @JvmStatic
         fun init(poi: POI, view: View, otherView: ImageView? = null) = POIServiceUpdateViewHolder(
-            _uuid = poi.uuid,
+            poi = poi,
             serviceUpdateImg = view.findViewById(R.id.poi_status_service_update_img),
             otherServiceUpdateImg = otherView,
-        ).apply {
-            setTarget(poi)
-        }
+        )
 
         @JvmStatic
         fun updateView(
             serviceUpdateViewHolder: POIServiceUpdateViewHolder?,
-            allServiceUpdates: List<ServiceUpdate>?,
+            allServiceUpdates: ServiceUpdates,
             dataProvider: ServiceUpdateLoaderProvider
         ) {
             serviceUpdateViewHolder?.update(allServiceUpdates, dataProvider)

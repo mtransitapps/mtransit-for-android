@@ -2,12 +2,15 @@ package org.mtransit.android.datasource
 
 import android.content.Context
 import android.content.pm.PackageManager
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.liveData
 import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
@@ -29,29 +32,68 @@ import org.mtransit.android.dev.filterDemoModeTargeted
 import org.mtransit.android.dev.filterDemoModeType
 import org.mtransit.android.dev.takeIfDemoModeAgency
 import org.mtransit.android.dev.takeIfDemoModeTargeted
-import org.mtransit.android.ui.view.common.PairMediatorLiveData
+import org.mtransit.android.provider.remoteconfig.RemoteConfigProvider
+import org.mtransit.android.ui.view.common.MediatorLiveData2
+import org.mtransit.android.ui.view.common.MediatorLiveData3
 import org.mtransit.commons.addAllNNE
+import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 import javax.inject.Singleton
-
+import kotlin.coroutines.CoroutineContext
 
 @Suppress("unused", "MemberVisibilityCanBePrivate")
 @Singleton
-class DataSourcesRepository @Inject constructor(
-    @param:ApplicationContext private val appContext: Context,
+class DataSourcesRepository(
+    private val appContext: Context,
     private val dataSourcesInMemoryCache: DataSourcesInMemoryCache,
-    private val dataSourcesIOCache: DataSourcesCache, // I/O - DB
+    private val dataSourcesStorage: DataSourcesStorage,
     private val dataSourcesReader: DataSourcesReader,
     private val demoModeManager: DemoModeManager,
     private val billingManager: IBillingManager,
+    private val remoteConfigProvider: RemoteConfigProvider,
     private val pm: PackageManager,
+    ioDispatcher: CoroutineContext,
 ) : MTLog.Loggable {
 
+    @Inject
+    constructor(
+        @ApplicationContext appContext: Context,
+        dataSourcesInMemoryCache: DataSourcesInMemoryCache,
+        dataSourcesStorage: DataSourcesStorage,
+        dataSourcesReader: DataSourcesReader,
+        demoModeManager: DemoModeManager,
+        billingManager: IBillingManager,
+        remoteConfigProvider: RemoteConfigProvider,
+        pm: PackageManager,
+    ) : this(
+        appContext = appContext,
+        dataSourcesInMemoryCache = dataSourcesInMemoryCache,
+        dataSourcesStorage = dataSourcesStorage,
+        dataSourcesReader = dataSourcesReader,
+        demoModeManager = demoModeManager,
+        billingManager = billingManager,
+        remoteConfigProvider = remoteConfigProvider,
+        pm = pm,
+        ioDispatcher = Dispatchers.IO,
+    )
+
     companion object {
-        private val LOG_TAG = DataSourcesRepository::class.java.simpleName
+        private val LOG_TAG: String = DataSourcesRepository::class.java.simpleName
+
+        private const val ALL_PKG = "all"
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
+
+    private val allowTwitterNewsOrDefault = MutableLiveData(this.remoteConfigProvider.getNowOrDefault().allowTwitterNewsOrDefault)
+
+    init {
+        CoroutineScope(ioDispatcher).launch {
+            remoteConfigProvider.get().let {
+                allowTwitterNewsOrDefault.postValue(it.allowTwitterNewsOrDefault)
+            }
+        }
+    }
 
     private val defaultAgencies by lazy {
         listOf(
@@ -61,9 +103,10 @@ class DataSourcesRepository @Inject constructor(
     }
 
     private val includedAgencyCount: Int
-        get() {
-            return defaultAgencies.filterExpansiveAgencyAuthorities(billingManager).size
-        }
+        get() = defaultAgencies.filterExpansiveAgencyAuthorities(
+            showingPaidFeatures = billingManager.showPaidFeatures.value == true,
+            allowTwitterNewsForFree = remoteConfigProvider.getNowOrDefault().allowTwitterNewsOrDefault,
+        ).size
 
     private val defaultAgencyComparator: Comparator<IAgencyProperties> = IAgencyProperties.SHORT_NAME_COMPARATOR
 
@@ -73,26 +116,54 @@ class DataSourcesRepository @Inject constructor(
 
     fun getAllAgencies() = this.dataSourcesInMemoryCache.getAllAgencies()
 
-    fun getAllTypeToAgencies() = getAllAgencies().groupBy {
+    suspend fun getAllAgenciesNow() = this.dataSourcesStorage.getAllAgencies()
+
+    fun getAllAgenciesByType() = getAllAgencies().groupBy {
         it.getSupportedType()
     }
 
-    fun readingAllAgencies() = this.dataSourcesIOCache.readingAllAgencies().map { agencies ->
-        agencies
-            .filterExpansiveAgencies(billingManager)
-            .filterDemoModeAgency(demoModeManager)
-            .sortedWith(defaultAgencyComparator)
+    fun readingAllAgencies() = MediatorLiveData3(
+        dataSourcesStorage.readingAllAgencies(),
+        billingManager.showPaidFeatures,
+        allowTwitterNewsOrDefault,
+    ).switchMap { (agencies, showPaidFeatures, allowTwitterNewsForFree) ->
+        liveData {
+            agencies ?: return@liveData
+            showPaidFeatures ?: return@liveData
+            allowTwitterNewsForFree ?: return@liveData
+            emit(
+                agencies
+                    .filterExpansiveAgencies(showPaidFeatures, allowTwitterNewsForFree)
+                    .filterDemoModeAgency(demoModeManager)
+                    .sortedWith(defaultAgencyComparator)
+            )
+        }
     }.distinctUntilChanged()
 
-    fun readingAllAgenciesBase() = this.dataSourcesIOCache.readingAllAgenciesBase().map { agencies ->
-        agencies
-            .filterExpansiveAgencies(billingManager)
-            .filterDemoModeAgency(demoModeManager)
-            .sortedWith(defaultAgencyComparator)
+    fun readingAllAgenciesByType() = readingAllAgencies().map { agencies ->
+        agencies.groupBy { it.getSupportedType() }
+    }
+
+    fun readingAllAgenciesBase() = MediatorLiveData3(
+        dataSourcesStorage.readingAllAgenciesBase(),
+        billingManager.showPaidFeatures,
+        allowTwitterNewsOrDefault,
+    ).switchMap { (agencies, showPaidFeatures, allowTwitterNewsForFree) ->
+        liveData {
+            agencies ?: return@liveData
+            showPaidFeatures ?: return@liveData
+            allowTwitterNewsForFree ?: return@liveData
+            emit(
+                agencies
+                    .filterExpansiveAgencies(showingPaidFeatures = showPaidFeatures, allowTwitterNewsForFree = allowTwitterNewsForFree)
+                    .filterDemoModeAgency(demoModeManager)
+                    .sortedWith(defaultAgencyComparator)
+            )
+        }
     }.distinctUntilChanged()
 
     fun readingAllAgenciesEnabledCount() = readingAllAgenciesBase().map {
-        it.filter { agency -> agency.isEnabled(pm) }.size
+        it.count { agency -> agency.isEnabled(pm) }
     }
 
     fun getAllAgenciesEnabled() = getAllAgencies().filter { agency -> agency.isEnabled(pm) }
@@ -119,14 +190,14 @@ class DataSourcesRepository @Inject constructor(
     fun readingAgency(authority: String?) = liveData {
         authority?.let {
             emit(dataSourcesInMemoryCache.getAgency(it))
-            emitSource(dataSourcesIOCache.readingAgency(it).map { agency -> agency.takeIfDemoModeAgency(demoModeManager) }) // #onModulesUpdated
+            emitSource(dataSourcesStorage.readingAgency(it).map { agency -> agency.takeIfDemoModeAgency(demoModeManager) }) // #onModulesUpdated
         }
     }.distinctUntilChanged()
 
     fun readingAgencyBase(authority: String?) = liveData {
         authority?.let {
             emit(dataSourcesInMemoryCache.getAgencyBase(it))
-            emitSource(dataSourcesIOCache.readingAgencyBase(it).map { agency -> agency.takeIfDemoModeAgency(demoModeManager) }) // #onModulesUpdated
+            emitSource(dataSourcesStorage.readingAgencyBase(it).map { agency -> agency.takeIfDemoModeAgency(demoModeManager) }) // #onModulesUpdated
         }
     }.distinctUntilChanged()
 
@@ -140,9 +211,9 @@ class DataSourcesRepository @Inject constructor(
             .sortedWith(defaultDataSourceTypeComparator)
     }
 
-    private fun readingAllSupportedDataSourceTypesIO() = PairMediatorLiveData(
-        dataSourcesIOCache.readingAllNotExtendedDataSourceTypes(),
-        dataSourcesIOCache.readingAllExtendedDataSourceTypes()
+    private fun readingAllSupportedDataSourceTypesIO() = MediatorLiveData2(
+        dataSourcesStorage.readingAllNotExtendedDataSourceTypes(),
+        dataSourcesStorage.readingAllExtendedDataSourceTypes()
     ).switchMap { (notExtendedDST, extendedDST) ->
         liveData {
             if (notExtendedDST == null || extendedDST == null) return@liveData
@@ -179,6 +250,13 @@ class DataSourcesRepository @Inject constructor(
 
     fun getStatusProviders(targetAuthority: String) = this.dataSourcesInMemoryCache.getStatusProviders(targetAuthority)
 
+    fun readingStatusProviders(targetAuthority: String?) = liveData {
+        targetAuthority?.let { providerAuthority ->
+            emit(dataSourcesInMemoryCache.getStatusProviders(providerAuthority))
+            emitSource(dataSourcesStorage.readingStatusProviders(providerAuthority).map { it.filterDemoModeTargeted(demoModeManager) }) // #onModulesUpdated
+        }
+    }.distinctUntilChanged()
+
     fun getStatusProvider(authority: String) = this.dataSourcesInMemoryCache.getStatusProvider(authority)
 
     // endregion
@@ -193,7 +271,7 @@ class DataSourcesRepository @Inject constructor(
     fun readingScheduleProviders(targetAuthority: String?) = liveData {
         targetAuthority?.let { providerAuthority ->
             emit(dataSourcesInMemoryCache.getScheduleProvidersList(providerAuthority))
-            emitSource(dataSourcesIOCache.readingScheduleProviders(providerAuthority).map { it.filterDemoModeTargeted(demoModeManager) }) // #onModulesUpdated
+            emitSource(dataSourcesStorage.readingScheduleProviders(providerAuthority).map { it.filterDemoModeTargeted(demoModeManager) }) // #onModulesUpdated
         }
     }.distinctUntilChanged()
 
@@ -202,7 +280,7 @@ class DataSourcesRepository @Inject constructor(
     fun readingScheduleProvider(authority: String?) = liveData {
         authority?.let { providerAuthority ->
             emit(dataSourcesInMemoryCache.getScheduleProvider(providerAuthority))
-            emitSource(dataSourcesIOCache.readingScheduleProvider(providerAuthority).map { it.takeIfDemoModeTargeted(demoModeManager) }) // #onModulesUpdated
+            emitSource(dataSourcesStorage.readingScheduleProvider(providerAuthority).map { it.takeIfDemoModeTargeted(demoModeManager) }) // #onModulesUpdated
         }
     }.distinctUntilChanged()
 
@@ -215,6 +293,22 @@ class DataSourcesRepository @Inject constructor(
     fun getServiceUpdateProviders(targetAuthority: String) = this.dataSourcesInMemoryCache.getServiceUpdateProviders(targetAuthority)
 
     fun getServiceUpdateProvider(authority: String) = this.dataSourcesInMemoryCache.getServiceUpdateProvider(authority)
+
+    // endregion
+
+    // region VEHICLE LOCATION
+
+    fun getAllVehicleLocationProviders() = this.dataSourcesInMemoryCache.getAllVehicleLocationProviders()
+
+    fun getVehicleLocationProviders(targetAuthority: String) = this.dataSourcesInMemoryCache.getVehicleLocationProviders(targetAuthority)
+
+    fun getVehicleLocationProvider(authority: String) = this.dataSourcesInMemoryCache.getVehicleLocationProvider(authority)
+
+    fun readingVehicleLocationProviders(targetAuthority: String?) = liveData {
+        targetAuthority ?: return@liveData
+        emit(dataSourcesInMemoryCache.getVehicleLocationProvidersList(targetAuthority))
+        emitSource(dataSourcesStorage.readingVehicleLocationProviders(targetAuthority).map { it.filterDemoModeTargeted(demoModeManager) }) // #onModulesUpdated
+    }.distinctUntilChanged()
 
     // endregion
 
@@ -238,10 +332,10 @@ class DataSourcesRepository @Inject constructor(
 
     private val filterNewsProviders: (NewsProviderProperties) -> Boolean = {
         (
-                !it.authority.contains("news.instagram")
-                        || it.authority == "org.mtransit.android.news.instagram"
-                        || it.authority == "org.mtransit.android.debug.news.instagram"
-                )
+            !it.authority.contains("news.instagram") // not working
+            // || it.authority == "org.mtransit.android.news.instagram" // DEBUG
+            // || it.authority == "org.mtransit.android.debug.news.instagram" // DEBUG
+            )
     }
 
     fun getAllNewsProviders() = this.dataSourcesInMemoryCache.getAllNewsProviders().filterNewsProviders()
@@ -252,12 +346,25 @@ class DataSourcesRepository @Inject constructor(
         emit(
             dataSourcesInMemoryCache.getAllNewsProviders().filterNewsProviders()
         )
-        emitSource(dataSourcesIOCache.readingAllNewsProviders().map { newsProviders ->
-            newsProviders
-                .filterExpansiveNewsProviders(billingManager)
-                .filterDemoModeTargeted(demoModeManager)
-                .filterNewsProviders()
-        }) // #onModulesUpdated
+        emitSource(
+            MediatorLiveData3(
+                dataSourcesStorage.readingAllNewsProviders(),
+                billingManager.showPaidFeatures,
+                allowTwitterNewsOrDefault,
+            ).switchMap { (newsProviders, showPaidFeatures, allowTwitterNewsForFree) ->
+                liveData {
+                    newsProviders ?: return@liveData
+                    showPaidFeatures ?: return@liveData
+                    allowTwitterNewsForFree ?: return@liveData
+                    emit(
+                        newsProviders
+                            .filterExpansiveNewsProviders(showingPaidFeatures = showPaidFeatures, allowTwitterNewsForFree = allowTwitterNewsForFree)
+                            .filterDemoModeTargeted(demoModeManager)
+                            .filterNewsProviders()
+                    )
+                }
+            }
+        ) // #onModulesUpdated
     }.distinctUntilChanged()
 
     fun getNewsProviders(targetAuthority: String) =
@@ -269,45 +376,56 @@ class DataSourcesRepository @Inject constructor(
                 dataSourcesInMemoryCache.getNewsProvidersList(providerAuthority).filterNewsProviders()
             )
             emitSource(
-                dataSourcesIOCache.readingNewsProviders(providerAuthority).map { newsProviders ->
-                    newsProviders
-                        .filterExpansiveNewsProviders(billingManager)
-                        .filterDemoModeTargeted(demoModeManager)
-                        .filterNewsProviders()
-                }) // #onModulesUpdated
+                MediatorLiveData3(
+                    dataSourcesStorage.readingNewsProviders(providerAuthority),
+                    billingManager.showPaidFeatures,
+                    allowTwitterNewsOrDefault,
+                ).switchMap { (newsProviders, showPaidFeatures, allowTwitterNewsForFree) ->
+                    liveData {
+                        newsProviders ?: return@liveData
+                        showPaidFeatures ?: return@liveData
+                        allowTwitterNewsForFree ?: return@liveData
+                        emit(
+                            newsProviders
+                                .filterExpansiveNewsProviders(showingPaidFeatures = showPaidFeatures, allowTwitterNewsForFree = allowTwitterNewsForFree)
+                                .filterDemoModeTargeted(demoModeManager)
+                                .filterNewsProviders()
+                        )
+                    }
+                }
+            ) // #onModulesUpdated
         }
     }.distinctUntilChanged()
 
     fun getNewsProvider(authority: String) = this.dataSourcesInMemoryCache.getNewsProvider(authority)
 
-    private var runningUpdate: Boolean = false
+    // endregion
 
-    private val mutex = Mutex()
+    private val runningUpdateMap = ConcurrentHashMap<String, Boolean>()
+    private val updateLockMutex = Mutex()
 
-    @JvmOverloads
     suspend fun updateLock(forcePkg: String? = null): Boolean {
-        if (runningUpdate) {
-            MTLog.d(this@DataSourcesRepository, "updateLock() > SKIP (was running - before sync)")
+        MTLog.d(this@DataSourcesRepository, "updateLock($forcePkg)")
+        if (runningUpdateMap.put(forcePkg ?: ALL_PKG, true) == true) {
+            MTLog.d(this@DataSourcesRepository, "updateLock($forcePkg) > SKIP (was running - before sync)")
             return false
         }
-        this.mutex.withLock {
-            if (runningUpdate) {
-                MTLog.d(this@DataSourcesRepository, "updateLock() > SKIP (was running - in lock)")
-                return false
+        try {
+            this.updateLockMutex.withLock {
+                val updated = update(forcePkg)
+                MTLog.d(this@DataSourcesRepository, "updateLock($forcePkg) > updated: $updated")
+                return updated
             }
-            runningUpdate = true
-            val updated = update(forcePkg)
-            runningUpdate = false
-            MTLog.d(this@DataSourcesRepository, "updateLock() > $updated")
-            return updated
+        } finally {
+            runningUpdateMap[forcePkg ?: ALL_PKG] = false
         }
     }
 
     private suspend fun update(forcePkg: String? = null) = withContext(Dispatchers.IO) {
-        MTLog.i(this@DataSourcesRepository, "update() > Updating... ")
+        MTLog.i(this@DataSourcesRepository, "update($forcePkg) > Updating... ")
         val updated = dataSourcesReader.update(forcePkg)
-        MTLog.i(this@DataSourcesRepository, "update() > Updating...  DONE")
-        MTLog.d(this, "update() > $updated")
+        MTLog.i(this@DataSourcesRepository, "update($forcePkg) > Updating...  DONE")
+        MTLog.d(this@DataSourcesRepository, "update($forcePkg) > $updated")
         updated
     }
 
@@ -326,9 +444,21 @@ class DataSourcesRepository @Inject constructor(
         updated
     }
 
+    suspend fun refreshSetupRequired(
+        forcePkg: String? = null,
+        skipTimeCheck: Boolean = false,
+    ) = withContext(Dispatchers.IO) {
+        var updated = false
+        dataSourcesReader.refreshSetupRequired(
+            forcePkg = forcePkg,
+            skipTimeCheck = skipTimeCheck,
+        ) {
+            updated = true
+        }
+        updated
+    }
+
     fun isAProvider(pkg: String?, agencyOnly: Boolean = false): Boolean {
         return this.dataSourcesReader.isAProvider(pkg, agencyOnly)
     }
-
-    // endregion
 }

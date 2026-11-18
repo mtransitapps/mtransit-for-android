@@ -1,19 +1,19 @@
 package org.mtransit.android.data
 
-import android.location.Location
 import com.google.android.gms.maps.model.LatLngBounds
 import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.commons.data.Area
+import org.mtransit.android.ui.view.map.toLatLngBounds
 import org.mtransit.android.util.containsEntirely
-import org.mtransit.android.util.toLatLngBounds
 import kotlin.math.max
 import kotlin.math.min
+import android.location.Location as AndroidLocation
 
 interface IAgencyNearbyProperties : IAgencyProperties {
 
     companion object {
 
-        fun isLocationInside(location: Location, area: Area): Boolean {
+        fun isLocationInside(location: AndroidLocation, area: Area): Boolean {
             return area.isInside(location.latitude, location.longitude)
         }
 
@@ -30,7 +30,7 @@ interface IAgencyNearbyProperties : IAgencyProperties {
         }
 
         fun isEntirelyInside(agency: IAgencyNearbyProperties, area: LatLngBounds?): Boolean {
-            return area?.containsEntirely(agency.area.toLatLngBounds()) == true
+            return area.containsEntirely(agency.area.toLatLngBounds())
         }
 
         private fun areOverlapping(area1: LatLngBounds?, area2: Area?): Boolean {
@@ -60,7 +60,9 @@ interface IAgencyNearbyProperties : IAgencyProperties {
             }
             return if (isInside(area2.maxLat, area2.maxLng, area1)) {
                 true // max lat, max lng
-            } else areCompletelyOverlapping(area1, area2)
+            } else {
+                areCompletelyOverlapping(area1, area2)
+            }
         }
 
         private fun isInside(lat: Double, lng: Double, area: LatLngBounds?): Boolean {
@@ -87,7 +89,9 @@ interface IAgencyNearbyProperties : IAgencyProperties {
                 && area1MinLng >= area2.minLng && area1MaxLng <= area2.maxLng
             ) {
                 true // area 2 wider than area 1 but area 1 higher than area 2
-            } else false
+            } else {
+                false
+            }
         }
     }
 

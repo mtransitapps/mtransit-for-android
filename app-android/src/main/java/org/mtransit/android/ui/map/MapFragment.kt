@@ -1,29 +1,26 @@
-@file:JvmName("MapFragment") // ANALYTICS
 package org.mtransit.android.ui.map
 
 import android.app.PendingIntent
 import android.content.Context
 import android.content.res.Configuration
-import android.location.Location
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
-import androidx.core.os.bundleOf
-import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Lifecycle
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
+import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.databinding.FragmentMapBinding
 import org.mtransit.android.datasource.DataSourcesRepository
+import org.mtransit.android.device.DevicePrefManager
 import org.mtransit.android.provider.permission.LocationPermissionProvider
 import org.mtransit.android.ui.MTActivityWithLocation
 import org.mtransit.android.ui.MTActivityWithLocation.DeviceLocationListener
@@ -33,25 +30,28 @@ import org.mtransit.android.ui.inappnotification.locationsettings.LocationSettin
 import org.mtransit.android.ui.inappnotification.locationsettings.LocationSettingsUI
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAwareFragment
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledUI
-import org.mtransit.android.ui.applyStatusBarsHeightEdgeToEdge
 import org.mtransit.android.ui.setUpMapEdgeToEdge
+import org.mtransit.android.ui.view.MapViewConfig
 import org.mtransit.android.ui.view.MapViewController
-import org.mtransit.android.ui.view.common.context
+import org.mtransit.android.ui.view.clearSelectedPlaceMarker
 import org.mtransit.android.ui.view.common.isAttached
+import org.mtransit.android.ui.view.map.MapListener
+import org.mtransit.android.ui.view.map.MapMarkerProvider
+import org.mtransit.android.ui.view.onSelectedPlaceLocation
 import org.mtransit.android.util.UIFeatureFlags
 import javax.inject.Inject
+import android.location.Location as AndroidLocation
 
-
-@Suppress("DeprecatedCall")
 @AndroidEntryPoint
-class MapFragment : ABFragment(R.layout.fragment_map),
+class MapFragment :
+    ABFragment(R.layout.fragment_map),
     DeviceLocationListener,
     LocationSettingsAwareFragment,
     ModuleDisabledAwareFragment,
     MenuProvider {
 
     companion object {
-        private val LOG_TAG = MapFragment::class.java.simpleName
+        private val LOG_TAG: String = MapFragment::class.java.simpleName
 
         private const val TRACKING_SCREEN_NAME = "Map"
 
@@ -65,7 +65,7 @@ class MapFragment : ABFragment(R.layout.fragment_map),
         @JvmStatic
         @JvmOverloads
         fun newInstance(
-            optInitialLocation: Location? = null,
+            optInitialLocation: AndroidLocation? = null,
             optSelectedUUID: String? = null,
             optIncludeTypeId: Int? = null,
         ): MapFragment {
@@ -84,22 +84,22 @@ class MapFragment : ABFragment(R.layout.fragment_map),
         @JvmStatic
         @JvmOverloads
         fun newInstanceArgs(
-            optInitialLocation: Location? = null,
+            optInitialLocation: AndroidLocation? = null,
             optSelectedUUID: String? = null,
             optIncludeTypeId: Int? = null,
-        ) = bundleOf(
-            MapViewModel.EXTRA_INITIAL_LOCATION to optInitialLocation,
-            MapViewModel.EXTRA_SELECTED_UUID to optSelectedUUID,
-            MapViewModel.EXTRA_INCLUDE_TYPE_ID to (optIncludeTypeId ?: MapViewModel.EXTRA_INCLUDE_TYPE_ID_DEFAULT),
-        )
+        ) = Bundle().apply {
+            putParcelable(MapViewModel.EXTRA_INITIAL_LOCATION, optInitialLocation)
+            putString(MapViewModel.EXTRA_SELECTED_UUID, optSelectedUUID)
+            putInt(MapViewModel.EXTRA_INCLUDE_TYPE_ID, optIncludeTypeId ?: MapViewModel.EXTRA_INCLUDE_TYPE_ID_DEFAULT)
+        }
 
-        private const val TOP_PADDING_SP = 64
-        private const val BOTTOM_PADDING_SP = 0
+        private const val TOP_PADDING_DP = 64
+        private const val BOTTOM_PADDING_DP = 0
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
-    override fun getScreenName(): String = TRACKING_SCREEN_NAME
+    override val screenName = TRACKING_SCREEN_NAME
 
     override val viewModel by viewModels<MapViewModel>()
     override val attachedViewModel
@@ -115,62 +115,79 @@ class MapFragment : ABFragment(R.layout.fragment_map),
     lateinit var dataSourcesRepository: DataSourcesRepository
 
     @Inject
+    lateinit var devicePrefManager: DevicePrefManager
+
+    @Inject
     lateinit var locationPermissionProvider: LocationPermissionProvider
 
-    private val mapListener = object : MapViewController.MapListener {
+    @Inject
+    lateinit var analyticsManager: IAnalyticsManager
+
+    private val mapListener = object : MapListener {
 
         override fun onMapClick(position: LatLng) {
-            // DO NOTHING
+            viewModel.onLocationSelected(null) // clear selection
         }
 
-        override fun onCameraChange(latLngBounds: LatLngBounds) {
-            attachedViewModel?.onCameraChange(latLngBounds) {
-                mapViewController.getBigCameraPosition(activity, 1.0f)
-            }
+        override fun onMapLongClick(position: LatLng) {
+            viewModel.onLocationSelected(position)
+        }
+
+        override fun onCameraChanged(latLngBounds: LatLngBounds, zoom: Float) {
+            attachedViewModel?.onCameraChanged(
+                latLngBounds,
+                getBigCameraPosition = { mapViewController.getBigCameraPosition(activity, 1.0f) },
+            )
         }
 
         override fun onMapReady() {
-            attachedViewModel?.poiMarkers?.value?.let {
-                mapViewController.clearMarkers()
-                mapViewController.addMarkers(it)
+            attachedViewModel?.poiMarkers?.value?.let { poiMarkers ->
+                mapViewController.addPOIMarkers(poiMarkers, true)
                 mapViewController.showMap(view)
             }
         }
     }
 
-    @Suppress("DeprecatedCall")
+    private val mapMarkerProvider = object : MapMarkerProvider {
+
+        override val visibleArea
+            get() = attachedViewModel?.initialVisibleArea?.value
+                ?.takeIf { it.isNotEmpty() } // do not try later
+    }
+
     private val mapViewController: MapViewController by lazy {
         MapViewController(
             logTag,
-            null, // DO NOTHING (not linked with list adapter)
-            mapListener,
-            true,
-            true,
-            true,
-            false,
-            false,
-            false,
-            TOP_PADDING_SP,
-            BOTTOM_PADDING_SP,
-            false,
-            true,
-            true,
-            false,
-            true,
-            this.dataSourcesRepository
+            MapViewConfig(
+                markerProvider = mapMarkerProvider,
+                mapListener = mapListener,
+                mapToolbarEnabled = false,
+                myLocationEnabled = true,
+                myLocationButtonEnabled = true,
+                indoorLevelPickerEnabled = false,
+                trafficEnabled = false,
+                indoorEnabled = false,
+                paddingTopDp = TOP_PADDING_DP,
+                paddingBottomDp = BOTTOM_PADDING_DP,
+                followingDevice = false,
+                hasButtons = true,
+                clusteringEnabled = true,
+                showAllMarkersWhenReady = false,
+                markerLabelShowExtra = true,
+                autoClickInfoWindow = true,
+            )
         ).apply {
-            setAutoClickInfoWindow(true)
             logTag = this@MapFragment.logTag
-            setLocationPermissionGranted(locationPermissionProvider.allRequiredPermissionsGranted(requireContext()))
+            setLocationPermissionGranted(locationPermissionProvider.allRequiredPermissionsGranted())
         }
     }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
         mapViewController.apply {
-            setDataSourcesRepository(dataSourcesRepository)
+            setDI(dataSourcesRepository, devicePrefManager)
             onAttach(requireActivity())
-            setLocationPermissionGranted(locationPermissionProvider.allRequiredPermissionsGranted(context))
+            setLocationPermissionGranted(locationPermissionProvider.allRequiredPermissionsGranted())
         }
     }
 
@@ -181,15 +198,10 @@ class MapFragment : ABFragment(R.layout.fragment_map),
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        (requireActivity() as MenuHost).addMenuProvider(
-            this, viewLifecycleOwner, Lifecycle.State.RESUMED
-        )
         this.mapViewController.onViewCreated(view, savedInstanceState)
         binding = FragmentMapBinding.bind(view).apply {
-            map.setUpMapEdgeToEdge(mapViewController, TOP_PADDING_SP, BOTTOM_PADDING_SP)
-            fragmentStatusBarBg.applyStatusBarsHeightEdgeToEdge(
-                initialHeightPx = context.resources.getDimensionPixelSize(R.dimen.action_bar_size_static)
-            )
+            map.setUpMapEdgeToEdge(mapViewController, TOP_PADDING_DP, BOTTOM_PADDING_DP)
+            setupScreenToolbar(screenToolbarLayout.screenToolbarLayout, screenToolbarLayout.screenToolbar)
         }
         viewModel.initialLocation.observe(viewLifecycleOwner) { location ->
             location?.let {
@@ -197,41 +209,60 @@ class MapFragment : ABFragment(R.layout.fragment_map),
                 viewModel.onInitialLocationSet()
             }
         }
-        viewModel.selectedUUID.observe(viewLifecycleOwner) {
-            it?.let {
-                mapViewController.setInitialSelectedUUID(it)
-                viewModel.onSelectedUUIDSet()
+        viewModel.selectedUUID.observe(viewLifecycleOwner) { selectedUUID ->
+            selectedUUID ?: return@observe
+            mapViewController.setInitialSelectedUUID(selectedUUID)
+            viewModel.onSelectedUUIDSet()
+        }
+        viewModel.initialVisibleArea.observe(viewLifecycleOwner) { initialVisibleArea ->
+            if (initialVisibleArea != null) { // initial visible area computed
+                viewModel.deviceLocation.value?.let { deviceLocation ->
+                    mapViewController.onDeviceLocationChanged(deviceLocation)
+                }
+                mapViewController.showMap(view)
             }
         }
-        viewModel.deviceLocation.observe(viewLifecycleOwner) {
-            context?.let { context ->
-                mapViewController.setLocationPermissionGranted(locationPermissionProvider.allRequiredPermissionsGranted(context))
+        viewModel.deviceLocation.observe(viewLifecycleOwner) { deviceLocation ->
+            mapViewController.setLocationPermissionGranted(locationPermissionProvider.allRequiredPermissionsGranted())
+            if (viewModel.initialVisibleArea.value != null) { // initial visible area computed
+                mapViewController.onDeviceLocationChanged(deviceLocation)
             }
-            mapViewController.onDeviceLocationChanged(it)
         }
         LocationSettingsUI.onViewCreated(this)
         ModuleDisabledUI.onViewCreated(this)
-        viewModel.filterTypeIds.observe(viewLifecycleOwner) {
+        viewModel.filterTypeIds.observe(viewLifecycleOwner) { _ ->
+            binding?.screenToolbarLayout?.screenToolbar?.let { updateScreenToolbarTitle(it) }
             abController?.setABTitle(this, getABTitle(context), true)
         }
-        viewModel.typeMapAgencies.observe(viewLifecycleOwner) {
+        viewModel.mapTypes.observe(viewLifecycleOwner) {
+            // DO NOTHING
+        }
+        viewModel.filteredTypeAgencies.observe(viewLifecycleOwner) {
             viewModel.resetLoadedPOIMarkers()
         }
         viewModel.poiMarkersTrigger.observe(viewLifecycleOwner) {
             // DO NOTHING
         }
-        viewModel.loaded.observe(viewLifecycleOwner) {
-            if (it == false) {
+        viewModel.loading.observe(viewLifecycleOwner) { loading ->
+            if (loading) {
                 mapViewController.showLoading()
-            } else if (it == true) {
+            } else {
                 mapViewController.hideLoading()
             }
         }
-        viewModel.poiMarkers.observe(viewLifecycleOwner) {
-            mapViewController.clearMarkers() // new types -> RESET
-            it?.let { poiMarkers ->
-                mapViewController.addMarkers(poiMarkers)
+        viewModel.poiMarkers.observe(viewLifecycleOwner) { poiMarkers ->
+            mapViewController.addPOIMarkers(poiMarkers, true) // new types -> RESET
+            poiMarkers?.let {
                 mapViewController.showMap(view)
+            }
+        }
+        viewModel.selectedLocation.observe(viewLifecycleOwner) { newSelectedLocation ->
+            newSelectedLocation?.let { mapViewController.onSelectedPlaceLocation(it, null) }
+                ?: run { mapViewController.clearSelectedPlaceMarker() }
+        }
+        viewModel.selectedAddress.observe(viewLifecycleOwner) { address ->
+            viewModel.selectedLocation.value?.let {
+                mapViewController.onSelectedPlaceLocation(it, address)
             }
         }
     }
@@ -253,8 +284,11 @@ class MapFragment : ABFragment(R.layout.fragment_map),
 
     override fun onResume() {
         super.onResume()
+        binding?.apply { onResumeToolbar(screenToolbarLayout.screenToolbarLayout, screenToolbarLayout.screenToolbar) }
         mapViewController.onResume()
-        mapViewController.showMap(view)
+        if (viewModel.initialVisibleArea.value != null) { // wait for initial visible area
+            mapViewController.showMap(view)
+        }
         (activity as? MTActivityWithLocation)?.let { onLocationSettingsResolution(it.lastLocationSettingsResolution) }
         (activity as? MTActivityWithLocation)?.let { onDeviceLocationChanged(it.lastLocation) }
     }
@@ -263,8 +297,18 @@ class MapFragment : ABFragment(R.layout.fragment_map),
         attachedViewModel?.onLocationSettingsResolution(resolution)
     }
 
-    override fun onDeviceLocationChanged(newLocation: Location?) {
+    override fun onDeviceLocationChanged(newLocation: AndroidLocation?) {
         attachedViewModel?.onDeviceLocationChanged(newLocation)
+    }
+
+    override fun onStart() {
+        super.onStart()
+        mapViewController.onStart()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        mapViewController.onStop()
     }
 
     override fun onPause() {
@@ -281,11 +325,15 @@ class MapFragment : ABFragment(R.layout.fragment_map),
         menuInflater.inflate(R.menu.menu_map, menu)
     }
 
-    override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-        return if (menuItem.itemId == R.id.menu_filter) {
-            showMenuFilterDialog()
-        } else false // not handled
-    }
+    override fun onMenuItemSelected(menuItem: MenuItem) =
+        when (menuItem.itemId) {
+            R.id.menu_filter -> {
+                analyticsManager.trackButtonClick("toolbar_filter", this)
+                showMenuFilterDialog()
+            }
+
+            else -> false // not handled
+        }
 
     private fun showMenuFilterDialog(): Boolean {
         val filterTypeIds = attachedViewModel?.filterTypeIds?.value ?: return false
@@ -325,32 +373,29 @@ class MapFragment : ABFragment(R.layout.fragment_map),
     }
 
     private fun applyNewFilter(availableTypeIds: List<Int>, selectedTypesIdx: Set<Int>) {
-        viewModel.saveFilterTypeIdsPref(
-            if (selectedTypesIdx.isEmpty() || selectedTypesIdx.size == availableTypeIds.size) { // ALL SELECTED
-                null
-            } else { // NOT ALL SELECTED
-                availableTypeIds.filterIndexed { idx, _ ->
-                    selectedTypesIdx.contains(idx)
-                }
-            }
-        )
+        val selectedTypeIds = availableTypeIds.filterIndexed { idx, _ ->
+            selectedTypesIdx.contains(idx)
+        }
+        viewModel.saveFilterTypeIdsPref(selectedTypeIds, availableTypeIds.size)
     }
 
     override fun isNavBarProtected() = false
 
+    override fun hasToolbar() = true
+
     override fun isABStatusBarTransparent() = true
 
-    override fun isABOverrideGradient() = UIFeatureFlags.F_EDGE_TO_EDGE
+    override fun isABOverrideGradient() = hasToolbar() || UIFeatureFlags.F_EDGE_TO_EDGE
 
-    override fun getABTitle(context: Context?): CharSequence? {
-        return context?.let { makeABTitle(it) } ?: super.getABTitle(null)
-    }
+    override fun getABTitle(context: Context?) = context?.let { makeABTitle(it) } ?: super.getABTitle(null)
 
     private fun makeABTitle(context: Context): CharSequence {
-        return (attachedViewModel?.filterTypeIds?.value?.let { it.ifEmpty { null } } // empty = all
-            ?.mapNotNull { typeId ->
-                DataSourceType.parseId(typeId)?.shortNamesResId?.let { context.getString(it) }
-            } ?: listOf(context.getString(R.string.all)))
+        return (
+            attachedViewModel?.filterTypeIds?.value?.ifEmpty { null } // empty = all
+                ?.mapNotNull { typeId ->
+                    DataSourceType.parseId(typeId)?.shortNamesResId?.let { context.getString(it) }
+                } ?: listOf(context.getString(R.string.all))
+            )
             .joinToString(prefix = "${context.getString(R.string.map)} (", separator = ", ", postfix = ")")
     }
 

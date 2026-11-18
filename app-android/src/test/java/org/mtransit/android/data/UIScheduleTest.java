@@ -15,7 +15,7 @@ import static junit.framework.Assert.assertEquals;
 
 public class UIScheduleTest {
 
-	private static final String TARGET_UUID = POI.POIUtils.getUUID("authority", 1);
+	private static final String TARGET_UUID = POI.POIUtils.makeUUID("authority", 1);
 	private static final long PROVIDER_PRECISION_IN_MS = TimeUnit.MINUTES.toMillis(1L);
 	private static final long NOW_IN_MS = TimeUnit.SECONDS.toMillis(1534681140L); // Aug 19, 2018 8:19:00 AM EST
 	// private static final long NOW_IN_MS = TimeUnit.SECONDS.toMillis(1000000000L); // Sept 9, 2001 9:46:40 PM EST
@@ -26,6 +26,8 @@ public class UIScheduleTest {
 	private static final Long MAX_COVERAGE_IN_MS = null;
 	private static final Integer MIN_COUNT = 10;
 	private static final Integer MAX_COUNT = null;
+
+	private static final String UTC_TZ_ID = "UTC";
 
 	@Test
 	public void testFindTimesSectionsStartEnd_Simple_All() {
@@ -197,7 +199,7 @@ public class UIScheduleTest {
 	@Test
 	public void testGetNextTimestamps() {
 		// Arrange
-		UISchedule schedule = new UISchedule(null, TARGET_UUID, -1L, -1L, -1L, PROVIDER_PRECISION_IN_MS, false, null, false);
+		UISchedule schedule = new UISchedule(null, TARGET_UUID, -1L, -1L, -1L, PROVIDER_PRECISION_IN_MS, false, UTC_TZ_ID,  null);
 		schedule.addTimestampWithoutSort(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(-5L)));
 		schedule.addTimestampWithoutSort(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(-1L)));
 		schedule.addTimestampWithoutSort(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(7L)));
@@ -207,14 +209,14 @@ public class UIScheduleTest {
 		ArrayList<Timestamp> result = schedule.getNextTimestamps(AFTER_IN_MS - PROVIDER_PRECISION_IN_MS, MIN_COVERAGE_IN_MS, MAX_COVERAGE_IN_MS, MIN_COUNT, MAX_COUNT);
 		// Assert
 		assertEquals(3, result.size());
-		assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(-1L), result.get(0).t);
-		assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(7L), result.get(1).t);
+		assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(-1L), result.get(0).getDepartureT());
+		assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(7L), result.get(1).getDepartureT());
 	}
 
 	@Test
 	public void testGetStatusNextTimestampsWithUsefulLast() {
 		// Arrange
-		UISchedule schedule = new UISchedule(null, TARGET_UUID, -1L, -1L, -1L, PROVIDER_PRECISION_IN_MS, false, null, false);
+		UISchedule schedule = new UISchedule(null, TARGET_UUID, -1L, -1L, -1L, PROVIDER_PRECISION_IN_MS, false, UTC_TZ_ID, null);
 		schedule.addTimestampWithoutSort(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(-2L)));
 		schedule.addTimestampWithoutSort(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(7L)));
 		schedule.addTimestampWithoutSort(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(13L)));
@@ -224,14 +226,14 @@ public class UIScheduleTest {
 		ArrayList<Timestamp> result = schedule.getStatusNextTimestamps(AFTER_IN_MS, MIN_COVERAGE_IN_MS, MAX_COVERAGE_IN_MS, MIN_COUNT, MAX_COUNT);
 		// Assert
 		assertEquals(4, result.size());
-		assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(-2L), result.get(0).getT());
-		assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(7L), result.get(1).getT());
+		assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(-2L), result.get(0).getDepartureT());
+		assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(7L), result.get(1).getDepartureT());
 	}
 
 	@Test
 	public void testGetStatusNextTimestampsWithUselessLast() {
 		// Arrange
-		UISchedule schedule = new UISchedule(null, TARGET_UUID, -1L, -1L, -1L, PROVIDER_PRECISION_IN_MS, false, null, false);
+		UISchedule schedule = new UISchedule(null, TARGET_UUID, -1L, -1L, -1L, PROVIDER_PRECISION_IN_MS, false, UTC_TZ_ID, null);
 		schedule.addTimestampWithoutSort(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(-10L)));
 		schedule.addTimestampWithoutSort(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(7L)));
 		schedule.addTimestampWithoutSort(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(13L)));
@@ -241,14 +243,14 @@ public class UIScheduleTest {
 		ArrayList<Timestamp> result = schedule.getStatusNextTimestamps(AFTER_IN_MS, MIN_COVERAGE_IN_MS, MAX_COVERAGE_IN_MS, MIN_COUNT, MAX_COUNT);
 		// Assert
 		assertEquals(3, result.size());
-		assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(7L), result.get(0).getT());
-		assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(13L), result.get(1).getT());
+		assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(7L), result.get(0).getDepartureT());
+		assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(13L), result.get(1).getDepartureT());
 	}
 
 	@Test
 	public void testGetStatusNextTimestampsWithMultipleUsefulLast() {
 		// Arrange
-		UISchedule schedule = new UISchedule(null, TARGET_UUID, -1L, -1L, -1L, PROVIDER_PRECISION_IN_MS, false, null, false);
+		UISchedule schedule = new UISchedule(null, TARGET_UUID, -1L, -1L, -1L, PROVIDER_PRECISION_IN_MS, false, UTC_TZ_ID, null);
 		schedule.addTimestampWithoutSort(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(-3L)));
 		schedule.addTimestampWithoutSort(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(-1L)));
 		schedule.addTimestampWithoutSort(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(7L)));
@@ -259,14 +261,14 @@ public class UIScheduleTest {
 		ArrayList<Timestamp> result = schedule.getStatusNextTimestamps(AFTER_IN_MS, MIN_COVERAGE_IN_MS, MAX_COVERAGE_IN_MS, MIN_COUNT, MAX_COUNT);
 		// Assert
 		assertEquals(4, result.size());
-		assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(-1L), result.get(0).getT());
-		assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(7L), result.get(1).getT());
+		assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(-1L), result.get(0).getDepartureT());
+		assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(7L), result.get(1).getDepartureT());
 	}
 
 	@Test
 	public void testGetStatusNextTimestampsWithUsefulLastDuplicates() {
 		// Arrange
-		UISchedule schedule = new UISchedule(null, TARGET_UUID, -1L, -1L, -1L, PROVIDER_PRECISION_IN_MS, false, null, false);
+		UISchedule schedule = new UISchedule(null, TARGET_UUID, -1L, -1L, -1L, PROVIDER_PRECISION_IN_MS, false, UTC_TZ_ID, null);
 		schedule.addTimestampWithoutSort(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(-2L)));
 		schedule.addTimestampWithoutSort(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(-1L)));
 		schedule.addTimestampWithoutSort(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(-1L)));
@@ -279,14 +281,14 @@ public class UIScheduleTest {
 				schedule.getStatusNextTimestamps(AFTER_IN_MS, MIN_COVERAGE_IN_MS, MAX_COVERAGE_IN_MS, MIN_COUNT, MAX_COUNT));
 		// Assert
 		assertEquals(4, result.size());
-		assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(-1L), result.get(0).getT());
-		assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(7L), result.get(1).getT());
+		assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(-1L), result.get(0).getDepartureT());
+		assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(7L), result.get(1).getDepartureT());
 	}
 
 	@Test
 	public void testGetStatusNextTimestampsWithUsefulNextDuplicates() {
 		// Arrange
-		UISchedule schedule = new UISchedule(null, TARGET_UUID, -1L, -1L, -1L, PROVIDER_PRECISION_IN_MS, false, null, false);
+		UISchedule schedule = new UISchedule(null, TARGET_UUID, -1L, -1L, -1L, PROVIDER_PRECISION_IN_MS, false, UTC_TZ_ID, null);
 		schedule.addTimestampWithoutSort(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(-20L)));
 		schedule.addTimestampWithoutSort(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(7L)));
 		schedule.addTimestampWithoutSort(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(7L)));
@@ -298,14 +300,14 @@ public class UIScheduleTest {
 				schedule.getStatusNextTimestamps(AFTER_IN_MS, MIN_COVERAGE_IN_MS, MAX_COVERAGE_IN_MS, MIN_COUNT, MAX_COUNT));
 		// Assert
 		assertEquals(3, result.size());
-		assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(7L), result.get(0).getT());
-		assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(13L), result.get(1).getT());
+		assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(7L), result.get(0).getDepartureT());
+		assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(13L), result.get(1).getDepartureT());
 	}
 
 	@Test
 	public void testGetStatusNextTimestampsWithUsefulNearDuplicates() {
 		// Arrange
-		UISchedule schedule = new UISchedule(null, TARGET_UUID, -1L, -1L, -1L, PROVIDER_PRECISION_IN_MS, false, null, false);
+		UISchedule schedule = new UISchedule(null, TARGET_UUID, -1L, -1L, -1L, PROVIDER_PRECISION_IN_MS, false, UTC_TZ_ID, null);
 		schedule.addTimestampWithoutSort(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(-1L) - 1L));
 		schedule.addTimestampWithoutSort(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(-1L)));
 		schedule.addTimestampWithoutSort(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(7L)));
@@ -318,14 +320,14 @@ public class UIScheduleTest {
 				schedule.getStatusNextTimestamps(AFTER_IN_MS, MIN_COVERAGE_IN_MS, MAX_COVERAGE_IN_MS, MIN_COUNT, MAX_COUNT));
 		// Assert
 		assertEquals(4, result.size());
-		assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(-1L), result.get(0).getT());
-		assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(7L), result.get(1).getT());
+		assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(-1L), result.get(0).getDepartureT());
+		assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(7L), result.get(1).getDepartureT());
 	}
 
 	@Test
 	public void testGetStatusNextTimestampsWithUsefulNextNearDuplicates() {
 		// Arrange
-		UISchedule schedule = new UISchedule(null, TARGET_UUID, -1L, -1L, -1L, PROVIDER_PRECISION_IN_MS, false, null, false);
+		UISchedule schedule = new UISchedule(null, TARGET_UUID, -1L, -1L, -1L, PROVIDER_PRECISION_IN_MS, false, UTC_TZ_ID, null);
 		schedule.addTimestampWithoutSort(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(-10L) - 1L));
 		schedule.addTimestampWithoutSort(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(-10L)));
 		schedule.addTimestampWithoutSort(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(7L)));
@@ -339,14 +341,14 @@ public class UIScheduleTest {
 		// Assert
 		// TODO FIX TEST: code NOT yet compatible with time NOT the minute
 		assertEquals(3, result.size());
-		assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(7L), result.get(0).getT());
-		assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(13L), result.get(1).getT());
+		assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(7L), result.get(0).getDepartureT());
+		assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(13L), result.get(1).getDepartureT());
 	}
 
 	@Test
 	public void testGetStatusNextTimestampsWithBusAtStop() { // fails if timestamp times are NOT to the minute
 		// Arrange
-		UISchedule schedule = new UISchedule(null, TARGET_UUID, -1L, -1L, -1L, PROVIDER_PRECISION_IN_MS, false, null, false);
+		UISchedule schedule = new UISchedule(null, TARGET_UUID, -1L, -1L, -1L, PROVIDER_PRECISION_IN_MS, false, UTC_TZ_ID, null);
 		schedule.addTimestampWithoutSort(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(-1L)));
 		schedule.addTimestampWithoutSort(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(0L)));
 		schedule.addTimestampWithoutSort(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(3L)));
@@ -359,14 +361,14 @@ public class UIScheduleTest {
 				schedule.getStatusNextTimestamps(AFTER_IN_MS, MIN_COVERAGE_IN_MS, MAX_COVERAGE_IN_MS, MIN_COUNT, MAX_COUNT));
 		// Assert
 		assertEquals(5, result.size());
-		assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(0L), result.get(0).getT());
-		assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(3L), result.get(1).getT());
+		assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(0L), result.get(0).getDepartureT());
+		assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(3L), result.get(1).getDepartureT());
 	}
 
 	@Test
 	public void testGetStatusNextTimestampsWithNearDuplicates() {
 		// Arrange
-		UISchedule schedule = new UISchedule(null, TARGET_UUID, -1L, -1L, -1L, PROVIDER_PRECISION_IN_MS, false, null, false);
+		UISchedule schedule = new UISchedule(null, TARGET_UUID, -1L, -1L, -1L, PROVIDER_PRECISION_IN_MS, false, UTC_TZ_ID, null);
 		schedule.addTimestampWithoutSort(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(-2L)));
 		schedule.addTimestampWithoutSort(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(-1L)));
 		schedule.addTimestampWithoutSort(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(2L)));
@@ -381,8 +383,8 @@ public class UIScheduleTest {
 				schedule.getStatusNextTimestamps(AFTER_IN_MS, MIN_COVERAGE_IN_MS, MAX_COVERAGE_IN_MS, MIN_COUNT, MAX_COUNT));
 		// Assert
 		assertEquals(7, result.size());
-		assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(-1L), result.get(0).getT());
-		assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(2L), result.get(1).getT());
+		assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(-1L), result.get(0).getDepartureT());
+		assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(2L), result.get(1).getDepartureT());
 	}
 
 	// Kelowna 1 -> Downtown | Stop Queensway Exch

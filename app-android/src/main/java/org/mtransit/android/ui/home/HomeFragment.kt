@@ -1,34 +1,33 @@
-@file:JvmName("HomeFragment") // ANALYTICS
 package org.mtransit.android.ui.home
 
 import android.app.PendingIntent
 import android.content.Context
-import android.location.Location
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Lifecycle
 import androidx.navigation.fragment.FragmentNavigator
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
-import org.mtransit.android.common.repository.DefaultPreferenceRepository
-import org.mtransit.android.common.repository.LocalPreferenceRepository
+import org.mtransit.android.ad.IAdManager
+import org.mtransit.android.ad.IAdScreenActivity
+import org.mtransit.android.analytics.IAnalyticsManager
+import org.mtransit.android.billing.IBillingManager
 import org.mtransit.android.commons.ThemeUtils
 import org.mtransit.android.data.POIArrayAdapter
 import org.mtransit.android.databinding.FragmentHomeBinding
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
 import org.mtransit.android.dev.DemoModeManager
-import org.mtransit.android.provider.FavoriteManager
+import org.mtransit.android.device.DevicePrefManager
+import org.mtransit.android.provider.FavoriteRepository
 import org.mtransit.android.provider.sensor.MTSensorManager
 import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.task.StatusLoader
@@ -46,21 +45,26 @@ import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAw
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledUI
 import org.mtransit.android.ui.inappnotification.newlocation.NewLocationAwareFragment
 import org.mtransit.android.ui.inappnotification.newlocation.NewLocationUI
-import org.mtransit.android.ui.main.NextMainViewModel
+import org.mtransit.android.ui.main.next.NextMainViewModel
 import org.mtransit.android.ui.map.MapFragment
 import org.mtransit.android.ui.nearby.NearbyFragment
 import org.mtransit.android.ui.setUpListEdgeToEdge
 import org.mtransit.android.ui.type.AgencyTypeFragment
-import org.mtransit.android.ui.view.common.EventObserver
 import org.mtransit.android.ui.view.common.MTTransitions
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
+import org.mtransit.android.ui.view.common.observeEvent
+import org.mtransit.android.ui.view.listfooter.DefaultPOIListFooterManager
+import org.mtransit.android.user.UserManager
+import org.mtransit.android.user.UserPrefManager
 import org.mtransit.commons.FeatureFlags
 import javax.inject.Inject
+import android.location.Location as AndroidLocation
 import org.mtransit.android.commons.R as commonsR
 
 @AndroidEntryPoint
-class HomeFragment : ABFragment(R.layout.fragment_home),
+class HomeFragment :
+    ABFragment(R.layout.fragment_home),
     DeviceLocationListener,
     NewLocationAwareFragment,
     LocationSettingsAwareFragment,
@@ -69,7 +73,7 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
     MenuProvider {
 
     companion object {
-        private val LOG_TAG = HomeFragment::class.java.simpleName
+        private val LOG_TAG: String = HomeFragment::class.java.simpleName
 
         const val TRACKING_SCREEN_NAME = "Home"
 
@@ -79,9 +83,9 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
         }
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
-    override fun getScreenName(): String = TRACKING_SCREEN_NAME
+    override val screenName = TRACKING_SCREEN_NAME
 
     override val viewModel by viewModels<HomeViewModel>()
     override val attachedViewModel
@@ -97,16 +101,16 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
     lateinit var dataSourcesRepository: DataSourcesRepository
 
     @Inject
-    lateinit var defaultPrefRepository: DefaultPreferenceRepository
+    lateinit var userPrefManager: UserPrefManager
 
     @Inject
-    lateinit var localPreferenceRepository: LocalPreferenceRepository
+    lateinit var devicePrefManager: DevicePrefManager
 
     @Inject
     lateinit var poiRepository: POIRepository
 
     @Inject
-    lateinit var favoriteManager: FavoriteManager
+    lateinit var favoriteRepository: FavoriteRepository
 
     @Inject
     lateinit var statusLoader: StatusLoader
@@ -115,16 +119,41 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
     lateinit var serviceUpdateLoader: ServiceUpdateLoader
 
     @Inject
+    lateinit var adManager: IAdManager
+
+    @Inject
+    lateinit var analyticsManager: IAnalyticsManager
+
+    @Inject
     lateinit var demoModeManager: DemoModeManager
+
+    @Inject
+    lateinit var billingManager: IBillingManager
+
+    @Inject
+    lateinit var userManager: UserManager
 
     private var mapMenuItem: MenuItem? = null
 
     private var binding: FragmentHomeBinding? = null
 
-    private val infiniteLoadingListener = object : POIArrayAdapter.InfiniteLoadingListener {
-        override fun isLoadingMore() = attachedViewModel?.loadingPOIs?.value == true
-
-        override fun showingDone() = false
+    private val poiListFooterManager by lazy {
+        DefaultPOIListFooterManager(
+            adManager = adManager,
+            analyticsManager = analyticsManager,
+            dataSourcesRepository = dataSourcesRepository,
+            getFragment = { this },
+            getShowLoading = { attachedViewModel?.loadingPOIs?.value == true },
+            getHideText = {
+                val nearbyPOIs = attachedViewModel?.nearbyPOIs?.value
+                    ?: return@DefaultPOIListFooterManager false
+                val minListItemToNotHide = context?.let { DefaultPOIListFooterManager.getMinListItemToNotHide(it) }
+                    ?: return@DefaultPOIListFooterManager false
+                val listItemCount = 3 + // for browse header
+                    nearbyPOIs.size
+                listItemCount < minListItemToNotHide
+            },
+        )
     }
 
     private val typeHeaderButtonsClickListener = POIArrayAdapter.TypeHeaderButtonsClickListener { buttonId, type ->
@@ -159,23 +188,24 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
             this,
             this.sensorManager,
             this.dataSourcesRepository,
-            this.defaultPrefRepository,
-            this.localPreferenceRepository,
+            this.userPrefManager,
+            this.devicePrefManager,
             this.poiRepository,
-            this.favoriteManager,
+            this.favoriteRepository,
             this.statusLoader,
-            this.serviceUpdateLoader
+            this.serviceUpdateLoader,
+            this.analyticsManager,
         ).apply {
             logTag = this@HomeFragment.logTag
-            setFavoriteUpdateListener { listAdapter.onFavoriteUpdated() }
             setShowBrowseHeaderSection(true)
-            setShowTypeHeader(POIArrayAdapter.TYPE_HEADER_MORE)
-            setShowTypeHeaderNearby(true)
-            setInfiniteLoading(true)
-            setInfiniteLoadingListener(infiniteLoadingListener)
+            setShowTypeSectionHeader(POIArrayAdapter.SECTION_TYPE_HEADER_MORE)
+            setShowTypeSectionHeaderNearby(true)
+            setShowFooter(true)
+            setFooterManager(poiListFooterManager)
             setOnTypeHeaderButtonsClickListener(typeHeaderButtonsClickListener)
             setPois(attachedViewModel?.nearbyPOIs?.value)
             setLocation(attachedViewModel?.deviceLocation?.value)
+            setTimeChangedListener { this@HomeFragment.onTimeChanged() }
         }
     }
 
@@ -190,9 +220,6 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         MTTransitions.postponeEnterTransition(this)
-        (requireActivity() as MenuHost).addMenuProvider(
-            this, viewLifecycleOwner, Lifecycle.State.RESUMED
-        )
         binding = FragmentHomeBinding.bind(view).apply {
             applyStatusBarsInsetsEdgeToEdge() // not drawing behind status bar
             listLayout.list.apply {
@@ -212,11 +239,20 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
                     }
                 }
             }
+            setupScreenToolbar(screenToolbarLayout.screenToolbarLayout, screenToolbarLayout.screenToolbar)
+            screenToolbarLayout.screenToolbar.setOnClickListener {
+                (activity as? MainActivity)?.onSearchRequested()
+            }
+        }
+        listAdapter.onCreateView(viewLifecycleOwner)
+        DefaultPOIListFooterManager.observe(viewLifecycleOwner, viewModel.nearbyPOIs, billingManager, dataSourcesRepository, userManager) {
+            listAdapter.notifyDataSetChanged(false)
         }
         viewModel.deviceLocation.observe(viewLifecycleOwner) {
             listAdapter.setLocation(it)
         }
         viewModel.nearbyLocationAddress.observe(viewLifecycleOwner) {
+            binding?.apply { updateScreenToolbarSubtitle(screenToolbarLayout.screenToolbar) }
             abController?.setABSubtitle(this, getABSubtitle(context), true)
             if (FeatureFlags.F_NAVIGATION) {
                 nextMainViewModel.setABSubtitle(getABSubtitle(context))
@@ -225,11 +261,11 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
         viewModel.nearbyPOIsTriggerListener.observe(viewLifecycleOwner) {
             // DO NOTHING
         }
-        viewModel.nearbyPOIsTrigger.observe(viewLifecycleOwner, EventObserver { triggered ->
+        viewModel.nearbyPOIsTrigger.observeEvent(viewLifecycleOwner) { triggered ->
             if (triggered) {
                 listAdapter.clear()
             }
-        })
+        }
         viewModel.sortedTypeToHomeAgencies.observe(viewLifecycleOwner) {
             listAdapter.initPOITypes(it ?: return@observe)
         }
@@ -242,7 +278,7 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
             if (isResumed) {
                 listAdapter.updateDistanceNowAsync(viewModel.deviceLocation.value)
             } else {
-                listAdapter.onPause()
+                listAdapter.onInvisible()
             }
             switchView()
         }
@@ -259,12 +295,16 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
         LocationPermissionUI.onViewCreated(this)
         NewLocationUI.onViewCreated(this)
         if (FeatureFlags.F_NAVIGATION) {
-            nextMainViewModel.scrollToTopEvent.observe(viewLifecycleOwner, EventObserver { scroll ->
+            nextMainViewModel.scrollToTopEvent.observeEvent(viewLifecycleOwner) { scroll ->
                 if (scroll) {
                     binding?.listLayout?.list?.setSelection(0)
                 }
-            })
+            }
         }
+    }
+
+    private fun onTimeChanged() {
+        (activity as? IAdScreenActivity)?.let { adManager.onTimeChanged(it) }
     }
 
     private fun switchView() = binding?.apply {
@@ -276,7 +316,8 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
 
     override fun onResume() {
         super.onResume()
-        this.listAdapter.onResume(this, viewModel.deviceLocation.value)
+        binding?.apply { onResumeToolbar(screenToolbarLayout.screenToolbarLayout, screenToolbarLayout.screenToolbar) }
+        this.listAdapter.onVisible(this, viewModel.deviceLocation.value)
         switchView()
         (activity as? MTActivityWithLocation)?.let { onLocationSettingsResolution(it.lastLocationSettingsResolution) }
         (activity as? MTActivityWithLocation)?.checkLocationSettings()
@@ -303,16 +344,16 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
                 }
             }
         } else if (demoModeManager.isEnabledBrowseScreen()) {
-            val type = demoModeManager.filterTypeId ?: throw RuntimeException("Demo mode: missing type!")
+            val dstId = demoModeManager.filterTypeId ?: throw RuntimeException("Demo mode: missing type!")
             view?.post {
                 if (FeatureFlags.F_NAVIGATION) {
                     findNavController().navigate(
                         R.id.nav_to_type_screen,
-                        AgencyTypeFragment.newInstanceArgs(type),
+                        AgencyTypeFragment.newInstanceArgs(dstId),
                     )
                 } else {
                     (activity as MainActivity).addFragmentToStack(
-                        AgencyTypeFragment.newInstance(type),
+                        AgencyTypeFragment.newInstance(dstId),
                     )
                 }
             }
@@ -321,14 +362,14 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
 
     override fun onPause() {
         super.onPause()
-        this.listAdapter.onPause()
+        this.listAdapter.onInvisible()
     }
 
     override fun onLocationSettingsResolution(resolution: PendingIntent?) {
         attachedViewModel?.onLocationSettingsResolution(resolution)
     }
 
-    override fun onDeviceLocationChanged(newLocation: Location?) {
+    override fun onDeviceLocationChanged(newLocation: AndroidLocation?) {
         attachedViewModel?.onDeviceLocationChanged(newLocation)
     }
 
@@ -347,6 +388,7 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
         return when (menuItem.itemId) {
             R.id.nav_map -> {
+                analyticsManager.trackButtonClick("toolbar_map", this)
                 if (FeatureFlags.F_NAVIGATION) {
                     false // handled by navigation library
                 } else {
@@ -362,12 +404,17 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
         }
     }
 
-    override fun getABTitle(context: Context?) =
-        if (attachedViewModel?.isFullDemo() == true) "MonTransit"
-        else context?.getString(R.string.app_name) ?: super.getABTitle(context)
+    override fun hasToolbar() = true
+
+    override fun getABTitle(context: Context?): CharSequence? {
+        if (attachedViewModel?.isFullDemo() == true) return "MonTransit"
+        return context?.getString(R.string.app_name) ?: super.getABTitle(context)
+    }
 
     override fun getABSubtitle(context: Context?) =
-        this.attachedViewModel?.nearbyLocationAddress?.value ?: context?.getString(commonsR.string.ellipsis) ?: super.getABSubtitle(context)
+        this.attachedViewModel?.nearbyLocationAddress?.value
+            ?: context?.getString(commonsR.string.ellipsis)
+            ?: super.getABSubtitle(context)
 
     override fun onDestroyView() {
         super.onDestroyView()

@@ -1,5 +1,8 @@
 package org.mtransit.android.ui.fragment;
 
+import static org.mtransit.android.ui.fragment.ABFragmentKtxKt.destroyScreenToolbarK;
+import static org.mtransit.android.ui.fragment.ABFragmentKtxKt.setupScreenToolbarK;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.ColorStateList;
@@ -21,6 +24,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.util.Pair;
 import androidx.core.view.MenuProvider;
 import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Lifecycle;
 
 import com.google.android.material.appbar.AppBarLayout;
@@ -31,8 +35,9 @@ import org.mtransit.android.R;
 import org.mtransit.android.ad.IAdManager;
 import org.mtransit.android.ad.IAdScreenActivity;
 import org.mtransit.android.ad.IAdScreenFragment;
-import org.mtransit.android.analytics.AnalyticsManager;
+import org.mtransit.android.analytics.AnalyticsScreen;
 import org.mtransit.android.analytics.IAnalyticsManager;
+import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.ThemeUtils;
 import org.mtransit.android.databinding.LayoutScreenToolbarBinding;
 import org.mtransit.android.rate.AppRatingsManager;
@@ -51,11 +56,10 @@ import java.util.WeakHashMap;
 import javax.inject.Inject;
 
 import dagger.hilt.android.AndroidEntryPoint;
-import kotlin.Unit;
 
 @AndroidEntryPoint
 public abstract class ABFragment extends MTFragmentX implements
-		AnalyticsManager.Trackable,
+		AnalyticsScreen,
 		IAdScreenFragment {
 
 	private static final boolean DEFAULT_THEME_DARK_INSTEAD_OF_LIGHT = false;
@@ -84,12 +88,11 @@ public abstract class ABFragment extends MTFragmentX implements
 		super(contentLayoutId);
 	}
 
-	public boolean hasToolbar() {
-		return false; // WIP: will show main activity Action Bar
-	}
+	public abstract boolean hasToolbar();
 
 	public void updateScreenToolbarNavigationIcon(@NonNull Toolbar toolbar) {
-		updateScreenToolbarNavigationIcon(toolbar, getParentFragmentManager().getBackStackEntryCount());
+		final int backStackEntryCount = getActivity() == null ? -1 : getActivity().getSupportFragmentManager().getBackStackEntryCount();
+		updateScreenToolbarNavigationIcon(toolbar, backStackEntryCount);
 	}
 
 	private void updateScreenToolbarNavigationIcon(@NonNull Toolbar toolbar, int backStackEntryCount) {
@@ -100,7 +103,7 @@ public abstract class ABFragment extends MTFragmentX implements
 		);
 	}
 
-	void updateScreenToolbarTitle(@NonNull Toolbar toolbar) {
+	public void updateScreenToolbarTitle(@NonNull Toolbar toolbar) {
 		toolbar.setTitle(getABTitle(getContext()));
 	}
 
@@ -108,38 +111,28 @@ public abstract class ABFragment extends MTFragmentX implements
 		toolbar.setSubtitle(getABSubtitle(getContext()));
 	}
 
-	public void updateScreenToolbarBgColor(@NonNull LayoutScreenToolbarBinding screenToolbarLayout) {
-		updateScreenToolbarBgColor(screenToolbarLayout.screenToolbarLayout, screenToolbarLayout.screenToolbar);
-	}
-
-	private void updateScreenToolbarBgColor(
-			@SuppressWarnings("unused") @NonNull AppBarLayout appBarLayout,
-			@SuppressWarnings("unused") @NonNull Toolbar toolbar) {
+	@CallSuper
+	public void updateScreenToolbarBgColor() {
+		if (!isResumed()) return; // too soon (might still be showing another fragment)
 		final Integer bgColorInt = getABBgColor(getContext());
-		if (bgColorInt != null) {
-			getBgDrawable().setFillColor(ColorStateList.valueOf(bgColorInt));
-			final MainActivity mainActivity = getMainActivity();
-			if (mainActivity != null) {
-				EdgeToEdgeKt.setStatusBarBgColorEdgeToEdge(getMainActivity(), bgColorInt);
-			}
-		}
+		if (bgColorInt == null) return; // no color
+		getBgDrawable().setFillColor(ColorStateList.valueOf(bgColorInt));
+		final MainActivity mainActivity = getMainActivity();
+		if (mainActivity != null) EdgeToEdgeKt.setStatusBarBgColorEdgeToEdge(mainActivity, bgColorInt);
 	}
 
-	void updateScreenToolbarOverrideGradient(@NonNull LayoutScreenToolbarBinding screenToolbarLayout) {
+	@SuppressWarnings("unused")
+	public void updateScreenToolbarOverrideGradient(@NonNull LayoutScreenToolbarBinding screenToolbarLayout) {
 		updateScreenToolbarOverrideGradient(screenToolbarLayout.screenToolbarLayout, screenToolbarLayout.screenToolbar);
 	}
 
-	private void updateScreenToolbarOverrideGradient(@NonNull AppBarLayout appBarLayout, @NonNull Toolbar toolbar) {
+	private void updateScreenToolbarOverrideGradient(@NonNull AppBarLayout appBarLayout, @SuppressWarnings("unused") @NonNull Toolbar toolbar) {
 		final boolean overrideGradient = isABOverrideGradient();
 		if (overrideGradient) {
 			appBarLayout.setBackground(AppCompatResources.getDrawable(appBarLayout.getContext(), R.drawable.ab_gradient));
-		} else {
-			setupScreenToolbarBgColor(appBarLayout, toolbar);
+		} else if (isResumed()) {
+			appBarLayout.setBackground(getBgDrawable());
 		}
-	}
-
-	private void setupScreenToolbarBgColor(@NonNull AppBarLayout appBarLayout, @SuppressWarnings("unused") @NonNull Toolbar toolbar) {
-		appBarLayout.setBackground(getBgDrawable());
 	}
 
 	@Nullable
@@ -153,25 +146,24 @@ public abstract class ABFragment extends MTFragmentX implements
 		return this.bgDrawable;
 	}
 
-	public void setupScreenToolbar(@NonNull LayoutScreenToolbarBinding screenToolbarLayout) {
-		setupScreenToolbar(screenToolbarLayout.screenToolbarLayout, screenToolbarLayout.screenToolbar);
+	public void onScreenToolbarNavigationClick(@NonNull View v) {
+		final FragmentActivity activity = getActivity();
+		if (activity == null) return;
+		if (activity.getSupportFragmentManager().getBackStackEntryCount() == 0) {
+			final MainActivity mainActivity = getMainActivity();
+			if (mainActivity != null) {
+				mainActivity.openDrawer();
+			}
+			return;
+		}
+		activity.getSupportFragmentManager().popBackStack();
 	}
 
-	private void setupScreenToolbar(@NonNull AppBarLayout appBarLayout, @NonNull Toolbar toolbar) {
+	public void setupScreenToolbar(@NonNull AppBarLayout appBarLayout, @NonNull Toolbar toolbar) {
 		// setup
-		setupScreenToolbarBgColor(appBarLayout, toolbar);
-		toolbar.setNavigationOnClickListener(v -> {
-			if (getParentFragmentManager().getBackStackEntryCount() == 0) {
-				final MainActivity mainActivity = getMainActivity();
-				if (mainActivity != null) {
-					mainActivity.openDrawer();
-				}
-				return;
-			}
-			getParentFragmentManager().popBackStack();
-		});
+		toolbar.setNavigationOnClickListener(this::onScreenToolbarNavigationClick);
 		if (this instanceof MenuProvider) {
-			toolbar.addMenuProvider((MenuProvider) this, getViewLifecycleOwner(), Lifecycle.State.RESUMED);
+			toolbar.addMenuProvider((MenuProvider) this, getViewLifecycleOwner(), Lifecycle.State.CREATED); // resumed glitch w/ predictive back
 		}
 		inflateMainMenu(toolbar);
 		toolbar.setOnMenuItemClickListener(this::onScreenToolbarMenuItemClick);
@@ -180,9 +172,13 @@ public abstract class ABFragment extends MTFragmentX implements
 		updateScreenToolbarTitle(toolbar);
 		updateScreenToolbarSubtitle(toolbar);
 		updateScreenToolbarOverrideGradient(appBarLayout, toolbar);
-		updateScreenToolbarBgColor(appBarLayout, toolbar);
+		updateScreenToolbarBgColor();
 		updateScreenToolbarCustomView(toolbar);
+		setupScreenToolbarK(this, toolbar);
 	}
+
+	@Nullable
+	protected FragmentManager.OnBackStackChangedListener abFragmentOnBackStackChangedListener;
 
 	// R.menu.menu_main
 	private void inflateMainMenu(@NonNull Toolbar toolbar) {
@@ -274,18 +270,15 @@ public abstract class ABFragment extends MTFragmentX implements
 	public void updateScreenToolbarCustomView(@NonNull Toolbar toolbar) {
 		final View customView = getABCustomView();
 		setScreenToolbarCustomView(toolbar, customView);
-		if (customView == null) {
-			return;
-		}
-		if (isABCustomViewFocusable()) {
-			customView.setFocusable(true);
-			customView.setFocusableInTouchMode(true);
-			if (isABCustomViewRequestFocus()) {
-				customView.requestFocus();
-				customView.requestFocusFromTouch();
-			} else {
-				customView.clearFocus();
-			}
+		if (customView == null) return;
+		if (!isABCustomViewFocusable()) return;
+		customView.setFocusable(true);
+		customView.setFocusableInTouchMode(true);
+		if (isABCustomViewRequestFocus()) {
+			customView.requestFocus();
+			customView.requestFocusFromTouch();
+		} else {
+			customView.clearFocus();
 		}
 	}
 
@@ -348,11 +341,33 @@ public abstract class ABFragment extends MTFragmentX implements
 		EdgeToEdgeKt.applyStatusBarsHeightEdgeToEdge(activity.findViewById(R.id.status_bar_bg));
 		EdgeToEdgeKt.setNavBarThemeEdgeToEdge(activity);
 		EdgeToEdgeKt.setNavBarProtectionEdgeToEdge(activity, isNavBarProtected());
+		if (this instanceof MenuProvider && !hasToolbar()) {
+			requireActivity().addMenuProvider((MenuProvider) this, getViewLifecycleOwner(), Lifecycle.State.CREATED); // resumed glitch w/ predictive back
+		}
+		sharedAppRatingsManager.getShouldShowAppRatingRequest(this).observe(getViewLifecycleOwner(), shouldShow -> {
+			if (!shouldShow) return;
+			final MainActivity mainActivity = getMainActivity();
+			if (mainActivity == null) return;
+			AppRatingsUIManager.showAppRatingsUI(mainActivity, sharedAnalyticsManager, appRatingDisplayed -> {
+				if (appRatingDisplayed) {
+					this.sharedAppRatingsManager.onAppRequestDisplayed(this, this);
+				}
+				return kotlin.Unit.INSTANCE;
+			});
+		});
 	}
 
 	@Override
 	public boolean hasAds() {
 		return false; // will show main activity ads
+	}
+
+	public void onResumeToolbar(@NonNull AppBarLayout appBarLayout, @NonNull Toolbar toolbar) {
+		if (hasToolbar()) {
+			updateScreenToolbarOverrideGradient(appBarLayout, toolbar);
+			updateScreenToolbarBgColor();
+			updateScreenToolbarNavigationIcon(toolbar);
+		}
 	}
 
 	@CallSuper
@@ -366,37 +381,18 @@ public abstract class ABFragment extends MTFragmentX implements
 			abController.setAB(this);
 			abController.updateAB();
 		}
-		sharedAppRatingsManager.getShouldShowAppRatingRequest(this).observe(this, shouldShow -> {
-			if (!shouldShow) {
-				return;
-			}
-			final MainActivity mainActivity = getMainActivity();
-			if (mainActivity == null) {
-				return;
-			}
-			AppRatingsUIManager.showAppRatingsUI(mainActivity, sharedAnalyticsManager, appRatingDisplayed -> {
-				if (appRatingDisplayed) {
-					this.sharedAppRatingsManager.onAppRequestDisplayed(this, this);
-				}
-				return Unit.INSTANCE;
-			});
-		});
-	}
-
-	public boolean onBackPressed() {
-		//noinspection IfStatementWithIdenticalBranches
-		if (UIFeatureFlags.F_PREDICTIVE_BACK_GESTURE) {
-			return false; // processed
-		}
-		return false; // not processed
 	}
 
 	@CallSuper
 	@Override
 	public void onPause() {
 		super.onPause();
-		this.sharedStatusLoader.clearAllTasks();
-		this.sharedServiceUpdateLoader.clearAllTasks();
+		if (UIFeatureFlags.F_CLEAR_ALL_TASKS_ON_LEAVING_SCREEN) {
+			//noinspection DiscouragedApi
+			this.sharedStatusLoader.clearAllTasks();
+			//noinspection DiscouragedApi
+			this.sharedServiceUpdateLoader.clearAllTasks();
+		}
 		hideAllInAppNotifications();
 	}
 
@@ -404,8 +400,9 @@ public abstract class ABFragment extends MTFragmentX implements
 	@Override
 	public void onDestroyView() {
 		super.onDestroyView();
+		destroyScreenToolbarK(this);
 		this.inAppNotifications.clear();
-		this.inAppNotificationShown = false;
+		this.inAppNotificationIdShown = null;
 	}
 
 	@Nullable
@@ -419,7 +416,12 @@ public abstract class ABFragment extends MTFragmentX implements
 
 	// region In-App Notifications
 
-	private boolean inAppNotificationShown = false;
+	@Nullable
+	private String inAppNotificationIdShown = null;
+
+	private boolean isInAppNotificationShown() {
+		return inAppNotificationIdShown != null;
+	}
 
 	private final WeakHashMap<String, Pair<PopupWindow, Snackbar>> inAppNotifications = new WeakHashMap<>();
 
@@ -435,10 +437,12 @@ public abstract class ABFragment extends MTFragmentX implements
 			@Nullable CharSequence actionText,
 			@Nullable View.OnLongClickListener onActionClick // used instead of OnClickListener because returns boolean
 	) {
-		if (this.inAppNotificationShown) {
+		if (isInAppNotificationShown()) {
+			MTLog.d(this, "showInAppNotification(%s) > SKIP (in-app notif '%s' already shown)", notificationId, this.inAppNotificationIdShown);
 			return false; // SKIP
 		}
 		if (!isResumed()) {
+			MTLog.d(this, "showInAppNotification(%s) > SKIP (not resumed)", notificationId);
 			return false; // SKIP
 		}
 		Pair<PopupWindow, Snackbar> inAppNotification = inAppNotifications.get(notificationId);
@@ -450,32 +454,44 @@ public abstract class ABFragment extends MTFragmentX implements
 					anchorView,
 					labelText,
 					() -> { // on dismiss
-						this.inAppNotificationShown = false;
+						if (notificationId.equals(this.inAppNotificationIdShown)) {
+							this.inAppNotificationIdShown = null;
+						} else {
+							MTLog.d(this, "showInAppNotification(%s) > onDismiss() > SKIP (other in-app notif %s shown)", notificationId, this.inAppNotificationIdShown);
+						}
 						return true; // handled
 					},
-					actionText, onActionClick, () -> { // on action clicked
+					actionText,
+					onActionClick,
+					() -> { // on action clicked
 						return hideInAppNotification(notificationId);
 					}
 			);
 			inAppNotifications.put(notificationId, inAppNotification);
 		}
-		this.inAppNotificationShown = InAppNotificationUI.showInAppNotification(
+		if (InAppNotificationUI.showInAppNotification(
 				activity,
 				inAppNotification,
 				view,
 				contextView,
 				anchorView,
 				additionalBottomMarginInPx
-		);
-		return this.inAppNotificationShown;
+		)) {
+			this.inAppNotificationIdShown = notificationId;
+		}
+		return isInAppNotificationShown();
 	}
 
 	@SuppressWarnings("WeakerAccess")
 	public boolean hideInAppNotification(@NonNull String notificationId) {
-		Pair<PopupWindow, Snackbar> inAppNotification = this.inAppNotifications.get(notificationId);
+		final Pair<PopupWindow, Snackbar> inAppNotification = this.inAppNotifications.get(notificationId);
 		final boolean inAppNotificationHidden = InAppNotificationUI.hideInAppNotification(inAppNotification);
 		if (inAppNotificationHidden) {
-			this.inAppNotificationShown = false;
+			if (notificationId.equals(this.inAppNotificationIdShown)) {
+				this.inAppNotificationIdShown = null;
+			} else {
+				MTLog.d(this, "hideInAppNotification(%s) > SKIP (other in-app notif %s shown)", notificationId, this.inAppNotificationIdShown);
+			}
 		}
 		return inAppNotificationHidden;
 	}

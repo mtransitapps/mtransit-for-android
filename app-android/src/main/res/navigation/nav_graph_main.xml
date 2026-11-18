@@ -37,14 +37,18 @@
             android:name="extra_selected_type"
             android:defaultValue="-1"
             app:argType="integer" />
+        <!-- AndroidX Nav v2.x doesn't support double -->
         <argument
-            android:name="extra_fixed_on_lat"
-            android:defaultValue="999f"
-            app:argType="float" />
+            android:name="extra_fixed_on_lat_s"
+            android:defaultValue="@null"
+            app:argType="string"
+            app:nullable="true" />
+        <!-- AndroidX Nav v2.x doesn't support double -->
         <argument
-            android:name="extra_fixed_on_lng"
-            android:defaultValue="999f"
-            app:argType="float" />
+            android:name="extra_fixed_on_lng_s"
+            android:defaultValue="@null"
+            app:argType="string"
+            app:nullable="true" />
         <argument
             android:name="extra_fixed_on_name"
             android:defaultValue="@null"

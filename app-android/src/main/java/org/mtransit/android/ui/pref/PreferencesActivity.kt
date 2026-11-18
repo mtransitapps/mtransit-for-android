@@ -1,4 +1,3 @@
-@file:JvmName("PreferencesActivity") // ANALYTICS
 package org.mtransit.android.ui.pref
 
 import android.content.Context
@@ -6,6 +5,7 @@ import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
 import android.view.View
+import androidx.annotation.MainThread
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.EntryPoint
@@ -18,10 +18,10 @@ import org.mtransit.android.R
 import org.mtransit.android.commons.LocaleUtils
 import org.mtransit.android.dev.DemoModeManager
 import org.mtransit.android.ui.MTActivity
-import org.mtransit.android.ui.enableEdgeToEdgeMT
-import org.mtransit.android.ui.setUpStatusBarBgEdgeToEdge
 import org.mtransit.android.ui.applyStatusBarsHeightEdgeToEdge
+import org.mtransit.android.ui.enableEdgeToEdgeMT
 import org.mtransit.android.ui.setStatusBarsThemeEdgeToEdge
+import org.mtransit.android.ui.setUpStatusBarBgEdgeToEdge
 import org.mtransit.android.util.NightModeUtils
 import javax.inject.Inject
 
@@ -29,7 +29,7 @@ import javax.inject.Inject
 class PreferencesActivity : MTActivity(R.layout.activity_preferences) {
 
     companion object {
-        private val LOG_TAG = PreferencesActivity::class.java.simpleName
+        private val LOG_TAG: String = PreferencesActivity::class.java.simpleName
 
         @JvmOverloads
         @JvmStatic
@@ -43,7 +43,7 @@ class PreferencesActivity : MTActivity(R.layout.activity_preferences) {
         }
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     @EntryPoint
     @InstallIn(SingletonComponent::class)
@@ -89,7 +89,7 @@ class PreferencesActivity : MTActivity(R.layout.activity_preferences) {
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         if (this.currentUiMode != newConfig.uiMode) {
-            NightModeUtils.setDefaultNightMode(context, demoModeManager) // does NOT recreated because uiMode in configChanges AndroidManifest.xml
+            NightModeUtils.setDefaultNightMode(context, demoModeManager) // does NOT recreate because uiMode in configChanges AndroidManifest.xml
             NightModeUtils.recreate(this) // not recreated because uiMode in configChanges AndroidManifest.xml
         }
     }
@@ -98,7 +98,7 @@ class PreferencesActivity : MTActivity(R.layout.activity_preferences) {
         super.onResume()
         if (this.currentUiMode != resources.configuration.uiMode) {
             lifecycleScope.launch {
-                NightModeUtils.setDefaultNightMode(context, demoModeManager) // does NOT recreated because uiMode in configChanges AndroidManifest.xml
+                NightModeUtils.setDefaultNightMode(context, demoModeManager) // does NOT recreate because uiMode in configChanges AndroidManifest.xml
             }
         }
     }
@@ -114,6 +114,7 @@ class PreferencesActivity : MTActivity(R.layout.activity_preferences) {
         }
     }
 
+    @get:MainThread
     override val currentFragment: Fragment?
         get() = supportFragmentManager.primaryNavigationFragment
 }

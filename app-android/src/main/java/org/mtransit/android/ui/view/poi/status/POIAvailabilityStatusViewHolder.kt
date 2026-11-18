@@ -6,6 +6,7 @@ import android.widget.TextView
 import androidx.core.view.isVisible
 import org.mtransit.android.commons.data.AvailabilityPercent
 import org.mtransit.android.commons.data.POIStatus
+import org.mtransit.android.commons.data.ServiceUpdates
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.databinding.LayoutPoiStatusAvailabilityPercentBinding
 import org.mtransit.android.ui.view.common.context
@@ -13,7 +14,7 @@ import org.mtransit.android.util.UIFeatureFlags
 import androidx.core.util.Pair as androidXPair
 
 data class POIAvailabilityStatusViewHolder(
-    override var uuid: String,
+    override var targetUUID: String,
     override val statusV: View,
     override val binding: LayoutPoiStatusAvailabilityPercentBinding,
 ) : POICommonStatusViewHolder<LayoutPoiStatusAvailabilityPercentBinding, AvailabilityPercent> {
@@ -25,23 +26,26 @@ data class POIAvailabilityStatusViewHolder(
     ) = if (dataProvider.isShowingStatus && statusViewHolder is POIAvailabilityStatusViewHolder) {
         poim.setStatusLoaderListener(dataProvider)
         poim.getStatus(dataProvider.providesStatusLoader()) as? AvailabilityPercent
-    } else null
+    } else {
+        null
+    }
 
     override fun update(
         statusViewHolder: POICommonStatusViewHolder<*, *>?,
         status: POIStatus?,
-        dataProvider: POIStatusDataProvider
+        dataProvider: POIStatusDataProvider,
+        serviceUpdates: ServiceUpdates?,
     ) {
         if (dataProvider.isShowingStatus && statusViewHolder is POIAvailabilityStatusViewHolder) {
-            statusViewHolder.bind(status as? AvailabilityPercent, dataProvider)
+            statusViewHolder.bind(status as? AvailabilityPercent, dataProvider, serviceUpdates)
         } else {
             hideStatus()
         }
     }
 
     @SuppressLint("KotlinPairNotCreated") // MTPieChartPercentView in Java
-    override fun bind(status: AvailabilityPercent?, dataProvider: POIStatusDataProvider) {
-        super.bind(status, dataProvider)
+    override fun bind(status: AvailabilityPercent?, dataProvider: POIStatusDataProvider, serviceUpdates: ServiceUpdates?) {
+        super.bind(status, dataProvider, serviceUpdates)
         status?.let { availabilityPercent ->
             binding.apply {
                 if (!availabilityPercent.isStatusOK) {
@@ -58,7 +62,7 @@ data class POIAvailabilityStatusViewHolder(
                         dots.setColorDots(
                             availabilityPercent.totalValue,
                             List(availabilityPercent.value1SubValueDefault) { availabilityPercent.value1SubValueDefaultColorBg } +
-                                    List(availabilityPercent.value1SubValue1 ?: 0) { availabilityPercent.value1SubValue1ColorBg }
+                                List(availabilityPercent.value1SubValue1 ?: 0) { availabilityPercent.value1SubValue1ColorBg }
                         )
                         dots.isVisible = true
                     } else {
@@ -101,8 +105,8 @@ data class POIAvailabilityStatusViewHolder(
 
     companion object {
         @JvmStatic
-        fun fromStatusView(view: View, uuid: String) = POIAvailabilityStatusViewHolder(
-            uuid = uuid,
+        fun fromStatusView(view: View, targetUUID: String) = POIAvailabilityStatusViewHolder(
+            targetUUID = targetUUID,
             statusV = POICommonStatusViewHolder.bindStatusV(view),
             binding = LayoutPoiStatusAvailabilityPercentBinding.bind(view),
         )

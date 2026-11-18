@@ -3,7 +3,7 @@ package org.mtransit.android.dev
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.Configuration
-import android.location.Location
+import androidx.collection.SimpleArrayMap
 import androidx.lifecycle.SavedStateHandle
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
@@ -12,48 +12,70 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.mtransit.android.BuildConfig
 import org.mtransit.android.R
+import org.mtransit.android.billing.IBillingManager
 import org.mtransit.android.commons.LocaleUtils
 import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.TimeUtils
 import org.mtransit.android.commons.data.RouteDirectionStop
-import org.mtransit.android.commons.provider.POIProviderContract
-import org.mtransit.android.commons.removeTooFar
+import org.mtransit.android.commons.location.AroundDiff
+import org.mtransit.android.commons.provider.GTFSProviderContract
+import org.mtransit.android.commons.provider.poi.POIProviderContract
 import org.mtransit.android.commons.updateDistanceM
 import org.mtransit.android.data.AgencyProperties
+import org.mtransit.android.data.DataSourceManager
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.IAgencyProperties
 import org.mtransit.android.data.ITargetedProviderProperties
 import org.mtransit.android.data.POIManager
-import org.mtransit.android.datasource.DataSourceRequestManager
-import org.mtransit.android.datasource.DataSourcesCache
+import org.mtransit.android.datasource.DataSourcesStorage
 import org.mtransit.commons.FeatureFlags
 import org.mtransit.commons.GTFSCommons
 import org.mtransit.commons.removeAllAnd
 import java.util.Locale
+import java.util.TimeZone
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.math.abs
+import kotlin.random.Random
+import android.location.Location as AndroidLocation
 
 @Singleton
 class DemoModeManager @Inject constructor(
-    @ApplicationContext appContext: Context,
-    private val dataSourceRequestManager: DataSourceRequestManager,
+    @param:ApplicationContext private val appContext: Context,
+    private val billingManager: IBillingManager,
 ) : MTLog.Loggable {
 
     companion object {
-        private val LOG_TAG = DemoModeManager::class.java.simpleName
+        private val LOG_TAG: String = DemoModeManager::class.java.simpleName
 
-        const val FILTER_AGENCY_AUTHORITY = "filter_agency_authority"
-        const val FILTER_SCREEN = "filter_screen"
-        const val FORCE_LANG = "force_lang"
+        private const val FILTER_AGENCY_AUTHORITY = "filter_agency_authority"
+        private const val FILTER_SCREEN = "filter_screen"
+        private const val FORCE_LANG = "force_lang"
+
+        // overriding current time inside main app doesn't load static/real-time schedule for overridden time
+        private const val FORCE_TIMESTAMP_SEC = "force_timestamp_sec"
+        private const val FORCE_TIMEZONE_ID = "force_tz"
+        private const val FORCE_TIME_FORMAT = "force_time"
+
+        private const val FORCE_TIME_FORMAT_12 = "12"
+        private const val FORCE_TIME_FORMAT_24 = "24"
 
         const val FILTER_SCREEN_HOME = "home"
         const val FILTER_SCREEN_POI = "poi"
         const val FILTER_SCREEN_BROWSE = "browse"
 
         const val MIN_POI_HOME_SCREEN = 7
+
+        private const val GPS_COORDINATE_VARIATION_FACTOR_MIN = 7.0
+        private const val GPS_COORDINATE_VARIATION_FACTOR_MAX = 10.0
+        private const val MAX_GPS_COORDINATE_VARIATION_FOR_LOCATION = 0.0007
+        private const val MAX_GPS_COORDINATE_VARIATION = AroundDiff.AD_MINIMUM + AroundDiff.DEFAULT_INCREMENT
+
+        private val AVAILABLE_TIMEZONE_IDS by lazy { TimeZone.getAvailableIDs().toSet() }
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     private val allowedTargeted = listOf(
         appContext.getString(R.string.favorite_authority),
@@ -70,45 +92,53 @@ class DemoModeManager @Inject constructor(
 
     val filterAgencyTypeId: Int?
         get() = this.filterAgencyType?.id
-    private var filterAgencyLocation: Location? = null
+    private var filterAgencyLocation: AndroidLocation? = null
 
     private var filterAgencyPOIM: POIManager? = null
 
+    /**
+     * RedundantSuspendModifier: calling [DataSourceManager] on Worker thread with I/O dispatcher
+     */
+    @Suppress("RedundantSuspendModifier")
     private suspend fun findNearbyPOIM(
         lat: Double,
         lng: Double,
         agency: AgencyProperties,
-    ): POIManager? {
-        val ad = LocationUtils.getNewDefaultAroundDiff()
+    ): POIManager? = withContext(Dispatchers.IO) {
+        val aroundDiff = AroundDiff()
         var poim: POIManager?
         while (true) {
-            val filter = POIProviderContract.Filter.getNewAroundFilter(lat, lng, ad.aroundDiff).apply {
-            }
-            poim = this.dataSourceRequestManager.findPOIMs(agency.authority, filter)
+            val filter = POIProviderContract.Filter.getNewAroundFilter(lat, lng, aroundDiff.ad).copy(
+                extras = SimpleArrayMap<String, Any>().apply {
+                    put(GTFSProviderContract.POI_FILTER_EXTRA_NO_PICKUP, true)
+                },
+            )
+            poim = DataSourceManager.findPOIMs(appContext, agency.authority, filter) // I/O // avoid DataSourceRequestManager dependency
                 .removeAllAnd {
                     if (FeatureFlags.F_USE_ROUTE_TYPE_FILTER) {
                         (it.poi as? RouteDirectionStop)?.route?.type in GTFSCommons.ROUTE_TYPES_REQUIRES_BOOKING
-                    } else false
+                    } else {
+                        false
+                    }
                 }
                 .updateDistanceM(lat, lng)
-                .removeTooFar(LocationUtils.getAroundCoveredDistanceInMeters(lat, lng, ad.aroundDiff))
                 .firstOrNull()
             if (poim != null) {
                 break
-            } else if (LocationUtils.searchComplete(lat, lng, ad.aroundDiff)) {
+            } else if (LocationUtils.searchComplete(lat, lng, aroundDiff.ad)) {
                 break
             } else {
-                LocationUtils.incAroundDiff(ad)
+                aroundDiff.increment()
                 continue
             }
         }
-        return poim
+        return@withContext poim
     }
 
     val filterTypeId: Int?
         get() = this.filterAgencyTypeId
 
-    val filterLocation: Location?
+    val filterLocation: AndroidLocation?
         get() = this.filterAgencyLocation
 
     fun isFilterLocation() = isFilteringAgency()
@@ -120,56 +150,106 @@ class DemoModeManager @Inject constructor(
     private var forceLang: String? = null
     fun isForceLang() = !forceLang.isNullOrBlank()
 
+    private var forceTimestampSec: String? = null
+    private val forceTimestampMs: Long? get() = forceTimestampSec?.toLongOrNull()?.let { it * 1000L }
+
+    private var forceTimeZoneId: String? = null
+    private val forceTZ: TimeZone
+        get() = forceTimeZoneId
+            ?.takeIf { it.isNotEmpty() && AVAILABLE_TIMEZONE_IDS.contains(it) }
+            ?.let { TimeZone.getTimeZone(it) }
+            ?: TimeZone.getDefault()
+
+    private var forceTimeFormat: String? = null
+    private val isForce24HourFormat: Boolean?
+        get() = when (forceTimeFormat) {
+            FORCE_TIME_FORMAT_12 -> false
+            FORCE_TIME_FORMAT_24 -> true
+            else -> null
+        }
+
+    private val enabledDebug: Boolean
+        get() = !filterAgencyAuthority.isNullOrBlank()
+            || !filterScreen.isNullOrBlank()
+            || !forceLang.isNullOrBlank()
+            || !forceTimestampSec.isNullOrBlank()
+            || !forceTimeZoneId.isNullOrBlank()
+            || !forceTimeFormat.isNullOrBlank()
+
     val enabled: Boolean
-        get() = (BuildConfig.DEBUG && (filterAgencyAuthority != null || filterScreen != null || forceLang != null)) || isFullDemo()
+        get() = (BuildConfig.DEBUG && enabledDebug)
+            || isFullDemo()
 
-    fun isFullDemo(): Boolean = filterAgencyAuthority != null && filterScreen != null && forceLang != null
+    fun isFullDemo(): Boolean =
+        !filterAgencyAuthority.isNullOrBlank()
+            && !filterScreen.isNullOrBlank()
+            && !forceLang.isNullOrBlank()
+    // not mandatory: forceTimestampSec, forceTimeZone, forceTimeFormat
 
-    suspend fun read(savedStateHandle: SavedStateHandle, dataSourcesCache: DataSourcesCache) {
+    suspend fun read(savedStateHandle: SavedStateHandle, dataSourcesStorage: DataSourcesStorage) {
         filterAgencyAuthority = savedStateHandle[FILTER_AGENCY_AUTHORITY]
         filterScreen = savedStateHandle[FILTER_SCREEN]
         forceLang = savedStateHandle[FORCE_LANG]
-        // @Suppress("ConstantConditionIf")
-        // if (true) {
-        // val debug = true
-        // val isRDS = true
-        // // val isRDS = false
-        // val agencyId = "ca_halifax_transit_bus"
-        // // val agencyId = "ca_quebec_a_velo_bike"
-        // filterAgencyAuthority = "org.mtransit.android.${if (debug) "debug" else ""}.$agencyId${if (isRDS) ".gtfs" else ""}"
-        // filterScreen = FILTER_SCREEN_HOME
-        // forceLang = "en-US"
-        // }
+        forceTimestampSec = savedStateHandle[FORCE_TIMESTAMP_SEC]
+        forceTimeZoneId = savedStateHandle[FORCE_TIMEZONE_ID]
+        forceTimeFormat = savedStateHandle[FORCE_TIME_FORMAT]
         if (enabled) {
-            apply(dataSourcesCache)
+            apply(dataSourcesStorage)
         }
     }
 
-    private suspend fun apply(dataSourcesCache: DataSourcesCache) = withContext(Dispatchers.IO) {
+    private suspend fun apply(dataSourcesStorage: DataSourcesStorage) = withContext(Dispatchers.IO) {
+        billingManager.setFullDemoMode(isFullDemo())
         filterAgencyAuthority?.let { authority ->
-            filterAgency = dataSourcesCache.getAgency(authority)
+            filterAgency = dataSourcesStorage.getAgency(authority)
         }
 
         filterAgencyPOIM = filterAgency?.let { agency ->
-            val lat = agency.area.centerLat + ((agency.area.maxLat - agency.area.minLat) / 4.00)
+            if (filterScreen != FILTER_SCREEN_POI) return@let null // SKIP
+            var lat = agency.area.centerLat
             val lng = agency.area.centerLng
+            lat += (
+                abs(agency.area.maxLat - agency.area.minLat)
+                    / Random.nextDouble(GPS_COORDINATE_VARIATION_FACTOR_MIN, GPS_COORDINATE_VARIATION_FACTOR_MAX)
+                ).coerceAtMost(MAX_GPS_COORDINATE_VARIATION)
             findNearbyPOIM(lat, lng, agency)
         }
 
-        filterAgencyLocation = filterAgency?.let { agency ->
-            val isHomeScreen = filterScreen == FILTER_SCREEN_HOME
-            val lat = agency.area.centerLat - if (!isHomeScreen) ((agency.area.maxLat - agency.area.minLat) / 4.00) else 0.00
+        filterAgencyLocation = filterAgency?.let location@{ agency ->
+            filterAgencyPOIM?.let { poim ->
+                val poiLat = poim.lat + Random.nextDouble(-MAX_GPS_COORDINATE_VARIATION_FOR_LOCATION, +MAX_GPS_COORDINATE_VARIATION_FOR_LOCATION)
+                val poiLng = poim.lng + Random.nextDouble(-MAX_GPS_COORDINATE_VARIATION_FOR_LOCATION, +MAX_GPS_COORDINATE_VARIATION_FOR_LOCATION)
+                LatLngBounds.builder()
+                    .include(LatLng(poiLat, poiLng))
+                    .build().center.let {
+                        return@location LocationUtils.getNewLocation(it.latitude, it.longitude, 13f)
+                    }
+            }
+            var lat = agency.area.centerLat
             val lng = agency.area.centerLng
+            if (filterScreen != FILTER_SCREEN_HOME) {
+                lat -= (
+                    abs(agency.area.maxLat - agency.area.minLat)
+                        / Random.nextDouble(GPS_COORDINATE_VARIATION_FACTOR_MIN, GPS_COORDINATE_VARIATION_FACTOR_MAX)
+                    ).coerceAtMost(MAX_GPS_COORDINATE_VARIATION)
+            }
             findNearbyPOIM(lat, lng, agency)?.let { poim ->
                 LatLngBounds.builder()
                     .include(LatLng(lat, lng))
                     .include(LatLng(poim.lat, poim.lng))
                     .build().center.let {
-                        LocationUtils.getNewLocation(it.latitude, it.longitude, 77f)
+                        return@location LocationUtils.getNewLocation(it.latitude, it.longitude, 77f)
                     }
             }
-            LocationUtils.getNewLocation(lat, lng, 77f)
+            return@location LocationUtils.getNewLocation(lat, lng, 77f)
         }
+    }
+
+    fun init() {
+        if (!enabled) return
+        setTimestamp()
+        setTimeZone()
+        set24HourFormat()
     }
 
     fun isEnabledPOIScreen(): Boolean {
@@ -206,9 +286,7 @@ class DemoModeManager @Inject constructor(
     fun isAllowedAnyway(targeted: ITargetedProviderProperties?) = this.allowedTargeted.contains(targeted?.authority)
 
     fun fixLocale(newBaseContext: Context): Context {
-        if (!enabled && forceLang == null) {
-            return newBaseContext
-        }
+        if (!enabled && forceLang == null) return newBaseContext
         var newBase = newBaseContext
         newBase = newBase.createConfigurationContext(
             fixLocale(newBase.resources.configuration)
@@ -219,10 +297,20 @@ class DemoModeManager @Inject constructor(
     @SuppressLint("AppBundleLocaleChanges")
     private fun fixLocale(newConfiguration: Configuration): Configuration {
         val defaultLocale = forceLang?.let { Locale.forLanguageTag(it) } ?: LocaleUtils.getDefaultLocale()
-        return newConfiguration.apply {
-            setLocale(defaultLocale)
-            Locale.setDefault(defaultLocale)
-        }
+        LocaleUtils.setDefaultLocale(defaultLocale)
+        return LocaleUtils.fixDefaultLocale(newConfiguration)
+    }
+
+    private fun setTimestamp() {
+        TimeUtils.setOverrideCurrentTimeMillis(this.forceTimestampMs)
+    }
+
+    private fun setTimeZone() {
+        TimeZone.setDefault(this.forceTZ)
+    }
+
+    private fun set24HourFormat() {
+        TimeUtils.setOverrideIs24HourFormat(this.isForce24HourFormat)
     }
 }
 
@@ -260,6 +348,7 @@ fun <T : ITargetedProviderProperties> List<T>.filterDemoModeTargeted(demoModeMan
     }
 }
 
+@Suppress("unused")
 fun <T : ITargetedProviderProperties> Set<T>.filterDemoModeTargeted(demoModeManager: DemoModeManager): Set<T> {
     if (!demoModeManager.isFilteringAgency()) {
         return this

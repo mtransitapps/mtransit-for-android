@@ -7,11 +7,8 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.News
 import org.mtransit.android.data.AuthorityAndUuid
-import org.mtransit.android.data.authorityT
-import org.mtransit.android.data.getAuthority
-import org.mtransit.android.data.getUuid
+import org.mtransit.android.data.authorityAndUuidT
 import org.mtransit.android.data.uniqueId
-import org.mtransit.android.data.uuidT
 import org.mtransit.android.ui.news.details.NewsDetailsFragment
 
 class NewsPagerAdapter(
@@ -19,10 +16,10 @@ class NewsPagerAdapter(
 ) : FragmentStateAdapter(fragment), MTLog.Loggable {
 
     companion object {
-        private val LOG_TAG = NewsPagerAdapter::class.java.simpleName
+        private val LOG_TAG: String = NewsPagerAdapter::class.java.simpleName
     }
 
-    override fun getLogTag(): String = LOG_TAG
+    override fun getLogTag() = LOG_TAG
 
     private var items: List<News> = emptyList()
 
@@ -60,8 +57,7 @@ class NewsPagerAdapter(
     fun getItemPosition(authorityAndUuid: AuthorityAndUuid?): Int? {
         return authorityAndUuid?.let {
             items.indexOfFirst {
-                it.authorityT == authorityAndUuid.getAuthority()
-                        && it.uuidT == authorityAndUuid.getUuid()
+                it.authorityAndUuidT == authorityAndUuid
             }.takeIf { it >= 0 }
         } ?: run {
             MTLog.w(this, "getItemPosition() > No news article for '$authorityAndUuid'!")

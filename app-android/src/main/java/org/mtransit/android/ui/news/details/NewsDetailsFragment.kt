@@ -1,4 +1,3 @@
-@file:JvmName("NewsDetailsFragment") // ANALYTICS
 package org.mtransit.android.ui.news.details
 
 import android.annotation.SuppressLint
@@ -7,12 +6,14 @@ import android.os.Bundle
 import android.text.format.DateUtils
 import android.view.View
 import android.view.ViewGroup
+import android.webkit.RenderProcessGoneDetail
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
+import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.core.content.ContextCompat
-import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
+import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.viewModels
 import androidx.webkit.WebViewClientCompat
 import dagger.hilt.android.AndroidEntryPoint
@@ -24,25 +25,29 @@ import org.mtransit.android.commons.HtmlUtils
 import org.mtransit.android.commons.data.News
 import org.mtransit.android.data.AuthorityAndUuid
 import org.mtransit.android.data.NewsImage
-import org.mtransit.android.data.getAuthority
+import org.mtransit.android.data.YOUTUBE_HTTP_HEADERS
+import org.mtransit.android.data.authority
 import org.mtransit.android.data.getTwitterVideoId
-import org.mtransit.android.data.getUuid
 import org.mtransit.android.data.getYouTubeVideoId
 import org.mtransit.android.data.hasImagesOrVideoThumbnail
 import org.mtransit.android.data.imageUrls
-import org.mtransit.android.data.isAuthorityAndUuidValid
 import org.mtransit.android.data.isTwitterVideo
 import org.mtransit.android.data.isYouTubeVideo
 import org.mtransit.android.data.makeTwitterEmbedVideoPlayerUrl
 import org.mtransit.android.data.makeYouTubeEmbedVideoPlayerUrl
+import org.mtransit.android.data.uuid
 import org.mtransit.android.databinding.FragmentNewsDetailsBinding
 import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.fragment.MTFragmentX
 import org.mtransit.android.ui.news.NewsListViewModel
 import org.mtransit.android.ui.news.image.NewsImagesAdapter
-import org.mtransit.android.ui.view.common.EventObserver
 import org.mtransit.android.ui.view.common.ImageManager
 import org.mtransit.android.ui.view.common.MTTransitions
+import org.mtransit.android.ui.view.common.clearImageAndHide
+import org.mtransit.android.ui.view.common.context
+import org.mtransit.android.ui.view.common.isAttached
+import org.mtransit.android.ui.view.common.loadImageAndShow
+import org.mtransit.android.ui.view.common.observeEvent
 import org.mtransit.android.util.LinkUtils
 import org.mtransit.android.util.UIFeatureFlags
 import org.mtransit.android.util.UITimeUtils
@@ -53,13 +58,13 @@ import org.mtransit.android.commons.R as commonsR
 class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
 
     companion object {
-        private val LOG_TAG = NewsDetailsFragment::class.java.simpleName
+        private val LOG_TAG: String = NewsDetailsFragment::class.java.simpleName
 
         @JvmStatic
         fun newInstance(newsArticle: News): NewsDetailsFragment = newInstance(newsArticle.authority, newsArticle.uuid)
 
         @JvmStatic
-        fun newInstance(authorityAndUuid: AuthorityAndUuid) = newInstance(authorityAndUuid.getAuthority(), authorityAndUuid.getUuid())
+        fun newInstance(authorityAndUuid: AuthorityAndUuid) = newInstance(authorityAndUuid.authority, authorityAndUuid.uuid)
 
         @JvmStatic
         fun newInstance(
@@ -75,13 +80,13 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
         fun newInstanceArgs(newsArticle: News) = newInstanceArgs(newsArticle.authority, newsArticle.uuid)
 
         @JvmStatic
-        fun newInstanceArgs(authority: String, uuid: String) = bundleOf(
-            NewsDetailsViewModel.EXTRA_AUTHORITY to authority,
-            NewsDetailsViewModel.EXTRA_NEWS_UUID to uuid,
-        )
+        fun newInstanceArgs(authority: String, uuid: String) = Bundle().apply {
+            putString(NewsDetailsViewModel.EXTRA_AUTHORITY, authority)
+            putString(NewsDetailsViewModel.EXTRA_NEWS_UUID, uuid)
+        }
 
         @JvmStatic
-        fun newInstanceArgs(authorityAndUuid: AuthorityAndUuid) = newInstanceArgs(authorityAndUuid.getAuthority(), authorityAndUuid.getUuid())
+        fun newInstanceArgs(authorityAndUuid: AuthorityAndUuid) = newInstanceArgs(authorityAndUuid.authority, authorityAndUuid.uuid)
 
         val SPLIT_ARTICLE_REGEX = Regex(HtmlUtils.BRS_REGEX, RegexOption.IGNORE_CASE)
     }
@@ -97,8 +102,10 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
     lateinit var inlineBannerAdManager: InlineBannerAdManager
 
     private val viewModel by viewModels<NewsDetailsViewModel>()
+    private val attachedViewModel get() = if (isAttached()) viewModel else null
 
     private val parentViewModel by viewModels<NewsListViewModel>({ requireParentFragment() })
+    private val attachedParentViewModel get() = if (isAttached()) parentViewModel else null
 
     private var binding: FragmentNewsDetailsBinding? = null
 
@@ -106,7 +113,11 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
 
     private var timeChangedReceiverEnabled = false
 
-    private val timeChangedReceiver = UITimeUtils.TimeChangedReceiver { updateNewsView() }
+    private val timeChangedListener = UITimeUtils.TimeChangedReceiver.TimeChangedListener {
+        updateNewsView()
+    }
+
+    private val timeChangedReceiver = UITimeUtils.TimeChangedReceiver(timeChangedListener) // need to create an object because of WeakReference
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -114,8 +125,15 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
     }
 
     private fun onImageClicked(view: View, newsImage: NewsImage) {
-        val titleStatic = viewModel.newsArticle.value?.text?.take(33)
-        LinkUtils.open(view, requireActivity(), newsImage.imageUrl, getString(commonsR.string.web_browser), titleStatic, true)
+        LinkUtils.open(
+            view,
+            requireActivity(),
+            newsImage.imageUrl,
+            getString(commonsR.string.web_browser),
+            viewModel.newsArticle.value?.text?.take(33),
+            true,
+            viewModel.useInternalWebBrowserPref.value,
+        )
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -128,15 +146,18 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
             updateNewsView(newsArticle)
             MTTransitions.startPostponedEnterTransitionOnPreDraw(view.parent as? ViewGroup, this)
         }
-        viewModel.dataSourceRemovedEvent.observe(viewLifecycleOwner, EventObserver { removed ->
+        viewModel.dataSourceRemovedEvent.observeEvent(viewLifecycleOwner) { removed ->
             if (removed) {
                 (activity as MainActivity?)?.popFragmentFromStack(this) // close this fragment
             }
-        })
-        parentViewModel.selectedNewsArticleAuthorityAndUUID.observe(viewLifecycleOwner) { newAuthorityAndUuid ->
-            if (newAuthorityAndUuid?.isAuthorityAndUuidValid() == false) {
-                return@observe
-            }
+        }
+        viewModel.useInternalWebBrowserPref.observe(viewLifecycleOwner) {
+            // DO NOTHING
+        }
+        parentViewModel.fullscreen.observe(viewLifecycleOwner) { fullscreen ->
+            updateNewsView(fullscreen = fullscreen)
+        }
+        parentViewModel.validSelectedNewsArticleAuthorityAndUUID.observe(viewLifecycleOwner) { newAuthorityAndUuid ->
             if (newAuthorityAndUuid == null) { // navigate back to list on phone
                 //noinspection DeprecatedCall
                 binding?.thumbnailWebView?.onPause()
@@ -150,65 +171,77 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
     }
 
     @SuppressLint("DeprecatedCall")
-    private fun updateNewsView(newsArticle: News? = viewModel.newsArticle.value) = binding?.apply {
+    private fun updateNewsView(
+        newsArticle: News? = attachedViewModel?.newsArticle?.value,
+        fullscreen: Boolean? = attachedParentViewModel?.fullscreen?.value
+    ) = binding?.apply {
         _logTag = LOG_TAG + "-" + newsArticle?.uuid
-        newsArticle?.let { newsArticle ->
-            MTTransitions.setTransitionName(root, "news_" + newsArticle.uuid)
-            updateThumbnails(newsArticle)
-            updateNewsArticleText(newsArticle)
-            authorIcon.apply {
-                isVisible = if (newsArticle.hasAuthorPictureURL()) {
-                    noAuthorIconSpace.isVisible = false
-                    imageManager.loadInto(context, newsArticle.authorPictureURL, this)
-                    true
-                } else {
-                    noAuthorIconSpace.isVisible = true
-                    imageManager.clear(context, this)
-                    false
-                }
+        newsArticle ?: return@apply
+        MTTransitions.setTransitionName(root, "news_" + newsArticle.uuid)
+        updateThumbnails(newsArticle, fullscreen == true)
+        updateNewsArticleText(newsArticle)
+        authorIcon.apply {
+            if (newsArticle.hasAuthorPictureURL()) {
+                loadImageAndShow(imageManager, newsArticle.authorPictureURL)
+            } else {
+                clearImageAndHide(imageManager)
             }
-            author.apply {
-                text = newsArticle.authorName
-                setTextColor(
-                    newsArticle.colorIntOrNull?.let {
-                        ColorUtils.adaptColorToTheme(context, it)
-                    } ?: run {
-                        ColorUtils.getTextColorSecondary(context)
-                    }
+        }
+        noAuthorIconSpace.isVisible = !newsArticle.hasAuthorPictureURL()
+        author.apply {
+            text = newsArticle.authorName
+            setTextColor(
+                newsArticle.colorIntOrNull?.let {
+                    ColorUtils.adaptColorToTheme(context, it)
+                } ?: run {
+                    ColorUtils.getTextColorSecondary(context)
+                }
+            )
+        }
+        source.apply {
+            text = newsArticle.authorUsername?.let { authorUsername ->
+                context.getString(
+                    R.string.news_shared_on_and_author_and_source,
+                    authorUsername,
+                    newsArticle.sourceLabel
+                )
+            } ?: newsArticle.sourceLabel
+        }
+        date.apply {
+            text = UITimeUtils.formatRelativeTime(newsArticle.createdAtInMs)
+            val newsArticleWebURL = newsArticle.webURL.ifBlank { newsArticle.authorProfileURL }
+            setOnClickListener { view ->
+                LinkUtils.open(
+                    view,
+                    requireActivity(),
+                    newsArticleWebURL,
+                    getString(commonsR.string.web_browser),
+                    true,
+                    viewModel.useInternalWebBrowserPref.value
                 )
             }
-            source.apply {
-                text = newsArticle.authorUsername?.let { authorUsername ->
-                    context.getString(
-                        R.string.news_shared_on_and_author_and_source,
-                        authorUsername,
-                        newsArticle.sourceLabel
-                    )
-                } ?: newsArticle.sourceLabel
-            }
-            date.apply {
-                setText(UITimeUtils.formatRelativeTime(newsArticle.createdAtInMs), TextView.BufferType.SPANNABLE)
-                val newsArticleWebURL = newsArticle.webURL.ifBlank { newsArticle.authorProfileURL }
-                setOnClickListener { view ->
-                    LinkUtils.open(view, requireActivity(), newsArticleWebURL, getString(commonsR.string.web_browser), true)
-                }
-            }
-            dateLong.apply {
-                val formattedDate = DateUtils.formatDateTime(
-                    context,
-                    newsArticle.createdAtInMs,
-                    DateUtils.FORMAT_SHOW_TIME or DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_YEAR or DateUtils.FORMAT_SHOW_WEEKDAY
+        }
+        dateLong.apply {
+            val formattedDate = DateUtils.formatDateTime(
+                context,
+                newsArticle.createdAtInMs,
+                DateUtils.FORMAT_SHOW_TIME or DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_YEAR or DateUtils.FORMAT_SHOW_WEEKDAY
+            )
+            setText(formattedDate, TextView.BufferType.SPANNABLE)
+            setOnClickListener { view ->
+                LinkUtils.open(
+                    view,
+                    requireActivity(),
+                    newsArticle.webURL.ifBlank { newsArticle.authorProfileURL },
+                    getString(commonsR.string.web_browser),
+                    true,
+                    viewModel.useInternalWebBrowserPref.value
                 )
-                setText(formattedDate, TextView.BufferType.SPANNABLE)
-                val newsArticleWebURL = newsArticle.webURL.ifBlank { newsArticle.authorProfileURL }
-                setOnClickListener { view ->
-                    LinkUtils.open(view, requireActivity(), newsArticleWebURL, getString(commonsR.string.web_browser), true)
-                }
             }
         }
     }
 
-    private fun updateNewsArticleText(newsArticle: News) = binding?.apply {
+    private fun FragmentNewsDetailsBinding.updateNewsArticleText(newsArticle: News) {
         val paragraphs = newsArticle.textHTML.split(SPLIT_ARTICLE_REGEX)
         val limit = when {
             newsArticle.hasImagesOrVideoThumbnail -> 150
@@ -240,7 +273,7 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
         newsText1.apply {
             setText(LinkUtils.linkifyHtml(textHTML1, true), TextView.BufferType.SPANNABLE)
             movementMethod = LinkUtils.LinkMovementMethodInterceptor.getInstance { view, newTextUrl ->
-                LinkUtils.open(view, requireActivity(), newTextUrl, getString(commonsR.string.web_browser), true)
+                LinkUtils.open(view, requireActivity(), newTextUrl, getString(commonsR.string.web_browser), true, viewModel.useInternalWebBrowserPref.value)
             }
             setLinkTextColor(
                 newsArticle.colorIntOrNull?.let {
@@ -254,7 +287,7 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
         newsText2.apply {
             setText(LinkUtils.linkifyHtml(textHTML2, true), TextView.BufferType.SPANNABLE)
             movementMethod = LinkUtils.LinkMovementMethodInterceptor.getInstance { view, newTextUrl ->
-                LinkUtils.open(view, requireActivity(), newTextUrl, getString(commonsR.string.web_browser), true)
+                LinkUtils.open(view, requireActivity(), newTextUrl, getString(commonsR.string.web_browser), true, viewModel.useInternalWebBrowserPref.value)
             }
             setLinkTextColor(
                 newsArticle.colorIntOrNull?.let {
@@ -267,22 +300,18 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
     }
 
     @SuppressLint("DeprecatedCall")
-    private fun updateThumbnails(newsArticle: News) = binding?.apply {
+    private fun FragmentNewsDetailsBinding.updateThumbnails(newsArticle: News, isFullscreen: Boolean) {
         when {
             newsArticle.isTwitterVideo -> {
                 if (!UIFeatureFlags.F_NEWS_THUMBNAIL_PLAY_BUTTON) {
-                    thumbnail.apply {
-                        isVisible = false
-                        imageManager.clear(context, this)
-                    }
+                    thumbnail.clearImageAndHide(imageManager)
                 }
                 thumbnailsListContainer.isVisible = false
                 noThumbnailSpace.isVisible = false
 
                 if (UIFeatureFlags.F_NEWS_THUMBNAIL_PLAY_BUTTON) {
                     thumbnail.apply {
-                        imageManager.loadInto(context, newsArticle.firstValidImageUrl, this)
-                        isVisible = true
+                        loadImageAndShow(imageManager, newsArticle.firstValidImageUrl)
                         setOnClickListener {}
                     }
                     thumbnailPlay.apply {
@@ -321,18 +350,14 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
 
             newsArticle.isYouTubeVideo -> {
                 if (!UIFeatureFlags.F_NEWS_THUMBNAIL_PLAY_BUTTON) {
-                    thumbnail.apply {
-                        isVisible = false
-                        imageManager.clear(context, this)
-                    }
+                    thumbnail.clearImageAndHide(imageManager)
                 }
                 thumbnailsListContainer.isVisible = false
                 noThumbnailSpace.isVisible = false
 
                 if (UIFeatureFlags.F_NEWS_THUMBNAIL_PLAY_BUTTON) {
                     thumbnail.apply {
-                        imageManager.loadInto(context, newsArticle.firstValidImageUrl, this)
-                        isVisible = true
+                        loadImageAndShow(imageManager, newsArticle.firstValidImageUrl)
                         setOnClickListener {}
                     }
                     thumbnailPlay.apply {
@@ -347,7 +372,7 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
                                 newsArticle.getYouTubeVideoId()?.let { videoId ->
                                     makeYouTubeEmbedVideoPlayerUrl(videoId, autoPlay = true, mute = true).let { newUrl ->
                                         if (url != newUrl) {
-                                            loadUrl(newUrl)
+                                            loadUrl(newUrl, YOUTUBE_HTTP_HEADERS)
                                         }
                                     }
                                 }
@@ -361,7 +386,7 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
                         newsArticle.getYouTubeVideoId()?.let { videoId ->
                             makeYouTubeEmbedVideoPlayerUrl(videoId, autoPlay = false).let { newUrl ->
                                 if (url != newUrl) {
-                                    loadUrl(newUrl)
+                                    loadUrl(newUrl, YOUTUBE_HTTP_HEADERS)
                                 }
                             }
                         }
@@ -371,10 +396,7 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
             }
 
             newsArticle.imageURLsCount == 0 -> {
-                thumbnail.apply {
-                    isVisible = false
-                    imageManager.clear(context, this)
-                }
+                thumbnail.clearImageAndHide(imageManager)
                 thumbnailsListContainer.isVisible = false
                 thumbnailWebView.isVisible = false
 
@@ -386,34 +408,57 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
                 thumbnailsListContainer.isVisible = false
                 thumbnailWebView.isVisible = false
                 thumbnail.apply {
-                    imageManager.loadInto(context, newsArticle.firstValidImageUrl, this)
-                    isVisible = true
+                    loadImageAndShow(imageManager, newsArticle.firstValidImageUrl)
                     setOnClickListener { view ->
-                        val titleStatic = viewModel.newsArticle.value?.text?.take(33)
-                        LinkUtils.open(view, requireActivity(), newsArticle.firstValidImageUrl, getString(commonsR.string.web_browser), titleStatic, true)
+                        LinkUtils.open(
+                            view,
+                            requireActivity(),
+                            newsArticle.firstValidImageUrl,
+                            getString(commonsR.string.web_browser),
+                            viewModel.newsArticle.value?.text?.take(33),
+                            true,
+                            viewModel.useInternalWebBrowserPref.value
+                        )
                     }
                 }
             }
 
             else -> { // newsArticle.imageURLsCount > 1
                 noThumbnailSpace.isVisible = false
-                thumbnail.apply {
-                    isVisible = false
-                    imageManager.clear(context, this)
-                }
+                thumbnail.clearImageAndHide(imageManager)
                 thumbnailWebView.isVisible = false
 
                 thumbnailsListAdapter.submitList(newsArticle.imageUrls)
                 thumbnailsListContainer.isVisible = true
             }
         }
+        thumbnailWebView.updateLayoutParams<RelativeLayout.LayoutParams> {
+            height = (if (isFullscreen) root.height else context.resources.getDimension(R.dimen.news_image_height).toInt())
+        }
     }
 
+    @SuppressLint("MissingOnRenderProcessGone") // issue with Lint check https://issuetracker.google.com/issues/548989591
     private val customWebViewClient = object : WebViewClientCompat() {
         override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
-            val webViewVideoPlayerUrl = request.url.toString()
-            LinkUtils.open(view, requireActivity(), webViewVideoPlayerUrl, getString(commonsR.string.web_browser), true)
+            LinkUtils.open(
+                view,
+                requireActivity(),
+                request.url.toString(),
+                getString(commonsR.string.web_browser),
+                true,
+                viewModel.useInternalWebBrowserPref.value
+            )
             return true // handled
+        }
+
+        override fun onRenderProcessGone(view: WebView, detail: RenderProcessGoneDetail): Boolean {
+            (view.parent as? ViewGroup)?.removeView(view)
+            //noinspection DeprecatedCall
+            view.destroy()
+            activity?.takeIf { !it.isFinishing && !it.isDestroyed }
+                ?.supportFragmentManager?.takeIf { it.backStackEntryCount > 0 && !it.isStateSaved }
+                ?.popBackStack() // navigates back to previous fragment
+            return true
         }
     }
 
