@@ -2,6 +2,7 @@
 <SmellBaseline>
   <ManuallySuppressedIssues/>
   <CurrentIssues>
+    <ID>LongMethod:ProviderConfigRepositoryTest.kt:ProviderConfigRepositoryTest$@Test fun instagramExportsModuleConfigAndRoutesLocallyUntilDisabled</ID>
     <ID>NoEmptyFile:MapViewModelTest.kt:org.mtransit.android.ui.map.MapViewModelTest.kt</ID>
   </CurrentIssues>
 </SmellBaseline>

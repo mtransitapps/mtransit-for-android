@@ -17,7 +17,7 @@ import org.mtransit.android.BuildConfig
 import org.mtransit.android.R
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.DeviceUtils
-import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.MTLogK
 import org.mtransit.android.commons.PackageManagerUtils
 import org.mtransit.android.commons.StoreUtils
 import org.mtransit.android.commons.TimeUtils
@@ -49,7 +49,7 @@ object BatteryOptimizationIssueUtils {
             DO_NOT_KILL_MY_APP_URL_AND_MANUFACTURER.format(Locale.ROOT, manufacturerDNTLC)
         ).toString()
     } catch (e: Exception) {
-        MTLog.w(LOG_TAG, e, "Error while creating custom URL with manufacturer")
+        MTLogK.w(LOG_TAG, "Error while creating custom URL with manufacturer", e)
         DO_NOT_KILL_MY_APP_URL
     }
 
@@ -59,7 +59,7 @@ object BatteryOptimizationIssueUtils {
             DO_NOT_KILL_MY_APP_IMAGE_URL_AND_MANUFACTURER.format(Locale.ROOT, manufacturerDNTLC)
         ).toString()
     } catch (e: Exception) {
-        MTLog.w(LOG_TAG, e, "Error while creating custom URL with manufacturer")
+        MTLogK.w(LOG_TAG, "Error while creating custom URL with manufacturer", e)
         DO_NOT_KILL_MY_APP_IMAGE_URL
     }
 
@@ -109,7 +109,7 @@ object BatteryOptimizationIssueUtils {
                     nowMs // not the 1st time
                 )
                 if (nowMs - anyLastAgencyInvisibleActivityOpenedMs < INVISIBLE_ACTIVITY_ANY_MIN_OPEN_MS) {
-                    MTLog.d(LOG_TAG, "onAppResumeInvisibleActivity() > SKIP (any)")
+                    MTLogK.d(LOG_TAG, "onAppResumeInvisibleActivity() > SKIP (any)")
                     return@launch // SKIP (too soon)
                 }
 
@@ -143,7 +143,7 @@ object BatteryOptimizationIssueUtils {
                     }
             }
         } catch (e: Exception) {
-            MTLog.w(LOG_TAG, e, "Error while finding invisible activity!")
+            MTLogK.w(LOG_TAG, "Error while finding invisible activity!", e)
         }
     }
 
@@ -161,10 +161,10 @@ object BatteryOptimizationIssueUtils {
                 false
             }
         } catch (_: ActivityNotFoundException) {
-            MTLog.d(this, "'${InvisibleActivity.CLASS_NAME}' not found in $pkg!")
+            MTLogK.d(this, "'${InvisibleActivity.CLASS_NAME}' not found in $pkg!")
             false
         } catch (_: Exception) {
-            MTLog.d(this, "Unexpected error while opening '${InvisibleActivity.CLASS_NAME}' not found in $pkg!")
+            MTLogK.d(this, "Unexpected error while opening '${InvisibleActivity.CLASS_NAME}' not found in $pkg!")
             false
         }
     }

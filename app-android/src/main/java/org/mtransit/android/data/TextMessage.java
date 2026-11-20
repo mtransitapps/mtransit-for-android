@@ -7,18 +7,17 @@ import androidx.annotation.Discouraged;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.data.DataSourceTypeId;
 import org.mtransit.android.commons.data.DefaultPOI;
 import org.mtransit.android.commons.data.POI;
 import org.mtransit.android.commons.provider.poi.POIProviderContract;
 
+import kotlinx.serialization.json.JsonObject;
+
 @SuppressWarnings("WeakerAccess")
 public class TextMessage extends DefaultPOI {
 
-	private static final String LOG_TAG = TextMessage.class.getSimpleName();
+	protected static final String LOG_TAG = TextMessage.class.getSimpleName();
 
 	@NonNull
 	@Override
@@ -82,59 +81,10 @@ public class TextMessage extends DefaultPOI {
 		this.uuid = null;
 	}
 
-	private static final String JSON_MESSAGE = "message";
-	private static final String JSON_MESSAGE_ID = "messageId";
-
-	@Nullable
+	@NonNull
 	@Override
-	public JSONObject toJSON() {
-		try {
-			JSONObject json = new JSONObject();
-			json.put(JSON_MESSAGE_ID, getMessageId());
-			json.put(JSON_MESSAGE, getMessage());
-			DefaultPOI.toJSON(this, json);
-			return json;
-		} catch (JSONException jsone) {
-			MTLog.w(this, jsone, "Error while converting to JSON (%s)!", this);
-			return null;
-		}
-	}
-
-	@Nullable
-	@Override
-	public POI fromJSON(@NonNull JSONObject json) {
-		return fromJSONStatic(json);
-	}
-
-	@Nullable
-	public static TextMessage fromJSONStatic(@NonNull JSONObject json) {
-		try {
-			final TextMessage textMessage = new TextMessage(
-					json.getLong(JSON_MESSAGE_ID),
-					DefaultPOI.getDSTypeIdFromJSON(json),
-					json.getString(JSON_MESSAGE)
-			);
-			DefaultPOI.fromJSON(json, textMessage);
-			return textMessage;
-		} catch (JSONException jsone) {
-			MTLog.w(LOG_TAG, jsone, "Error while parsing JSON '%s'!", json);
-			return null;
-		}
-	}
-
-	@SuppressWarnings("unused")
-	@Nullable
-	public static TextMessage fromSimpleJSONStatic(@NonNull JSONObject json, @NonNull String authority) {
-		try {
-			return new TextMessage( //
-					json.getLong(JSON_MESSAGE_ID),
-					DefaultPOI.getDSTypeIdFromJSON(json),
-					json.getString(JSON_MESSAGE)
-			);
-		} catch (JSONException jsone) {
-			MTLog.w(LOG_TAG, jsone, "Error while parsing simple JSON '%s'!", json);
-			return null;
-		}
+	public JsonObject toJson() {
+		return TextMessageExtKt.toJsonK(this);
 	}
 
 	@NonNull

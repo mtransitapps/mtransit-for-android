@@ -4,7 +4,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.mtransit.android.commons.LocationUtils
-import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.MTLogK
 import org.mtransit.android.commons.data.Area
 import org.mtransit.android.commons.data.LocationPOI
 import org.mtransit.android.commons.data.RouteDirectionStop
@@ -31,7 +31,7 @@ class GetNearbyPOIListUseCase(
     private val poiRepository: POIRepository,
     private val getAroundCoveredDistanceInMeters: (lat: Double, lng: Double, aroundDiff: Double) -> Float,
     private val ioDispatcher: CoroutineDispatcher,
-) : MTLog.Loggable {
+) : MTLogK.Loggable {
 
     @Inject
     constructor(
@@ -82,7 +82,7 @@ class GetNearbyPOIListUseCase(
         val nearbyAgencyArea = Area.getArea(lat, lng, 0.01)
         allAgencies.takeIf { it.isNotEmpty() }
             ?: run {
-                MTLog.d(this@GetNearbyPOIListUseCase, "() > SKIP (no agencies)")
+                MTLogK.d(this@GetNearbyPOIListUseCase, "() > SKIP (no agencies)")
                 return@withContext mutableListOf()
             }
         val nearbyAgencies = allAgencies
@@ -91,7 +91,7 @@ class GetNearbyPOIListUseCase(
                     && agency.isInArea(nearbyAgencyArea)
             }.takeIf { it.isNotEmpty() }
             ?: run {
-                MTLog.d(this@GetNearbyPOIListUseCase, "() > SKIP (no nearby agencies)")
+                MTLogK.d(this@GetNearbyPOIListUseCase, "() > SKIP (no nearby agencies)")
                 return@withContext mutableListOf()
             }
         val nearbyPOIs = mutableListOf<POIManager>()

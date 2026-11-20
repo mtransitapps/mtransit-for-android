@@ -23,7 +23,7 @@ import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.commons.ColorUtils
-import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.MTLogK
 import org.mtransit.android.commons.data.POI
 import org.mtransit.android.commons.dpToPx
 import org.mtransit.android.data.POIManager
@@ -321,7 +321,7 @@ class ScheduleFragment :
                 timeChangedReceiverEnabled = true
                 timeChangedListener.onTimeChanged() // force update to current time before next change
             } ?: run {
-                MTLog.w(this, "enableTimeChangedReceiver() > SKIP (no context)")
+                MTLogK.w(this, "enableTimeChangedReceiver() > SKIP (no context)")
             }
         }
     }

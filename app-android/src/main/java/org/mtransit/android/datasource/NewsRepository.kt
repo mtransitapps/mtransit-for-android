@@ -5,7 +5,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.ensureActive
-import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.MTLogK
 import org.mtransit.android.commons.data.News
 import org.mtransit.android.commons.data.POI
 import org.mtransit.android.commons.provider.news.NewsProviderContract
@@ -21,7 +21,7 @@ import kotlin.coroutines.CoroutineContext
 class NewsRepository @Inject constructor(
     val dataSourceRequestManager: DataSourceRequestManager,
     val demoModeManager: DemoModeManager,
-) : MTLog.Loggable {
+) : MTLogK.Loggable {
 
     companion object {
         private val LOG_TAG: String = NewsRepository::class.java.simpleName

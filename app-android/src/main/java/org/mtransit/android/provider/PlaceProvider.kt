@@ -22,7 +22,7 @@ import com.google.android.libraries.places.api.net.SearchByTextRequest
 import org.mtransit.android.R
 import org.mtransit.android.commons.Constants
 import org.mtransit.android.commons.LocaleUtils
-import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.MTLogK
 import org.mtransit.android.commons.SqlUtils
 import org.mtransit.android.commons.SqlUtils.ProjectionMapBuilder
 import org.mtransit.android.commons.StringUtils
@@ -77,7 +77,7 @@ class PlaceProvider : AgencyProvider(), POIProviderContract {
         } else if (POIProviderContract.Filter.isSQLSelection(poiFilter)) {
             return ContentProviderConstants.EMPTY_CURSOR // empty cursor = processed
         } else {
-            MTLog.w(this, "Unexpected POI filter '$poiFilter'!")
+            MTLogK.w(this, "Unexpected POI filter '$poiFilter'!")
             return null
         }
     }
@@ -96,10 +96,10 @@ class PlaceProvider : AgencyProvider(), POIProviderContract {
         try {
             val placesClient = GooglePlacesApiProvider.getPlacesClient(context)
             if (placesClient == null) {
-                MTLog.d(this, "SKIP > Places API client not available.")
+                MTLogK.d(this, "SKIP > Places API client not available.")
                 return null
             }
-            MTLog.i(this, "Loading from Places API...")
+            MTLogK.i(this, "Loading from Places API...")
             val searchByTextResponse = Tasks.await(placesClient.searchByText(searchByTextRequest))
             val newLastUpdateInMs = UITimeUtils.currentTimeMillis()
             val authority = _authority
@@ -122,32 +122,32 @@ class PlaceProvider : AgencyProvider(), POIProviderContract {
                         this.iconBgColor = place.iconBackgroundColor
                     }
                 } catch (e: Exception) {
-                    MTLog.w(this, e, "Error while parsing result '$place'!")
+                    MTLogK.w(this, "Error while parsing result '$place'!", e)
                     null
                 }
             }
-            MTLog.i(this, "Loaded ${places?.size} places.")
+            MTLogK.i(this, "Loaded ${places?.size} places.")
             if (Constants.DEBUG) {
                 places?.forEach { place ->
-                    MTLog.d(this, "- place: $place")
+                    MTLogK.d(this, "- place: $place")
                 }
             }
             return convertTextSearchResults(places)
         } catch (sslhe: SSLHandshakeException) {
-            MTLog.w(this, sslhe, "SSL error!")
+            MTLogK.w(this, "SSL error!", sslhe)
             return null
         } catch (uhe: UnknownHostException) {
-            if (MTLog.isLoggable(Log.DEBUG)) {
-                MTLog.w(this, uhe, "No Internet Connection!")
+            if (MTLogK.isLoggable(Log.DEBUG)) {
+                MTLogK.w(this, "No Internet Connection!", uhe)
             } else {
-                MTLog.w(this, "No Internet Connection!")
+                MTLogK.w(this, "No Internet Connection!")
             }
             return null
         } catch (se: SocketException) {
-            MTLog.w(LOG_TAG, se, "No Internet Connection!")
+            MTLogK.w(LOG_TAG, "No Internet Connection!", se)
             return null
         } catch (e: Exception) {
-            MTLog.e(LOG_TAG, e, "INTERNAL ERROR: Unknown Exception")
+            MTLogK.e(LOG_TAG, "INTERNAL ERROR: Unknown Exception", e)
             return null
         }
     }
@@ -229,7 +229,7 @@ class PlaceProvider : AgencyProvider(), POIProviderContract {
             }
             throw IllegalArgumentException("Unknown URI (query): '$uri'")
         } catch (e: Exception) {
-            MTLog.w(this, e, "Error while resolving query '$uri'!")
+            MTLogK.w(this, "Error while resolving query '$uri'!", e)
             return null
         }
     }
@@ -251,17 +251,17 @@ class PlaceProvider : AgencyProvider(), POIProviderContract {
     }
 
     override fun updateMT(uri: Uri, values: ContentValues?, selection: String?, selectionArgs: Array<String?>?): Int {
-        MTLog.w(this, "The update method is not available.")
+        MTLogK.w(this, "The update method is not available.")
         return 0
     }
 
     override fun insertMT(uri: Uri, values: ContentValues?): Uri? {
-        MTLog.w(this, "The insert method is not available.")
+        MTLogK.w(this, "The insert method is not available.")
         return null
     }
 
     override fun deleteMT(uri: Uri, selection: String?, selectionArgs: Array<String?>?): Int {
-        MTLog.w(this, "The delete method is not available.")
+        MTLogK.w(this, "The delete method is not available.")
         return 0
     }
 
@@ -295,7 +295,7 @@ class PlaceProvider : AgencyProvider(), POIProviderContract {
                         currentDbHelper
                     }
                 } catch (e: Exception) { // fail if locked, will try again later
-                    MTLog.w(this, e, "Can't check DB version!")
+                    MTLogK.w(this, "Can't check DB version!", e)
                     currentDbHelper
                 }
             }
@@ -453,7 +453,7 @@ class PlaceProvider : AgencyProvider(), POIProviderContract {
                     keyword
                 }
                 .takeIf { keywordMaxLength >= 3 } ?: return null
-            MTLog.d(this, "getTextSearchRequest() > textQuery: '$textQuery'")
+            MTLogK.d(this, "getTextSearchRequest() > textQuery: '$textQuery'")
             return SearchByTextRequest.builder(textQuery, GOOGLE_PLACE_TEXT_SEARCH_FIELDS)
                 // .setMaxResultCount(1) // max 20 // cost is per / request
                 .apply {

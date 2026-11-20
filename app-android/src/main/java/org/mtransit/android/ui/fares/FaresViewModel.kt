@@ -5,7 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.map
 import dagger.hilt.android.lifecycle.HiltViewModel
-import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.MTLogK
 import org.mtransit.android.data.AgencyProperties
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.datasource.DataSourcesRepository
@@ -16,7 +16,7 @@ import javax.inject.Inject
 class FaresViewModel @Inject constructor(
     dataSourcesRepository: DataSourcesRepository,
     userPrefManager: UserPrefManager,
-) : ViewModel(), MTLog.Loggable {
+) : ViewModel(), MTLogK.Loggable {
 
     companion object {
         private val LOG_TAG: String = FaresViewModel::class.java.simpleName

@@ -24,7 +24,7 @@ package org.mtransit.android.ui.poi
 // import org.mtransit.android.ad.IAdManager.RewardedAdListener
 // import org.mtransit.android.commons.Constants
 // import org.mtransit.android.commons.LocationUtils
-// import org.mtransit.android.commons.MTLog
+// import org.mtransit.android.commons.MTLogK
 // import org.mtransit.android.commons.StoreUtils
 // import org.mtransit.android.commons.ThreadSafeDateFormatter
 // import org.mtransit.android.commons.data.News
@@ -373,11 +373,11 @@ package org.mtransit.android.ui.poi
 // // }
 // }
 // viewModel.uuid.observe(viewLifecycleOwner, {
-// MTLog.v(this, "onChanged($it) - uuid")
+// MTLogK.v(this, "onChanged($it) - uuid")
 // theLogTag = it?.let { "${LOG_TAG}-${it.substringAfter(PKG_COMMON)}" } ?: LOG_TAG
 // })
 // viewModel.agency.observe(viewLifecycleOwner, {
-// MTLog.v(this, "onChanged($it) - agency")
+// MTLogK.v(this, "onChanged($it) - agency")
 // it?.let {
 // val context = view.context
 // // viewModel.poimV?.let { poim ->
@@ -391,7 +391,7 @@ package org.mtransit.android.ui.poi
 // refreshAppUpdateLayout(agency = it)
 // })
 // viewModel.poiTypeAndStatus.observe(viewLifecycleOwner, {
-// MTLog.v(this, "onChanged($it) - poiTypeAndStatus")
+// MTLogK.v(this, "onChanged($it) - poiTypeAndStatus")
 // // val context = view.context
 // // val poim = viewModel.poimV
 // updatePOIView(poiTypeAndStatus = it)
@@ -405,13 +405,13 @@ package org.mtransit.android.ui.poi
 // // POIViewController.updateView(context, getPOIView(it), poim, this)
 // })
 // viewModel.poi.observe(viewLifecycleOwner, {
-// MTLog.v(this, "onChanged($it) - poi")
+// MTLogK.v(this, "onChanged($it) - poi")
 // updatePOIView(poiN = it)
 // updateStatusDetailView(poi = it)
 // updateFavMenuItem(poi = it)
 // })
 // viewModel.poiColor.observe(viewLifecycleOwner, {
-// MTLog.v(this, "onChanged($it) - poiColor")
+// MTLogK.v(this, "onChanged($it) - poiColor")
 // // viewModel.poiTypeAndStatus.value?.let { (poiType, poiStatusType) ->
 // // POIViewController.updatePOIColorView(getPOIView(), poiType, poiStatusType, it, this)
 // // }
@@ -419,15 +419,15 @@ package org.mtransit.android.ui.poi
 // updateStatusDetailColorView(poiColor = it)
 // })
 // viewModel.poiDistanceTrigger.observe(viewLifecycleOwner, {
-// MTLog.v(this, "onChanged($it) - poiDistanceTrigger")
+// MTLogK.v(this, "onChanged($it) - poiDistanceTrigger")
 // // DO NOTHING
 // })
 // viewModel.poiDistanceAndString.observe(viewLifecycleOwner, {
-// MTLog.v(this, "onChanged($it) - poiDistanceAndString")
+// MTLogK.v(this, "onChanged($it) - poiDistanceAndString")
 // updatePOIDistanceAndCompass(poiDistanceAndString = it)
 // })
 // viewModel.poiStatus.observe(viewLifecycleOwner, {
-// MTLog.v(this, "onChanged($it) - poiStatus")
+// MTLogK.v(this, "onChanged($it) - poiStatus")
 // updatePOIStatusView(poiStatusN = it)
 // updateStatusDetailView(poiStatus = it)
 // })
@@ -436,13 +436,13 @@ package org.mtransit.android.ui.poi
 // updateServiceUpdateView(poiServiceUpdates = it)
 // })
 // viewModel.poimTrigger.observe(viewLifecycleOwner, {
-// MTLog.v(this, "onChanged($it) - poimTrigger")
+// MTLogK.v(this, "onChanged($it) - poimTrigger")
 // // DO NOTHING
 // })
 // // TODO
 // @Suppress("DEPRECATION") // FIXME
 // viewModel.poim.observe(viewLifecycleOwner, {
-// MTLog.v(this, "onChanged($it) - poim")
+// MTLogK.v(this, "onChanged($it) - poim")
 // it?.let {
 // // TODO test all , it's a mess  ... try to fix it POIManager is hard to work with? can we use it in MVVM ?
 // // TODO kind of starting to work but not working very well ... POIM + MVVM = !
@@ -482,7 +482,7 @@ package org.mtransit.android.ui.poi
 // setupRDSFullScheduleBtn(scheduleProviders = it)
 // })
 // viewModel.poiFavorite.observe(viewLifecycleOwner, {
-// MTLog.v(this, "onChanged($it) - poiFavorite")
+// MTLogK.v(this, "onChanged($it) - poiFavorite")
 // it?.let {
 // // val poim = viewModel.poimV
 // updateFavMenuItem(poiFavorite = it)
@@ -492,13 +492,13 @@ package org.mtransit.android.ui.poi
 // }
 // })
 // viewModel.dataSourceRemovedEvent.observe(viewLifecycleOwner, EventObserver { removed ->
-// MTLog.v(this, "onChanged($removed) - dataSourceRemovedEvent")
+// MTLogK.v(this, "onChanged($removed) - dataSourceRemovedEvent")
 // if (removed) {
 // (activity as MainActivity?)?.popFragmentFromStack(this) // close this fragment
 // }
 // })
 // viewModel.deviceLocation.observe(viewLifecycleOwner, {
-// MTLog.v(this, "onChanged($it) - deviceLocation")
+// MTLogK.v(this, "onChanged($it) - deviceLocation")
 // context?.let { context ->
 // mapViewController.setLocationPermissionGranted(locationPermissionProvider.permissionsGranted())
 // }
@@ -522,7 +522,7 @@ package org.mtransit.android.ui.poi
 // })
 // if (!Constants.FORCE_NEARBY_POI_LIST_OFF) {
 // viewModel.nearbyPOIs.observe(viewLifecycleOwner, {
-// MTLog.v(this, "onChanged(${it?.size}) - nearbyPOIs")
+// MTLogK.v(this, "onChanged(${it?.size}) - nearbyPOIs")
 // it?.let { nearbyPOIs ->
 // adapter.apply {
 // setPois(nearbyPOIs)
@@ -548,7 +548,7 @@ package org.mtransit.android.ui.poi
 // })
 // }
 // viewModel.rewardedAdStatus.observe(viewLifecycleOwner, {
-// MTLog.v(this, "onChanged($it) - rewardedAdStatus")
+// MTLogK.v(this, "onChanged($it) - rewardedAdStatus")
 // refreshRewardedLayout(status = it)
 // })
 // // viewModel.rewardedAdAmount.observe(viewLifecycleOwner, {
@@ -558,7 +558,7 @@ package org.mtransit.android.ui.poi
 // // refreshRewardedLayout(rewardedNowUntilInMs = it)
 // // })
 // viewModel.latestNewsArticleList.observe(viewLifecycleOwner, {
-// MTLog.v(this, "onChanged($it) - rewardedAdStatus")
+// MTLogK.v(this, "onChanged($it) - rewardedAdStatus")
 // updateNewsView(news = it)
 // })
 // }
@@ -634,7 +634,7 @@ package org.mtransit.android.ui.poi
 // poi: POI? = viewModel.poi.value,
 // statusDetailView: View? = getPOIStatusView(poiTypeAndStatus),
 // ) {
-// MTLog.v(this, "updateStatusDetailView($statusDetailView, $poiStatus)")
+// MTLogK.v(this, "updateStatusDetailView($statusDetailView, $poiStatus)")
 // poiTypeAndStatus?.let { (_, poiStatusType) ->
 // // TO DO:
 // // - updateView = init view holder + updateView
@@ -651,7 +651,7 @@ package org.mtransit.android.ui.poi
 // poiColor: Int? = viewModel.poiColor.value,
 // statusDetailView: View? = getPOIStatusView(poiTypeAndStatus),
 // ) {
-// MTLog.v(this, "updateStatusDetailColorView($statusDetailView, $poiColor)")
+// MTLogK.v(this, "updateStatusDetailColorView($statusDetailView, $poiColor)")
 // poiTypeAndStatus?.let { (_, statusType) ->
 // POIStatusDetailViewController.updateColorView(statusDetailView, statusType, poiColor, this)
 // }
@@ -777,7 +777,7 @@ package org.mtransit.android.ui.poi
 // }
 //
 // override fun onStatusLoaded(status: POIStatus) {
-// MTLog.v(this, "onStatusLoaded($status)")
+// MTLogK.v(this, "onStatusLoaded($status)")
 // // TO DO this status needs to be added to view model POI Manager
 // //
 // // context?.let { context ->
@@ -790,7 +790,7 @@ package org.mtransit.android.ui.poi
 // }
 //
 // override fun onServiceUpdatesLoaded(targetUUID: String, serviceUpdates: ServiceUpdates) {
-// MTLog.v(this, "onServiceUpdatesLoaded($targetUUID, $serviceUpdates)")
+// MTLogK.v(this, "onServiceUpdatesLoaded($targetUUID, $serviceUpdates)")
 // // T ODO this serviceUpdates needs to be added to view model POI Manager
 // //
 // // context?.let { context ->
@@ -808,7 +808,7 @@ package org.mtransit.android.ui.poi
 // private var nowToTheMinute = -1L
 //
 // override fun getNowToTheMinute(): Long {
-// MTLog.v(this, "getNowToTheMinute()")
+// MTLogK.v(this, "getNowToTheMinute()")
 // if (this.nowToTheMinute < 0L) {
 // resetNowToTheMinute()
 // enableTimeChangedReceiver()
@@ -823,7 +823,7 @@ package org.mtransit.android.ui.poi
 // private var timeChangedReceiverEnabled = false
 //
 // private fun enableTimeChangedReceiver() {
-// MTLog.v(this, "enableTimeChangedReceiver()")
+// MTLogK.v(this, "enableTimeChangedReceiver()")
 // if (!timeChangedReceiverEnabled) {
 // timeChangedReceiverEnabled = true
 // context?.registerReceiverCompat(timeChangedReceiver, UITimeUtils.TIME_CHANGED_INTENT_FILTER, RECEIVER_NOT_EXPORTED)
@@ -831,7 +831,7 @@ package org.mtransit.android.ui.poi
 // }
 //
 // private fun disableTimeChangedReceiver() {
-// MTLog.v(this, "disableTimeChangedReceiver()")
+// MTLogK.v(this, "disableTimeChangedReceiver()")
 // if (timeChangedReceiverEnabled) {
 // context?.unregisterReceiver(timeChangedReceiver)
 // timeChangedReceiverEnabled = false
@@ -843,8 +843,8 @@ package org.mtransit.android.ui.poi
 //
 // private fun resetNowToTheMinute() {
 // // TO DO actually needs to call POIM .getStatus/ServiceUpdate to trigger data refresh!!!
-// MTLog.v(this, "resetNowToTheMinute()")
-// MTLog.i(this, "Refreshing UI data...")
+// MTLogK.v(this, "resetNowToTheMinute()")
+// MTLogK.i(this, "Refreshing UI data...")
 // nowToTheMinute = UITimeUtils.currentTimeToTheMinuteMillis()
 // // val view = view
 // // val poim: POIManager = getPoimOrNull()
@@ -918,14 +918,14 @@ package org.mtransit.android.ui.poi
 // poi: POI? = viewModel.poi.value,
 // poiFavorite: Boolean? = viewModel.poiFavorite.value,
 // ) {
-// MTLog.v(this, "updateFavMenuItem($poi, $poiFavorite)")
+// MTLogK.v(this, "updateFavMenuItem($poi, $poiFavorite)")
 // this.addRemoveFavoriteMenuItem?.let { addRemoveFavoriteMenuItem ->
 // // val isFav = poim?.let { poim -> viewModel.isFavorite(poim) } ?: false
 // addRemoveFavoriteMenuItem.apply {
 // val isFav = poiFavorite ?: false
-// MTLog.d(this@POIFragment, "updateFavMenuItem() > isFav: $isFav")
+// MTLogK.d(this@POIFragment, "updateFavMenuItem() > isFav: $isFav")
 // val isFavoritable = poi?.let { POIManager.isFavoritable(it) }
-// MTLog.d(this@POIFragment, "updateFavMenuItem() > isFavoritable: $isFavoritable")
+// MTLogK.d(this@POIFragment, "updateFavMenuItem() > isFavoritable: $isFavoritable")
 // setIcon(if (isFav) R.drawable.ic_star_black_24dp else R.drawable.ic_star_border_black_24dp)
 // setTitle(
 // if (isFav) {

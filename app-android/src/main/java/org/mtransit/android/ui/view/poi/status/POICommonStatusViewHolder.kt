@@ -6,7 +6,7 @@ import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
 import androidx.viewbinding.ViewBinding
 import org.mtransit.android.R
-import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.MTLogK
 import org.mtransit.android.commons.data.POI
 import org.mtransit.android.commons.data.POIStatus
 import org.mtransit.android.commons.data.ServiceUpdates
@@ -86,7 +86,7 @@ interface POICommonStatusViewHolder<VB : ViewBinding?, STATUS : POIStatus?> {
                 POI.ITEM_STATUS_TYPE_SCHEDULE -> POIScheduleViewHolder.fromStatusView(statusView, poi.uuid)
                 POI.ITEM_STATUS_TYPE_APP -> POIAppStatusViewHolder.fromStatusView(statusView, poi.uuid)
                 else -> {
-                    MTLog.w(LOG_TAG, "Unexpected status '%s' (no view holder)!", poi.statusType)
+                    MTLogK.w(LOG_TAG, "Unexpected status '${poi.statusType}' (no view holder)!")
                     null
                 }
             }

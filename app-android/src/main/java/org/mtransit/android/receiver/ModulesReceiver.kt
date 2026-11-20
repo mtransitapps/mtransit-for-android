@@ -10,7 +10,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
-import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.MTLogK
 import org.mtransit.android.commons.PackageManagerUtils
 import org.mtransit.android.datasource.DataSourceRequestManager
 import org.mtransit.android.datasource.DataSourcesRepository
@@ -21,7 +21,7 @@ import org.mtransit.android.commons.R as commonsR
 @AndroidEntryPoint
 class ModulesReceiver :
     BroadcastReceiver(),
-    MTLog.Loggable {
+    MTLogK.Loggable {
 
     companion object {
         private val LOG_TAG: String = ModulesReceiver::class.java.getSimpleName()
@@ -92,7 +92,7 @@ class ModulesReceiver :
             try {
                 processSupportedAction(appContext, intent, action)
             } catch (e: Exception) {
-                MTLog.w(this, e, "Error while processing receive broadcast!")
+                MTLogK.w(this, "Error while processing receive broadcast!", e)
             } finally {
                 pendingResult.finish()
             }
@@ -105,14 +105,14 @@ class ModulesReceiver :
         val isAProvider = this.dataSourcesRepository.isAProvider(pkg, true)
         if (isAProvider && shouldPing(intent)) {
             if (ping(context, pkg)) { // TODO check if a GTFS provider?
-                MTLog.i(this, "Received broadcast %s for %s.", action, pkg)
+                MTLogK.i(this, "Received broadcast $action for $pkg.")
             }
         }
         val canBeAProvider = isAProvider
             || Intent.ACTION_PACKAGE_FULLY_REMOVED == action
             || Intent.ACTION_PACKAGE_REMOVED == action
         if (!canBeAProvider) {
-            MTLog.d(this, "onReceive() > SKIP (can NOT be a provider: pkg:%s, action:%s)", pkg, action)
+            MTLogK.d(this, "onReceive() > SKIP (can NOT be a provider: pkg:$pkg, action:$action)")
             return
         }
         dataSourcesRepository.updateLock(pkg)
@@ -124,7 +124,7 @@ class ModulesReceiver :
         for (provider in providers) {
             val metaData = provider?.metaData ?: continue
             if (metaData.getString(agencyProviderMetaData) == agencyProviderMetaData) {
-                MTLog.i(this, "Ping: %s", provider.authority)
+                MTLogK.i(this, "Ping: ${provider.authority}")
                 dataSourceRequestManager.ping(provider.authority)
                 return true
             }

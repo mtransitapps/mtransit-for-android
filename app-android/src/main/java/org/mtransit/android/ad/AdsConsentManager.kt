@@ -11,14 +11,14 @@ import com.google.android.ump.UserMessagingPlatform
 import dagger.hilt.android.qualifiers.ApplicationContext
 import org.mtransit.android.R
 import org.mtransit.android.ad.AdConstants.logAdsD
-import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.MTLogK
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class AdsConsentManager @Inject constructor(
     @param:ApplicationContext private val appContext: Context,
-) : MTLog.Loggable {
+) : MTLogK.Loggable {
 
     companion object {
         val LOG_TAG: String = "${AdManager.LOG_TAG}>${AdsConsentManager::class.java.simpleName}"
@@ -76,7 +76,7 @@ class AdsConsentManager @Inject constructor(
                 )
             },
             { requestConsentError -> // FAILURE
-                MTLog.w(this@AdsConsentManager, "Error updating consent information: [${requestConsentError.errorCode}]: ${requestConsentError.message}.")
+                MTLogK.w(this@AdsConsentManager, "Error updating consent information: [${requestConsentError.errorCode}]: ${requestConsentError.message}.")
                 onConsentGatheringComplete(requestConsentError)
             },
         )

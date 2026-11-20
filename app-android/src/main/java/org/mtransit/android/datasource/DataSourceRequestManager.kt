@@ -7,7 +7,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.MTLogK
 import org.mtransit.android.commons.data.Direction
 import org.mtransit.android.commons.data.Route
 import org.mtransit.android.commons.data.Trip
@@ -46,7 +46,8 @@ class DataSourceRequestManager(
     private val dataSourcesInMemoryCache: DataSourcesInMemoryCache,
     private val dataSourcesDatabase: DataSourcesDatabase,
     private val ioDispatcher: CoroutineDispatcher,
-) : MTLog.Loggable {
+    private val providerConfigRepository: ProviderConfigRepository,
+) : MTLogK.Loggable {
 
     @Inject
     constructor(
@@ -54,12 +55,14 @@ class DataSourceRequestManager(
         keysManager: KeysManager,
         dataSourcesInMemoryCache: DataSourcesInMemoryCache,
         dataSourcesDatabase: DataSourcesDatabase,
+        providerConfigRepository: ProviderConfigRepository,
     ) : this(
         appContext,
         keysManager,
         dataSourcesInMemoryCache,
         dataSourcesDatabase,
         Dispatchers.IO,
+        providerConfigRepository,
     )
 
     companion object {
@@ -105,7 +108,7 @@ class DataSourceRequestManager(
             ?.takeIf { it.setupRequired }
             ?: return@withContext
         dataSourcesDatabase.agencyPropertiesDao().updateAgencySetupRequired(authority = agencyAuthority, setupRequired = false)
-        MTLog.d(this@DataSourceRequestManager, "Agency '$agencyAuthority' > new setup required: false.")
+        MTLogK.d(this@DataSourceRequestManager, "Agency '$agencyAuthority' > new setup required: false.")
     }
 
     // end region
@@ -234,10 +237,15 @@ class DataSourceRequestManager(
     // region news
 
     suspend fun findNews(newsProvider: NewsProviderProperties, newsFilter: NewsProviderContract.Filter) = withContext(ioDispatcher) {
+        val providedEncryptKeysMap = toProvidedKeys(keysManager.getKeysMap(newsProvider.authority))
+        if (UIFeatureFlags.F_IMPORT_PROVIDER_CONFIG) {
+            providerConfigRepository.findNews(newsProvider, newsFilter, providedEncryptKeysMap)
+                ?.let { return@withContext it }
+        }
         DataSourceManager.findNews(
             appContext,
             newsProvider.authority,
-            newsFilter.copy(providedEncryptKeysMap = toProvidedKeys(keysManager.getKeysMap(newsProvider.authority))),
+            newsFilter.copy(providedEncryptKeysMap = providedEncryptKeysMap),
         )
     }
 

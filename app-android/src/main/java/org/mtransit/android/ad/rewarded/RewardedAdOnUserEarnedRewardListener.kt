@@ -7,7 +7,7 @@ import com.google.android.libraries.ads.mobile.sdk.rewarded.RewardItem // #gmaNe
 import org.mtransit.android.ad.AdConstants.logAdsD
 import org.mtransit.android.ad.AdManager
 import org.mtransit.android.ad.GlobalAdManager
-import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.MTLogK
 import org.mtransit.android.ui.view.common.IActivity
 import java.lang.ref.WeakReference
 import kotlin.time.Duration.Companion.days
@@ -15,7 +15,7 @@ import kotlin.time.Duration.Companion.days
 class RewardedAdOnUserEarnedRewardListener(
     private val globalAdManager: GlobalAdManager,
     private val activityWR: WeakReference<IActivity>,
-) : OnUserEarnedRewardListener, MTLog.Loggable {
+) : OnUserEarnedRewardListener, MTLogK.Loggable {
 
     constructor(
         globalAdManager: GlobalAdManager,

@@ -12,7 +12,7 @@ import androidx.core.view.updateLayoutParams
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import org.mtransit.android.R
-import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.MTLogK
 import org.mtransit.android.commons.dpToPx
 import org.mtransit.android.data.IAgencyUIProperties
 import org.mtransit.android.data.POIListFooterManager
@@ -34,7 +34,7 @@ class RDSAgencyRoutesAdapter(
     private val footerManager: POIListFooterManager,
     private val onClick: (View, RouteManager) -> Unit,
 ) : ListAdapter<RouteManager, RecyclerView.ViewHolder>(RoutesDiffCallback),
-    MTLog.Loggable {
+    MTLogK.Loggable {
 
     companion object {
         private val LOG_TAG: String = RDSAgencyRoutesAdapter::class.java.simpleName
@@ -56,7 +56,7 @@ class RDSAgencyRoutesAdapter(
     @SuppressLint("NotifyDataSetChanged")
     fun setAgency(agency: IAgencyUIProperties?) {
         if (_agency == agency) {
-            MTLog.d(this, "setAgency() > SKIP (same: $agency)")
+            MTLogK.d(this, "setAgency() > SKIP (same: $agency)")
             return
         }
         theLogTag = agency?.shortName?.let { "${LOG_TAG}-$it" } ?: LOG_TAG
@@ -67,7 +67,7 @@ class RDSAgencyRoutesAdapter(
     @SuppressLint("NotifyDataSetChanged")
     fun setShowingListInsteadOfGrid(showingListInsteadOfGrid: Boolean?) {
         if (_showingListInsteadOfGrid == showingListInsteadOfGrid) {
-            MTLog.d(this, "setShowingListInsteadOfGrid() > SKIP (same: $showingListInsteadOfGrid)")
+            MTLogK.d(this, "setShowingListInsteadOfGrid() > SKIP (same: $showingListInsteadOfGrid)")
             return
         }
         _showingListInsteadOfGrid = showingListInsteadOfGrid
@@ -143,7 +143,7 @@ class RDSAgencyRoutesAdapter(
             onClick: (View, RouteManager) -> Unit
         ) = binding.apply {
             if (routeM?.route == null || agency == null || showingListInsteadOfGrid == null) {
-                MTLog.d(LOG_TAG, "onBindViewHolder() > SKIP (missing data)")
+                MTLogK.d(LOG_TAG, "onBindViewHolder() > SKIP (missing data)")
                 routeLayout.isVisible = false
                 return@apply
             }

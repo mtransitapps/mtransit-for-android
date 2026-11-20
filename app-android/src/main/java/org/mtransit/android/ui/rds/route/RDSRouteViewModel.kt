@@ -14,7 +14,7 @@ import com.google.android.gms.maps.model.LatLng
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import org.mtransit.android.common.repository.LocalPreferenceRepository
-import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.MTLogK
 import org.mtransit.android.commons.data.Direction
 import org.mtransit.android.commons.data.Route
 import org.mtransit.android.commons.pref.liveData
@@ -120,14 +120,14 @@ class RDSRouteViewModel @Inject constructor(
         routeId ?: return null
         if (agency == null) {
             if (route.value != null) {
-                MTLog.d(this, "getRoute() > data source removed (no more agency)")
+                MTLogK.d(this, "getRoute() > data source removed (no more agency)")
                 dataSourceRemovedEvent.postValue(Event(true))
             }
             return null
         }
         val newRoute = dataSourceRequestManager.findRDSRoute(agency.authority, routeId)
         if (newRoute == null) {
-            MTLog.d(this, "getRoute() > data source updated (no more route)")
+            MTLogK.d(this, "getRoute() > data source updated (no more route)")
             dataSourceRemovedEvent.postValue(Event(true))
         }
         return newRoute

@@ -2,11 +2,11 @@ package org.mtransit.android.ui.view.map
 
 import androidx.collection.ArrayMap
 import androidx.collection.SimpleArrayMap
-import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.MTLogK
 
 data class MTPOIMarkerIds(
     private val uuidsAndAuthority: ArrayMap<String, String> = ArrayMap()
-) : MTLog.Loggable {
+) : MTLogK.Loggable {
 
     companion object {
         private val LOG_TAG: String = MTPOIMarkerIds::class.java.simpleName
@@ -33,7 +33,7 @@ data class MTPOIMarkerIds(
             this.uuidsAndAuthority[uuid] = authority
         } catch (e: Exception) {
             @Suppress("DEPRECATION") // FIXME
-            org.mtransit.android.util.CrashUtils.w(this, e, "Error while adding POI marker ID %s:%s", uuid, authority)
+            org.mtransit.android.util.CrashUtils.w(this, e, "Error while adding POI marker ID $uuid:$authority!")
         }
     }
 

@@ -5,11 +5,11 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import org.mtransit.android.commons.LocationUtils
-import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.MTLogK
 import org.mtransit.android.commons.location.toStringSimple
 import android.location.Location as AndroidLocation
 
-abstract class MTViewModelWithLocation : ViewModel(), MTLog.Loggable {
+abstract class MTViewModelWithLocation : ViewModel(), MTLogK.Loggable {
 
     private val _locationSettingsResolution = MutableLiveData<PendingIntent?>()
 
@@ -25,14 +25,14 @@ abstract class MTViewModelWithLocation : ViewModel(), MTLog.Loggable {
 
     fun onDeviceLocationChanged(newDeviceLocation: AndroidLocation?, force: Boolean = false) {
         if (force) {
-            MTLog.d(this, "onDeviceLocationChanged() > save new forced location '${newDeviceLocation?.toStringSimple()}'.")
+            MTLogK.d(this, "onDeviceLocationChanged() > save new forced location '${newDeviceLocation?.toStringSimple()}'.")
             _deviceLocation.value = newDeviceLocation
             return
         }
         newDeviceLocation?.let {
             val currentDeviceLocation = _deviceLocation.value
-            if (currentDeviceLocation == null || LocationUtils.isMoreRelevant(logTag, currentDeviceLocation, it)) {
-                MTLog.d(this, "onDeviceLocationChanged() > save new more relevant location '${newDeviceLocation.toStringSimple()}'.")
+            if (currentDeviceLocation == null || LocationUtils.isMoreRelevant(getLogTag(), currentDeviceLocation, it)) {
+                MTLogK.d(this, "onDeviceLocationChanged() > save new more relevant location '${newDeviceLocation.toStringSimple()}'.")
                 _deviceLocation.value = it
             }
         }

@@ -15,12 +15,12 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
-import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.MTLogK
 import org.mtransit.android.databinding.FragmentModulesBinding
 import org.mtransit.android.ui.view.common.isVisible
 
 @AndroidEntryPoint
-class ModulesFragment : Fragment(R.layout.fragment_modules), MTLog.Loggable, MenuProvider {
+class ModulesFragment : Fragment(R.layout.fragment_modules), MTLogK.Loggable, MenuProvider {
 
     companion object {
         private val LOG_TAG: String = ModulesFragment::class.java.simpleName

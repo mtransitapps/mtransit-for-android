@@ -9,7 +9,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
-import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.MTLogK
 import java.io.IOException
 import java.util.Locale
 import javax.inject.Inject
@@ -23,7 +23,7 @@ class GeocoderManager(
     private val makeGeocoder: (Locale) -> AndroidGeocoder,
     private val getCurrentLocale: () -> Locale = { Locale.getDefault() },
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
-) : MTLog.Loggable {
+) : MTLogK.Loggable {
 
     @Inject
     constructor(
@@ -131,17 +131,17 @@ suspend fun AndroidLocation.toAddressOrNull(geocoderManager: GeocoderManager): A
     return try {
         geocoderManager.getAddressesFromLocation(this.latitude, this.longitude, maxResults = 1).firstOrNull()
     } catch (iea: IllegalArgumentException) {
-        if (MTLog.isLoggable(android.util.Log.DEBUG)) {
-            MTLog.w(GeocoderManager, iea, "getLocationAddress() > Can't find the address of location $latitude, $longitude !")
+        if (MTLogK.isLoggable(android.util.Log.DEBUG)) {
+            MTLogK.w(GeocoderManager, "getLocationAddress() > Can't find the address of location $latitude, $longitude !", iea)
         } else {
-            MTLog.w(GeocoderManager, "getLocationAddress() > Can't find the address of location $latitude, $longitude !")
+            MTLogK.w(GeocoderManager, "getLocationAddress() > Can't find the address of location $latitude, $longitude !")
         }
         null
     } catch (ioe: IOException) {
-        if (MTLog.isLoggable(android.util.Log.DEBUG)) {
-            MTLog.w(GeocoderManager, ioe, "getLocationAddress() > Can't find the address of location $latitude, $longitude !")
+        if (MTLogK.isLoggable(android.util.Log.DEBUG)) {
+            MTLogK.w(GeocoderManager, "getLocationAddress() > Can't find the address of location $latitude, $longitude !", ioe)
         } else {
-            MTLog.w(GeocoderManager, "getLocationAddress() > Can't find the address of location $latitude, $longitude !")
+            MTLogK.w(GeocoderManager, "getLocationAddress() > Can't find the address of location $latitude, $longitude !")
         }
         null
     }

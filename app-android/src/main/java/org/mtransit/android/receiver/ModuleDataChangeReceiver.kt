@@ -8,7 +8,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
-import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.MTLogK
 import org.mtransit.android.commons.receiver.DataChange
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.dev.CrashReporter
@@ -24,7 +24,7 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class ModuleDataChangeReceiver :
     BroadcastReceiver(),
-    MTLog.Loggable {
+    MTLogK.Loggable {
 
     companion object {
         private val LOG_TAG: String = ModuleDataChangeReceiver::class.java.getSimpleName()
@@ -49,7 +49,7 @@ class ModuleDataChangeReceiver :
             this.crashReporter.w(this, "Modules data change broadcast receiver with unexpected action '${intent?.action}' ignored!")
             return
         }
-        MTLog.i(this, "Broadcast received: %s", action)
+        MTLogK.i(this, "Broadcast received: $action")
         val extras = intent.extras
         val pkg = extras?.getString(DataChange.PKG)
             .takeIf { extras?.getBoolean(DataChange.FORCE, false) == true }
@@ -58,7 +58,7 @@ class ModuleDataChangeReceiver :
             try {
                 dataSourcesRepository.updateLock(pkg)
             } catch (e: Exception) {
-                MTLog.w(this, e, "Error while updating data-sources from repository!")
+                MTLogK.w(this@ModuleDataChangeReceiver, "Error while updating data-sources from repository!", e)
             } finally {
                 pendingResult.finish()
             }

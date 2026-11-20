@@ -5,7 +5,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.MTLogK
 import org.mtransit.android.data.NewsImage
 import org.mtransit.android.databinding.LayoutNewsImageItemBinding
 import org.mtransit.android.ui.view.common.ImageManager
@@ -15,7 +15,7 @@ class NewsImagesAdapter(
     private val imageManager: ImageManager,
     private val onClick: (View, NewsImage) -> Unit,
     private val horizontal: Boolean = false,
-) : ListAdapter<NewsImage, NewsImagesAdapter.NewsImageItemViewHolder>(NewsImageDiffCallback), MTLog.Loggable {
+) : ListAdapter<NewsImage, NewsImagesAdapter.NewsImageItemViewHolder>(NewsImageDiffCallback), MTLogK.Loggable {
 
     companion object {
         private val LOG_TAG: String = NewsImagesAdapter::class.java.simpleName

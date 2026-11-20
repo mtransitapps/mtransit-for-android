@@ -14,7 +14,7 @@ import kotlinx.coroutines.Dispatchers
 import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.commons.ColorUtils
-import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.MTLogK
 import org.mtransit.android.commons.data.News
 import org.mtransit.android.commons.isAppEnabled
 import org.mtransit.android.data.AUTHORITY_INVALID
@@ -42,7 +42,7 @@ class NewsListViewModel @Inject constructor(
     pm: PackageManager,
 ) : ViewModel(),
     ModuleDisabledAwareViewModel,
-    MTLog.Loggable {
+    MTLogK.Loggable {
 
     companion object {
         private val LOG_TAG: String = NewsListViewModel::class.java.simpleName
@@ -102,7 +102,7 @@ class NewsListViewModel @Inject constructor(
     val lastReadArticleAuthorityAndUUID: LiveData<AuthorityAndUuid?> = _lastReadArticleAuthorityAndUUID.distinctUntilChanged()
 
     fun onRefreshRequested() {
-        MTLog.d(this, "onRefreshRequested() > trigger refresh")
+        MTLogK.d(this, "onRefreshRequested() > trigger refresh")
         _refreshRequestedTrigger.value = (_refreshRequestedTrigger.value ?: 0) + 1
     }
 

@@ -15,9 +15,9 @@ import org.mtransit.android.analytics.AnalyticsEvents
 import org.mtransit.android.analytics.AnalyticsEventsParamsProvider
 import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.commons.Constants
-import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.MTLogK
 
-object AppRatingsUIManager : MTLog.Loggable {
+object AppRatingsUIManager : MTLogK.Loggable {
 
     private val LOG_TAG: String = AppRatingsUIManager::class.java.simpleName
 
@@ -29,7 +29,7 @@ object AppRatingsUIManager : MTLog.Loggable {
 
     @JvmStatic
     fun showAppRatingsUI(activity: Activity, analyticsManager: IAnalyticsManager, onAppRatingDisplayed: (Boolean) -> (Unit)) {
-        MTLog.v(this, "showAppRatingsUI()")
+        MTLogK.v(this, "showAppRatingsUI()")
         if (Constants.DEBUG && BuildConfig.DEBUG) {
             showFakeUI(activity, onAppRatingDisplayed)
             return
@@ -87,7 +87,7 @@ object AppRatingsUIManager : MTLog.Loggable {
                 // There was some problem, log or handle the error code.
                 @ReviewErrorCode val reviewErrorCode = (task.exception as? ReviewException)?.errorCode
                     ?: -1 // Huawei crash (RemoteException)
-                MTLog.w(this, task.exception, "Error while requesting review flow (code: $reviewErrorCode)")
+                MTLogK.w(this, "Error while requesting review flow (code: $reviewErrorCode)", task.exception)
                 analyticsManager.logEvent(
                     AnalyticsEvents.APP_RATINGS_REQUEST_PLAY_ERROR,
                     AnalyticsEventsParamsProvider().apply {

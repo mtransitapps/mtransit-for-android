@@ -4,12 +4,12 @@ import android.annotation.SuppressLint
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.gms.maps.model.CameraPosition
-import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.MTLogK
 import org.mtransit.android.data.IAgencyUIProperties
 import org.mtransit.android.ui.type.poi.AgencyPOIsFragment
 import org.mtransit.android.ui.type.rds.RDSAgencyRoutesFragment
 
-class AgencyTypePagerAdapter(f: Fragment) : FragmentStateAdapter(f), MTLog.Loggable {
+class AgencyTypePagerAdapter(f: Fragment) : FragmentStateAdapter(f), MTLogK.Loggable {
 
     companion object {
         private val LOG_TAG: String = AgencyTypePagerAdapter::class.java.simpleName

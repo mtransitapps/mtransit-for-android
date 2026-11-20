@@ -23,7 +23,7 @@ package org.mtransit.android.ui.poi
 // import org.mtransit.android.analytics.IAnalyticsManager
 // import org.mtransit.android.commons.Constants
 // import org.mtransit.android.commons.LocationUtils
-// import org.mtransit.android.commons.MTLog
+// import org.mtransit.android.commons.MTLogK
 // import org.mtransit.android.commons.data.News
 // import org.mtransit.android.commons.data.POI
 // import org.mtransit.android.commons.data.POIStatus
@@ -143,7 +143,7 @@ package org.mtransit.android.ui.poi
 // }.distinctUntilChanged()
 //
 // fun onStatusLoaded(status: POIStatus) {
-// MTLog.v(this, "onStatusLoaded($status)")
+// MTLogK.v(this, "onStatusLoaded($status)")
 // val poim = this._poimMutable.value
 // poim?.setStatus(status)
 // this._poimMutable.value = poim
@@ -190,12 +190,12 @@ package org.mtransit.android.ui.poi
 //
 // private fun getPOIManager(agency: AgencyProperties?, uuid: String?): POIManager? {
 // if (uuid.isNullOrEmpty()) {
-// MTLog.d(this, "getPOI() > SKIP (no uuid)")
+// MTLogK.d(this, "getPOI() > SKIP (no uuid)")
 // return null
 // }
 // if (agency == null) {
 // if (_poim.value != null) {
-// MTLog.d(this, "getPOI() > data source removed (no more agency)")
+// MTLogK.d(this, "getPOI() > data source removed (no more agency)")
 // dataSourceRemovedEvent.postValue(Event(true))
 // }
 // return null
@@ -208,7 +208,7 @@ package org.mtransit.android.ui.poi
 // // updatePOIDistanceWithString(poim = this)
 // locationProvider.updateDistanceWithString(this, deviceLocation.value)
 // } ?: run {
-// MTLog.d(this, "getPOI() > SKIP (data source removed!)")
+// MTLogK.d(this, "getPOI() > SKIP (data source removed!)")
 // dataSourceRemovedEvent.postValue(Event(true))
 // null
 // }
@@ -283,11 +283,11 @@ package org.mtransit.android.ui.poi
 //
 // fun onRewardedAdClick(activity: IActivity): Boolean? {
 // if (activity.activity == null) {
-// MTLog.w(this, "onRewardedAdClick() > skip (no view or no activity)")
+// MTLogK.w(this, "onRewardedAdClick() > skip (no view or no activity)")
 // return false // hide
 // }
 // if (!this.adManager.isRewardedAdAvailableToShow) {
-// MTLog.w(this, "onRewardedAdClick() > skip (no ad available)")
+// MTLogK.w(this, "onRewardedAdClick() > skip (no ad available)")
 // return false // hide
 // }
 // val adShowTriggered = this.adManager.showRewardedAd(activity)
@@ -320,7 +320,7 @@ package org.mtransit.android.ui.poi
 // //
 // @WorkerThread
 // fun isFavorite(uuid: String): Boolean {
-// MTLog.v(this, "isFavorite($uuid)")
+// MTLogK.v(this, "isFavorite($uuid)")
 // val poiUUID = this.uuid.value
 // if (poiUUID == uuid) {
 // poiFavorite.value?.let {
@@ -386,7 +386,7 @@ package org.mtransit.android.ui.poi
 // }
 //
 // private fun getLatestNewsArticles(poi: POI?): List<News>? {
-// MTLog.v(this, "getLatestNewsArticles($poi)")
+// MTLogK.v(this, "getLatestNewsArticles($poi)")
 // if (poi == null) {
 // return null
 // }
@@ -439,7 +439,7 @@ package org.mtransit.android.ui.poi
 // lng: Double? = poi.value?.lng,
 // excludedUUID: String? = poi.value?.uuid
 // ): List<POIManager>? {
-// MTLog.v(this, "getNearbyPOIs()")
+// MTLogK.v(this, "getNearbyPOIs()")
 // if (Constants.FORCE_NEARBY_POI_LIST_OFF) {
 // return null
 // }

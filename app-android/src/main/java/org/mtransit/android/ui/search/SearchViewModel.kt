@@ -16,7 +16,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.ComparatorUtils
-import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.MTLogK
 import org.mtransit.android.commons.StringUtils
 import org.mtransit.android.commons.pref.liveData
 import org.mtransit.android.commons.provider.GTFSProviderContract
@@ -41,7 +41,7 @@ class SearchViewModel @Inject constructor(
     private val poiRepository: POIRepository,
     private val favoriteRepository: FavoriteRepository,
     private val lclPrefRepository: LocalPreferenceRepository
-) : MTViewModelWithLocation(), MTLog.Loggable {
+) : MTViewModelWithLocation(), MTLogK.Loggable {
 
     companion object {
         private val LOG_TAG: String = SearchViewModel::class.java.simpleName
@@ -101,7 +101,7 @@ class SearchViewModel @Inject constructor(
         }
         val newQuery: String = queryOrNull.orEmpty()
         if (newQuery.trim() == this.query.value) {
-            MTLog.d(this, "onNewQuery() > SKIP same value '$newQuery'.")
+            MTLogK.d(this, "onNewQuery() > SKIP same value '$newQuery'.")
             return
         }
         searchJob?.cancel()

@@ -11,7 +11,7 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
 import org.mtransit.android.commons.LocationUtils
-import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.MTLogK
 import org.mtransit.android.commons.data.set
 import org.mtransit.android.commons.provider.GTFSProviderContract
 import org.mtransit.android.commons.provider.poi.POIProviderContract
@@ -32,7 +32,7 @@ import android.location.Location as AndroidLocation
 class POIRepository(
     private val dataSourceRequestManager: DataSourceRequestManager,
     private val ioDispatcher: CoroutineDispatcher,
-) : MTLog.Loggable {
+) : MTLogK.Loggable {
 
     @Inject
     constructor(
@@ -69,16 +69,16 @@ class POIRepository(
         onDataSourceRemoved: () -> Unit
     ) = liveData {
         if (agency == null && currentValue != null) {
-            MTLog.d(this@POIRepository, "readingPOIM() > SKIP (agency removed)")
+            MTLogK.d(this@POIRepository, "readingPOIM() > SKIP (agency removed)")
             onDataSourceRemoved() // agency removed
             return@liveData // SKIP
         }
         val agency = agency ?: run {
-            MTLog.d(this@POIRepository, "readingPOIM() > SKIP (no agency)")
+            MTLogK.d(this@POIRepository, "readingPOIM() > SKIP (no agency)")
             return@liveData // SKIP
         }
         val uuid = uuid ?: run {
-            MTLog.d(this@POIRepository, "readingPOIM() > SKIP (no UUID)")
+            MTLogK.d(this@POIRepository, "readingPOIM() > SKIP (no UUID)")
             return@liveData // SKIP
         }
         val cachePOIM = read(agency.authority, uuid)
@@ -93,17 +93,17 @@ class POIRepository(
                 if (cachePOIM == null // no cache POI
                     || newPOIFromModule != cachePOIM.poi // new POI != cache POI
                 ) {
-                    MTLog.d(this@POIRepository, "readingPOIM() > EMIT (new POI != cache POI)")
+                    MTLogK.d(this@POIRepository, "readingPOIM() > EMIT (new POI != cache POI)")
                     cachePOIM?.serviceUpdatesOrNull?.let { newPOIMFromModule.setServiceUpdates(it) }
                     cachePOIM?.statusOrNull?.let { newPOIMFromModule.setStatus(it) }
                     emit(newPOIMFromModule)
                     push(newPOIMFromModule)
                 } else { // ELSE same POI, keep cache w/ extras (status, service update...)
-                    MTLog.d(this@POIRepository, "readingPOIM() > SKIP (new POI == cache POI, keep status, service update...)")
+                    MTLogK.d(this@POIRepository, "readingPOIM() > SKIP (new POI == cache POI, keep status, service update...)")
                 }
             }
             ?: run {
-                MTLog.d(this@POIRepository, "readingPOIM() > SKIP (removed from agency)")
+                MTLogK.d(this@POIRepository, "readingPOIM() > SKIP (removed from agency)")
                 onDataSourceRemoved() // POI removed from agency
                 emit(null)
             }

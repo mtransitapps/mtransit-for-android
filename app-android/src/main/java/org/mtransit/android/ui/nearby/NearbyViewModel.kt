@@ -24,7 +24,7 @@ import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.ColorUtils
 import org.mtransit.android.commons.LocationUtils
-import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.MTLogK
 import org.mtransit.android.commons.isAppEnabled
 import org.mtransit.android.commons.location.toStringSimple
 import org.mtransit.android.commons.pref.liveData
@@ -135,15 +135,15 @@ class NearbyViewModel @Inject constructor(
     private fun getNearbyLocation(fixedOnLocation: AndroidLocation?, lastDeviceLocation: AndroidLocation?, forceReset: Boolean): AndroidLocation? {
         if (!forceReset) {
             nearbyLocation.value?.let {
-                MTLog.d(this, "getNearbyLocation() > keep same (${it.toStringSimple()})")
+                MTLogK.d(this, "getNearbyLocation() > keep same (${it.toStringSimple()})")
                 return it
             }
         }
         fixedOnLocation?.let {
-            MTLog.d(this, "getNearbyLocation() > use fixed ON (${fixedOnLocation.toStringSimple()})")
+            MTLogK.d(this, "getNearbyLocation() > use fixed ON (${fixedOnLocation.toStringSimple()})")
             return it
         }
-        MTLog.d(this, "getNearbyLocation() > use last device location (${lastDeviceLocation?.toStringSimple()})")
+        MTLogK.d(this, "getNearbyLocation() > use last device location (${lastDeviceLocation?.toStringSimple()})")
         return lastDeviceLocation
     }
 
@@ -262,7 +262,7 @@ class NearbyViewModel @Inject constructor(
 
     override fun initiateRefresh(): Boolean {
         if (isFixedOn.value == true) {
-            MTLog.d(this, "initiateRefresh() > SKIP (fixed on location)")
+            MTLogK.d(this, "initiateRefresh() > SKIP (fixed on location)")
             return false
         }
         val newDeviceLocation = this.deviceLocation.value ?: return false
@@ -271,11 +271,11 @@ class NearbyViewModel @Inject constructor(
         if (!IGNORE_SAME_LOCATION_CHECK
             && LocationUtils.areAlmostTheSame(currentNearbyLocation, newDeviceLocation, LocationUtils.LOCATION_CHANGED_ALLOW_REFRESH_IN_METERS)
         ) {
-            MTLog.d(this, "initiateRefresh() > SKIP (same location)")
+            MTLogK.d(this, "initiateRefresh() > SKIP (same location)")
             return false
         }
         this._nearbyLocationForceReset.value = Event(true)
-        MTLog.d(this, "initiateRefresh() > use NEW location")
+        MTLogK.d(this, "initiateRefresh() > use NEW location")
         return true
     }
 

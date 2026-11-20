@@ -4,7 +4,7 @@ import android.content.Context
 import android.widget.TextView
 import androidx.core.util.PatternsCompat
 import org.mtransit.android.R
-import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.MTLogK
 import org.mtransit.android.commons.TimeUtils
 import org.mtransit.android.commons.data.POIStatus
 import org.mtransit.android.commons.data.ServiceUpdates
@@ -14,7 +14,7 @@ import org.mtransit.android.ui.view.common.textAndVisibility
 import org.mtransit.android.util.UITimeUtils
 import kotlin.time.Instant
 
-object UISourceLabelUtils : MTLog.Loggable {
+object UISourceLabelUtils : MTLogK.Loggable {
 
     private val LOG_TAG: String = UISourceLabelUtils::class.java.simpleName
 
@@ -40,7 +40,7 @@ object UISourceLabelUtils : MTLog.Loggable {
     private fun isUrl(sourceLabel: String) = try {
         PatternsCompat.WEB_URL.matcher(sourceLabel).matches()
     } catch (_: Exception) {
-        MTLog.d(this, "Source label '$sourceLabel' is not a valid URL. (expected w/ old sources)")
+        MTLogK.d(this, "Source label '$sourceLabel' is not a valid URL. (expected w/ old sources)")
         false
     }
 

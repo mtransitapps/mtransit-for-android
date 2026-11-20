@@ -15,7 +15,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.ad.IAdScreenActivity
-import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.MTLogK
 import org.mtransit.android.commons.data.POI
 import org.mtransit.android.commons.isAppEnabled
 import org.mtransit.android.commons.provider.poi.POIProviderContract
@@ -98,7 +98,7 @@ class FavoritesViewModel @Inject constructor(
         homeScreenTypes: List<DataSourceType>,
     ) = buildList {
         if (favorites.isEmpty()) {
-            MTLog.d(this, "getFavorites() > SKIP (no favorites)")
+            MTLogK.d(this, "getFavorites() > SKIP (no favorites)")
             return@buildList // empty (no favorites)
         }
         appendFavoritePOIs(allAgencies, favorites)

@@ -30,7 +30,7 @@ import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.commons.ColorUtils
-import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.MTLogK
 import org.mtransit.android.commons.data.DataSourceTypeId
 import org.mtransit.android.commons.data.POI
 import org.mtransit.android.data.DataSourceType
@@ -378,11 +378,11 @@ class AgencyTypeFragment :
 
     private fun showSelectedTab() {
         if (this.pagerAdapter?.isReady() != true) {
-            MTLog.d(this, "showSelectedTab() > SKIP (no adapter items)")
+            MTLogK.d(this, "showSelectedTab() > SKIP (no adapter items)")
             return
         }
         if (this.lastPageSelected < 0) {
-            MTLog.d(this, "showSelectedTab() > SKIP (no last page selected)")
+            MTLogK.d(this, "showSelectedTab() > SKIP (no last page selected)")
             return
         }
         val smoothScroll = this.selectedPosition >= 0
