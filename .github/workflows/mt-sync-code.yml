@@ -49,9 +49,9 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          RUN_IDS=$(gh api --paginate --method GET \
-            "repos/$GITHUB_REPOSITORY/actions/workflows/mt-build.yml/runs" \
-            -f status=in_progress -f per_page=100 --jq '.workflow_runs[].id')
+          RUN_IDS=$(gh run list --workflow mt-build.yml --status in_progress \
+            --limit 1000 --json databaseId --jq '.[].databaseId' \
+            --repo "$GITHUB_REPOSITORY")
           while IFS= read -r RUN_ID; do
             [ -n "$RUN_ID" ] || continue
             if ! gh run cancel "$RUN_ID" --repo "$GITHUB_REPOSITORY"; then
