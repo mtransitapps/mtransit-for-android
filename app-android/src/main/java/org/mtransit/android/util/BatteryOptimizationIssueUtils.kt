@@ -28,9 +28,11 @@ import java.util.Locale
 import java.util.concurrent.TimeUnit
 import org.mtransit.android.commons.R as commonsR
 
-object BatteryOptimizationIssueUtils {
+object BatteryOptimizationIssueUtils : MTLogK.Loggable {
 
     private val LOG_TAG: String = BatteryOptimizationIssueUtils::class.java.simpleName
+
+    override fun getLogTag() = LOG_TAG
 
     const val DO_NOT_KILL_MY_APP_LABEL = "dontkillmyapp.com"
 
@@ -49,7 +51,7 @@ object BatteryOptimizationIssueUtils {
             DO_NOT_KILL_MY_APP_URL_AND_MANUFACTURER.format(Locale.ROOT, manufacturerDNTLC)
         ).toString()
     } catch (e: Exception) {
-        MTLogK.w(LOG_TAG, "Error while creating custom URL with manufacturer", e)
+        MTLogK.w(this, "Error while creating custom URL with manufacturer", e)
         DO_NOT_KILL_MY_APP_URL
     }
 
@@ -59,7 +61,7 @@ object BatteryOptimizationIssueUtils {
             DO_NOT_KILL_MY_APP_IMAGE_URL_AND_MANUFACTURER.format(Locale.ROOT, manufacturerDNTLC)
         ).toString()
     } catch (e: Exception) {
-        MTLogK.w(LOG_TAG, "Error while creating custom URL with manufacturer", e)
+        MTLogK.w(this, "Error while creating custom URL with manufacturer", e)
         DO_NOT_KILL_MY_APP_IMAGE_URL
     }
 
@@ -109,7 +111,7 @@ object BatteryOptimizationIssueUtils {
                     nowMs // not the 1st time
                 )
                 if (nowMs - anyLastAgencyInvisibleActivityOpenedMs < INVISIBLE_ACTIVITY_ANY_MIN_OPEN_MS) {
-                    MTLogK.d(LOG_TAG, "onAppResumeInvisibleActivity() > SKIP (any)")
+                    MTLogK.d(this@BatteryOptimizationIssueUtils, "onAppResumeInvisibleActivity() > SKIP (any)")
                     return@launch // SKIP (too soon)
                 }
 
@@ -143,7 +145,7 @@ object BatteryOptimizationIssueUtils {
                     }
             }
         } catch (e: Exception) {
-            MTLogK.w(LOG_TAG, "Error while finding invisible activity!", e)
+            MTLogK.w(this, "Error while finding invisible activity!", e)
         }
     }
 

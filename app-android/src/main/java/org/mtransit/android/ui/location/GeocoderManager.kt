@@ -132,16 +132,16 @@ suspend fun AndroidLocation.toAddressOrNull(geocoderManager: GeocoderManager): A
         geocoderManager.getAddressesFromLocation(this.latitude, this.longitude, maxResults = 1).firstOrNull()
     } catch (iea: IllegalArgumentException) {
         if (MTLogK.isLoggable(android.util.Log.DEBUG)) {
-            MTLogK.w(GeocoderManager, "getLocationAddress() > Can't find the address of location $latitude, $longitude !", iea)
+            MTLogK.w(geocoderManager, "getLocationAddress() > Can't find the address of location $latitude, $longitude !", iea)
         } else {
-            MTLogK.w(GeocoderManager, "getLocationAddress() > Can't find the address of location $latitude, $longitude !")
+            MTLogK.w(geocoderManager, "getLocationAddress() > Can't find the address of location $latitude, $longitude !")
         }
         null
     } catch (ioe: IOException) {
         if (MTLogK.isLoggable(android.util.Log.DEBUG)) {
-            MTLogK.w(GeocoderManager, "getLocationAddress() > Can't find the address of location $latitude, $longitude !", ioe)
+            MTLogK.w(geocoderManager, "getLocationAddress() > Can't find the address of location $latitude, $longitude !", ioe)
         } else {
-            MTLogK.w(GeocoderManager, "getLocationAddress() > Can't find the address of location $latitude, $longitude !")
+            MTLogK.w(geocoderManager, "getLocationAddress() > Can't find the address of location $latitude, $longitude !")
         }
         null
     }

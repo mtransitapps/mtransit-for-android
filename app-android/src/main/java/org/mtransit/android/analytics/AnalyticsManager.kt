@@ -120,7 +120,6 @@ class AnalyticsManager @Inject internal constructor(
             )
         } catch (e: Exception) {
             MTLogK.w(this, "Error while tracking screen view! ($page)", e)
-            // MTLogK.w(this, e, "Error while tracking screen view! (%s)", page)
         }
     }
 

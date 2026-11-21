@@ -90,7 +90,7 @@ class NetworkLocationRepository @Inject constructor(
                 }
             },
             onFailure = { t ->
-                MTLogK.e(this, "Error while fetching current IP location!", t)
+                MTLogK.e(this@NetworkLocationRepository, "Error while fetching current IP location!", t)
             }
         )
     }
