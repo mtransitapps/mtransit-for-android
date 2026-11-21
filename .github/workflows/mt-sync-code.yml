@@ -6,7 +6,7 @@ on:
 # gh run watch ; gh browse --branch <branch>
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false # finish restarting canceled submodule builds before the next sync
 env:
   # git branches & sha
   MT_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
@@ -90,6 +90,11 @@ jobs:
               --repo "$SUBMODULE_REPO")
             while IFS=$'\t' read -r RUN_ID RUN_BRANCH; do
               [ -n "$RUN_ID" ] || continue
+              BRANCH_REF=$(git ls-remote --heads "$SUBMODULE_URL" "refs/heads/$RUN_BRANCH")
+              if [ -z "$BRANCH_REF" ]; then
+                echo "Skipping build run $SUBMODULE_REPO/$RUN_ID: branch $RUN_BRANCH cannot be dispatched in this repository."
+                continue
+              fi
               if gh run cancel "$RUN_ID" --repo "$SUBMODULE_REPO"; then
                 TARGETS=$(jq -c --arg repo "$SUBMODULE_REPO" --arg branch "$RUN_BRANCH" \
                   '. + [{repo: $repo, branch: $branch}] | unique_by(.repo, .branch)' <<< "$TARGETS")
