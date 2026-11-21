@@ -1910,6 +1910,18 @@
     "lng": "2.49488"
   },
   {
+    "repo": "fr-toulouse-tisseo-bus-android",
+    "pkg": "org.mtransit.android.fr_toulouse_tisseo_bus",
+    "store": "beta-private",
+    "name": "Tisséo",
+    "name_fr": "Tisséo",
+    "location": "Toulouse, Colomiers, Blagnac, Muret, Ramonville, Balma, Labège, Plaisance-du-Touch, Tournefeuille, Castanet-Tolosan, L'Union, St-Orens-de-Gameville, Fenouillet, Haute-Garonne, France",
+    "type_id": "3",
+    "color": "E5056E",
+    "lat": "43.571671",
+    "lng": "1.389383"
+  },
+  {
     "repo": "us-anchorage-people-mover-bus-android",
     "pkg": "org.mtransit.android.us_anchorage_people_mover_bus",
     "store": "production",
