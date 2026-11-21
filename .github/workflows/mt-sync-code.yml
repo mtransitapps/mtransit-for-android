@@ -6,7 +6,7 @@ on:
 # gh run watch ; gh browse --branch <branch>
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false # finish restarting canceled submodule builds before the next sync
 env:
   # git branches & sha
   MT_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
@@ -39,8 +39,33 @@ env:
   MT_STORE_PRODUCTION_ON: ${{ secrets.MT_STORE_PRODUCTION_ON }}
   MT_STORE_PRODUCTION_OFF: ${{ secrets.MT_STORE_PRODUCTION_OFF }}
 jobs:
+  MT-CANCEL-BUILD-JOB:
+    name: "MT Cancel running builds"
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      - name: MT cancel in-progress build runs
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          RUN_IDS=$(gh run list --workflow mt-build.yml --status in_progress \
+            --limit 1000 --json databaseId --jq '.[].databaseId' \
+            --repo "$GITHUB_REPOSITORY")
+          while IFS= read -r RUN_ID; do
+            [ -n "$RUN_ID" ] || continue
+            if ! gh run cancel "$RUN_ID" --repo "$GITHUB_REPOSITORY"; then
+              STATUS=$(gh run view "$RUN_ID" --repo "$GITHUB_REPOSITORY" --json status --jq '.status')
+              if [ "$STATUS" != "completed" ]; then
+                exit 1
+              fi
+              echo "Build run $RUN_ID already completed."
+            fi
+          done <<< "$RUN_IDS"
+
   MT-SYNC-CODE-JOB:
     name: "MT Sync Code"
+    needs: MT-CANCEL-BUILD-JOB
     timeout-minutes: 30
     runs-on: ubuntu-latest
     steps:
@@ -50,6 +75,39 @@ jobs:
           submodules: true # required to set right token
           token: ${{ secrets.MT_PAT }}
           fetch-depth: 0 # fetch all (not required util release build)
+      - name: MT cancel in-progress submodule build runs
+        id: mt-cancel-submodule-builds
+        env:
+          GH_TOKEN: ${{ secrets.MT_PAT }}
+        run: |
+          TARGETS='[]'
+          SUBMODULE_URLS=$(git config --file .gitmodules --get-regexp url)
+          while read -r SUBMODULE_KEY SUBMODULE_URL; do
+            SUBMODULE_REPO=${SUBMODULE_URL#https://github.com/}
+            SUBMODULE_REPO=${SUBMODULE_REPO%.git}
+            RUNS=$(gh run list --workflow mt-build.yml --status in_progress \
+              --limit 1000 --json databaseId,headBranch \
+              --repo "$SUBMODULE_REPO")
+            while IFS=$'\t' read -r RUN_ID RUN_BRANCH; do
+              [ -n "$RUN_ID" ] || continue
+              BRANCH_REF=$(git ls-remote --heads "$SUBMODULE_URL" "refs/heads/$RUN_BRANCH")
+              if [ -z "$BRANCH_REF" ]; then
+                echo "Skipping build run $SUBMODULE_REPO/$RUN_ID: branch $RUN_BRANCH cannot be dispatched in this repository."
+                continue
+              fi
+              if gh run cancel "$RUN_ID" --repo "$SUBMODULE_REPO"; then
+                TARGETS=$(jq -c --arg repo "$SUBMODULE_REPO" --arg branch "$RUN_BRANCH" \
+                  '. + [{repo: $repo, branch: $branch}] | unique_by(.repo, .branch)' <<< "$TARGETS")
+              else
+                STATUS=$(gh run view "$RUN_ID" --repo "$SUBMODULE_REPO" --json status --jq '.status')
+                if [ "$STATUS" != "completed" ]; then
+                  exit 1
+                fi
+                echo "Build run $SUBMODULE_REPO/$RUN_ID already completed."
+              fi
+            done <<< "$(jq -r '.[] | [.databaseId, .headBranch] | @tsv' <<< "$RUNS")"
+          done <<< "$SUBMODULE_URLS"
+          echo "targets=$TARGETS" >> "$GITHUB_OUTPUT"
       - name: MT check out submodules
         run: ./sh/git/submodules_init.sh
       - name: MT setup MT_GIT_BRANCH env
@@ -144,25 +202,19 @@ jobs:
             app-android/build/outputs/bundle
       - name: MT push commits
         run: ./sh/ci/push_commits.sh
-      # - name: MT trigger submodule builds
-      #   if: ${{ github.event_name != 'pull_request' && github.ref_name == env.MT_DEFAULT_BRANCH_NAME }}
-      #   continue-on-error: true
-      #   run: |
-      #     SUBMODULES_CHANGED=false
-      #     while IFS= read -r SUBMODULE_PATH; do
-      #       if git diff --quiet "$MT_SHA" HEAD -- "$SUBMODULE_PATH"; then
-      #         continue
-      #       fi
-      #       SUBMODULES_CHANGED=true
-      #       SUBMODULE_NAME=$(basename "$SUBMODULE_PATH")
-      #       echo "Triggering 'mt-build.yml' for '${SUBMODULE_NAME}' on branch '${MT_BRANCH_NAME}'..."
-      #       gh workflow run mt-build.yml \
-      #         --repo "mtransitapps/${SUBMODULE_NAME}" \
-      #         --ref "$MT_BRANCH_NAME" || echo "Failed to trigger mt-build.yml for '${SUBMODULE_NAME}' (continuing)..."
-      #     done < <(git config --file .gitmodules --get-regexp path | awk '{print $2}')
-
-      #     if [ "$SUBMODULES_CHANGED" = "false" ]; then
-      #       echo "No submodule changes detected between '$MT_SHA' and HEAD."
-      #     fi
-      #   env:
-      #     GH_TOKEN: ${{ secrets.MT_PAT }}
+      - name: MT restart canceled submodule builds
+        env:
+          GH_TOKEN: ${{ secrets.MT_PAT }}
+          TARGETS: ${{ steps.mt-cancel-submodule-builds.outputs.targets }}
+        run: |
+          FAILED=false
+          while IFS=$'\t' read -r SUBMODULE_REPO RUN_BRANCH; do
+            [ -n "$SUBMODULE_REPO" ] || continue
+            echo "Triggering mt-build.yml for $SUBMODULE_REPO on branch $RUN_BRANCH..."
+            if ! gh workflow run mt-build.yml --repo "$SUBMODULE_REPO" --ref "$RUN_BRANCH"; then
+              FAILED=true
+            fi
+          done <<< "$(jq -r '.[] | [.repo, .branch] | @tsv' <<< "$TARGETS")"
+          if [ "$FAILED" = true ]; then
+            exit 1
+          fi
