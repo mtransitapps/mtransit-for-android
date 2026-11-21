@@ -374,6 +374,7 @@
     <ID>ReturnCount:PlaceProvider.kt:PlaceProvider$override fun getPOI: Cursor?</ID>
     <ID>ReturnCount:PlaceProvider.kt:PlaceProvider$override fun isAgencySetupRequired: Boolean</ID>
     <ID>ReturnCount:PlaceProvider.kt:PlaceProvider$private fun getTextSearchResults: Cursor?</ID>
+    <ID>ReturnCount:ProviderConfigRepository.kt:ProviderConfigRepository$suspend fun findNews: ArrayList&lt;News&gt;?</ID>
     <ID>ReturnCount:PurchaseDialogFragment.kt:PurchaseDialogFragment$private fun onBuyBtnClick</ID>
     <ID>ReturnCount:RDSRouteFragment.kt:RDSRouteFragment$override fun onMenuItemSelected: Boolean</ID>
     <ID>ReturnCount:RewardedAdManager.kt:RewardedAdManager$fun isRewardedAdAvailableToShow: Boolean</ID>
@@ -405,6 +406,7 @@
     <ID>TooGenericExceptionCaught:ModuleDataChangeReceiver.kt:ModuleDataChangeReceiver$e: Exception</ID>
     <ID>TooGenericExceptionCaught:ModulesReceiver.kt:ModulesReceiver$e: Exception</ID>
     <ID>TooGenericExceptionCaught:PlaceProvider.kt:PlaceProvider$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:ProviderConfigRepository.kt:ProviderConfigRepository$e: RuntimeException</ID>
     <ID>TooGenericExceptionCaught:PurchaseDialogFragment.kt:PurchaseDialogFragment$e: Exception</ID>
     <ID>TooGenericExceptionThrown:AgencyTypePagerAdapter.kt:AgencyTypePagerAdapter$throw RuntimeException("Trying to create fragment at $position!")</ID>
     <ID>TooGenericExceptionThrown:HomeFragment.kt:HomeFragment$throw RuntimeException("Demo mode: missing UUID!")</ID>
@@ -466,23 +468,8 @@
     <ID>TooManyFunctions:ScheduleFragment.kt:ScheduleFragment : ABFragmentMenuProvider</ID>
     <ID>TooManyFunctions:SearchFragment.kt:SearchFragment : ABFragmentDeviceLocationListenerTypeHeaderButtonsClickListenerOnItemSelectedListener</ID>
     <ID>TooManyFunctions:UserManager.kt:UserManager</ID>
-    <ID>UnreachableCode:PurchaseDialogFragment.kt:PurchaseDialogFragment$!billingFlowLaunched</ID>
-    <ID>UnreachableCode:PurchaseDialogFragment.kt:PurchaseDialogFragment$MTLogK.w(this, "onBuyBtnClick() &gt; skip (can not launch billing flow for: $productId)")</ID>
-    <ID>UnreachableCode:PurchaseDialogFragment.kt:PurchaseDialogFragment$ToastUtils.makeTextAndShow(context, R.string.support_subs_default_failure_message)</ID>
-    <ID>UnreachableCode:PurchaseDialogFragment.kt:PurchaseDialogFragment$dialog?.dismiss()</ID>
-    <ID>UnreachableCode:PurchaseDialogFragment.kt:PurchaseDialogFragment$return</ID>
-    <ID>UnreachableCode:PurchaseDialogFragment.kt:PurchaseDialogFragment$val billingFlowLaunched = billingManager.launchBillingFlow(parentActivity, productId)</ID>
-    <ID>UnreachableCode:PurchaseDialogFragment.kt:PurchaseDialogFragment$val periodCat = binding.periodRadioGroup.checkedRadioButtonId.takeIf { it != View.NO_ID } ?.let { radioButtonResId -&gt; when (radioButtonResId) { binding.periodWeekly.id -&gt; IBillingManager.WEEKLY binding.periodMonthly.id -&gt; IBillingManager.MONTHLY binding.periodYearly.id -&gt; IBillingManager.YEARLY else -&gt; null } } ?: run { MTLogK.w(this, "onBuyBtnClick() &gt; skip (unexpected period radio button: ${binding.periodRadioGroup.checkedRadioButtonId})") ToastUtils.makeTextAndShow(context, R.string.support_subs_default_failure_message) return }</ID>
-    <ID>UnreachableCode:PurchaseDialogFragment.kt:PurchaseDialogFragment$val priceCat = this.priceFormattedToPriceCat[priceFormatted]?.takeIf { it.isNotEmpty() } ?: run { MTLogK.w(this, "onBuyBtnClick() &gt; skip (unexpected formatted price: $priceFormatted)") ToastUtils.makeTextAndShow(context, R.string.support_subs_default_failure_message) return }</ID>
-    <ID>UnreachableCode:PurchaseDialogFragment.kt:PurchaseDialogFragment$val priceFormatted = this.pricesFormatted.getOrNull(pricePosition)?.takeIf { it.isNotEmpty() } ?: run { MTLogK.w(this, "onBuyBtnClick() &gt; skip (unexpected price position: $pricePosition)") ToastUtils.makeTextAndShow(context, R.string.support_subs_default_failure_message) return }</ID>
-    <ID>UnreachableCode:PurchaseDialogFragment.kt:PurchaseDialogFragment$val pricePosition = binding.price.selectedItemPosition</ID>
-    <ID>UnreachableCode:PurchaseDialogFragment.kt:PurchaseDialogFragment$val productId = this.periodAndPriceCatToProductId[periodCat to priceCat] ?: run { MTLogK.w(this, "onBuyBtnClick() &gt; skip (no product ID for period/price: $periodCat/$priceCat)") ToastUtils.makeTextAndShow(context, R.string.support_subs_default_failure_message) return }</ID>
-    <ID>UnreachableCode:WebBrowserFragmentExt.kt:return extractBaseUrl(initialFrameUrl) == url</ID>
-    <ID>UnreachableCode:WebBrowserFragmentExt.kt:val initialFrameUrl = this.initialUrl ?.takeIf { it.isNotBlank() } ?.takeIf { arguments?.getBoolean(EXTRA_USE_IFRAME) == true } ?: return false</ID>
     <ID>UnusedPrivateFunction:AgencyTypeViewModel.kt:AgencyTypeViewModel$private fun saveSelectedTypeAgency</ID>
     <ID>UnusedVariable:POIViewModel.kt:POIViewModel$trigger</ID>
-    <ID>UseOrEmpty:IBillingManager.kt:IBillingManager.Companion$arrayListOf( NEW_BASIC_SUBSCRIPTIONS, NEW_PRO_SUBSCRIPTIONS ).takeIf { UIFeatureFlags.F_NEW_IN_APP_SUBS } ?: emptyList()</ID>
-    <ID>UseOrEmpty:NewsPagerAdapter.kt:NewsPagerAdapter$newItems ?: emptyList()</ID>
     <ID>ValueArgumentComment:SetupBannerAdTask.kt:SetupBannerAdTask$// #gmaNextGen</ID>
     <ID>ValueArgumentComment:SetupInlineBannerAdTask.kt:SetupInlineBannerAdTask$// #gmaNextGen</ID>
     <ID>VarCouldBeVal:AppOpenAdManager.kt:AppOpenAdManager$private var _isShowingAd = AtomicBoolean(false)</ID>

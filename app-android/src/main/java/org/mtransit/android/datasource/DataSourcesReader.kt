@@ -50,6 +50,7 @@ class DataSourcesReader @Inject constructor(
     private val dataSourcesDatabase: DataSourcesDatabase,
     private val dataSourceRequestManager: DataSourceRequestManager,
     private val lclPrefRepository: LocalPreferenceRepository,
+    private val providerConfigRepository: ProviderConfigRepository,
 ) : MTLogK.Loggable {
 
     companion object {
@@ -194,6 +195,9 @@ class DataSourcesReader @Inject constructor(
         updateReInstalledReEnabledDataSources(forcePkg) { updated = true }
         MTLogK.d(this@DataSourcesReader, "update($forcePkg) > lookForNewDataSources()... - updated: $updated")
         lookForNewDataSources(forcePkg) { updated = true }
+        if (UIFeatureFlags.F_IMPORT_PROVIDER_CONFIG) {
+            providerConfigRepository.refreshNewsConfigs(dataSourcesDatabase.newsProviderPropertiesDao().getAllNewsProvider())
+        }
         MTLogK.d(this@DataSourcesReader, "update($forcePkg) > refreshAvailableVersions()... - updated: $updated")
         refreshAvailableVersions(forcePkg, skipTimeCheck = false, forceAppUpdateRefresh = true) { updated = true }
         MTLogK.d(this@DataSourcesReader, "update($forcePkg) > refreshSetupRequired()... - updated: $updated")

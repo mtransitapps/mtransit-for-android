@@ -57,11 +57,11 @@ public class JPaths implements MTLog.Loggable {
 	@Nullable
 	public JSONObject toJSON() {
 		try {
-			JSONObject json = new JSONObject();
+			final JSONObject json = new JSONObject();
 			json.put(JSON_ID, this.id);
-			JSONArray jPaths = new JSONArray();
+			final JSONArray jPaths = new JSONArray();
 			for (JPath path : this.paths) {
-				JSONObject jPath = toJSONPath(path);
+				final JSONObject jPath = toJSONPath(path);
 				if (jPath != null) {
 					jPaths.put(jPath);
 				}
@@ -77,7 +77,7 @@ public class JPaths implements MTLog.Loggable {
 	@Nullable
 	private JSONObject toJSONPath(@NonNull JPath path) {
 		try {
-			JSONObject jPath = new JSONObject();
+			final JSONObject jPath = new JSONObject();
 			jPath.put(JSON_PAINT, path.paint.toJSON());
 			jPath.put(JSON_FORM, path.form.toJSON());
 			if (path.rotation != null) {
@@ -103,12 +103,12 @@ public class JPaths implements MTLog.Loggable {
 	@Nullable
 	public static JPaths fromJSON(@NonNull JSONObject json) {
 		try {
-			String id = json.getString(JSON_ID);
-			JPaths jPaths = new JPaths(id);
-			JSONArray jsonPaths = json.optJSONArray(JSON_PATHS);
+			final String id = json.getString(JSON_ID);
+			final JPaths jPaths = new JPaths(id);
+			final JSONArray jsonPaths = json.optJSONArray(JSON_PATHS);
 			if (jsonPaths != null && jsonPaths.length() > 0) {
 				for (int i = 0; i < jsonPaths.length(); i++) {
-					JPath newPath = fromJSONPath(jsonPaths.getJSONObject(i));
+					final JPath newPath = fromJSONPath(jsonPaths.getJSONObject(i));
 					if (newPath != null) {
 						jPaths.addPath(newPath);
 					}
@@ -124,9 +124,9 @@ public class JPaths implements MTLog.Loggable {
 	@Nullable
 	private static JPath fromJSONPath(@NonNull JSONObject json) {
 		try {
-			JSONObject jPaint = json.getJSONObject(JSON_PAINT);
-			JSONObject jForm = json.getJSONObject(JSON_FORM);
-			JSONObject jRotation = json.optJSONObject(JSON_ROTATION);
+			final JSONObject jPaint = json.getJSONObject(JSON_PAINT);
+			final JSONObject jForm = json.getJSONObject(JSON_FORM);
+			final JSONObject jRotation = json.optJSONObject(JSON_ROTATION);
 			return new JPath(
 					Objects.requireNonNull(JPaint.fromJSON(jPaint)),
 					Objects.requireNonNull(JForm.fromJSON(jForm)),

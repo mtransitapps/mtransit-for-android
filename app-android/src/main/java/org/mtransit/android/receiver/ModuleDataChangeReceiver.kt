@@ -58,7 +58,7 @@ class ModuleDataChangeReceiver :
             try {
                 dataSourcesRepository.updateLock(pkg)
             } catch (e: Exception) {
-                MTLogK.w(this, "Error while updating data-sources from repository!", e)
+                MTLogK.w(this@ModuleDataChangeReceiver, "Error while updating data-sources from repository!", e)
             } finally {
                 pendingResult.finish()
             }

@@ -8,14 +8,13 @@ import androidx.annotation.Discouraged;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.mtransit.android.commons.CursorExtKt;
-import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.data.DataSourceTypeId;
 import org.mtransit.android.commons.data.DefaultPOI;
 import org.mtransit.android.commons.data.POI;
 import org.mtransit.android.provider.PlaceProvider;
+
+import kotlinx.serialization.json.JsonObject;
 
 public class Place extends DefaultPOI {
 
@@ -144,71 +143,10 @@ public class Place extends DefaultPOI {
 		this.uuid = null;
 	}
 
-	private static final String JSON_PROVIDER_ID = "provider_id";
-	private static final String JSON_LANG = "lang";
-	private static final String JSON_READ_AT_IN_MS = "read_at_in_ms";
-	private static final String JSON_SUB_TITLE = "sub_title";
-	private static final String JSON_ICON_URL = "icon_url";
-	private static final String JSON_ICON_BG_COLOR = "icon_bg_color";
-
-	@Nullable
+	@NonNull
 	@Override
-	public JSONObject toJSON() {
-		try {
-			final JSONObject json = new JSONObject();
-			DefaultPOI.toJSON(this, json);
-			json.put(JSON_PROVIDER_ID, getProviderId());
-			json.put(JSON_LANG, getLang());
-			json.put(JSON_READ_AT_IN_MS, getReadAtInMs());
-			if (getSubTitle() != null) {
-				json.put(JSON_SUB_TITLE, getSubTitle());
-			}
-			if (getIconUrl() != null) {
-				json.put(JSON_ICON_URL, getIconUrl());
-			}
-			if (getIconBgColor() != null) {
-				json.put(JSON_ICON_BG_COLOR, getIconBgColor());
-			}
-			return json;
-		} catch (JSONException jsone) {
-			MTLog.w(this, jsone, "Error while converting to JSON (%s)!", this);
-			return null;
-		}
-	}
-
-	@Nullable
-	@Override
-	public POI fromJSON(@NonNull JSONObject json) {
-		return fromJSONStatic(json);
-	}
-
-	@Nullable
-	public static Place fromJSONStatic(@NonNull JSONObject json) {
-		try {
-			final Place place = new Place(
-					DefaultPOI.getAuthorityFromJSON(json),
-					json.getString(JSON_PROVIDER_ID),
-					json.getString(JSON_LANG),
-					json.getLong(JSON_READ_AT_IN_MS),
-					DefaultPOI.getLatFromJSON(json),
-					DefaultPOI.getLngFromJSON(json),
-					DefaultPOI.getNameFromJSON(json)
-			);
-			if (json.has(JSON_SUB_TITLE)) {
-				place.setSubTitle(json.getString(JSON_SUB_TITLE));
-			}
-			if (json.has(JSON_ICON_URL)) {
-				place.setIconUrl(json.getString(JSON_ICON_URL));
-			}
-			if (json.has(JSON_ICON_BG_COLOR)) {
-				place.setIconBgColor(json.getInt(JSON_ICON_BG_COLOR));
-			}
-			DefaultPOI.fromJSON(json, place);
-			return place;
-		} catch (JSONException jsone) {
-			MTLog.w(LOG_TAG, jsone, "Error while parsing JSON '%s'!", json);
-			return null;
-		}
+	public JsonObject toJson() {
+		return PlaceExtKt.toJsonK(this);
 	}
 
 	/**
