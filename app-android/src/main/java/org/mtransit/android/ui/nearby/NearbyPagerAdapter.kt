@@ -3,11 +3,11 @@ package org.mtransit.android.ui.nearby
 import android.annotation.SuppressLint
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
-import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.MTLogK
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.ui.nearby.type.NearbyAgencyTypeFragment
 
-class NearbyPagerAdapter(f: Fragment) : FragmentStateAdapter(f), MTLog.Loggable {
+class NearbyPagerAdapter(f: Fragment) : FragmentStateAdapter(f), MTLogK.Loggable {
 
     companion object {
         private val LOG_TAG: String = NearbyPagerAdapter::class.java.simpleName

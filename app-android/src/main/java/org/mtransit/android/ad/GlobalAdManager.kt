@@ -20,7 +20,7 @@ import org.mtransit.android.ad.AdConstants.logAdsD
 import org.mtransit.android.ad.rewarded.RewardedUserManager
 import org.mtransit.android.billing.IBillingManager
 import org.mtransit.android.commons.Constants
-import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.MTLogK
 import org.mtransit.android.commons.toDateTimeLog
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.dev.CrashReporter
@@ -46,7 +46,7 @@ class GlobalAdManager(
     private val remoteConfigProvider: RemoteConfigProvider,
     private val billingManager: IBillingManager,
     private val ioDispatcher: CoroutineDispatcher,
-) : MTLog.Loggable {
+) : MTLogK.Loggable {
 
     @Inject
     constructor(
@@ -122,7 +122,7 @@ class GlobalAdManager(
         if (!AdConstants.AD_ENABLED) return
         val theActivity = activity.activity
         if (theActivity == null) {
-            MTLog.w(this, "Trying to initialized w/o activity!")
+            MTLogK.w(this, "Trying to initialized w/o activity!")
             return // SKIP
         }
         consentManager.gatherConsent(

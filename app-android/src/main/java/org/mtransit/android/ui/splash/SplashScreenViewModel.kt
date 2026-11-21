@@ -25,7 +25,7 @@ import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.analytics.AnalyticsUserProperties
 import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.common.repository.LocalPreferenceRepository
-import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.MTLogK
 import org.mtransit.android.commons.TimeUtilsK
 import org.mtransit.android.commons.millisToInstant
 import org.mtransit.android.commons.toMillis
@@ -67,7 +67,7 @@ class SplashScreenViewModel @Inject constructor(
     private val remoteConfigProvider: RemoteConfigProvider,
     private val adManager: IAdManager,
     private val pm: PackageManager,
-) : SharedActivityViewModel(remoteConfigProvider), MTLog.Loggable {
+) : SharedActivityViewModel(remoteConfigProvider), MTLogK.Loggable {
 
     companion object {
         private val LOG_TAG: String = SplashScreenViewModel::class.java.simpleName
@@ -138,20 +138,20 @@ class SplashScreenViewModel @Inject constructor(
     @MainThread
     private fun triggerLoadAd() {
         if (!deploying.get()) {
-            MTLog.d(this, "triggerLoadAd() > SKIP (not deploying)")
+            MTLogK.d(this, "triggerLoadAd() > SKIP (not deploying)")
             return // not deploying
         }
         if (loadAdTriggered.get()) {
-            MTLog.d(this, "triggerLoadAd() > SKIP (already triggered)")
+            MTLogK.d(this, "triggerLoadAd() > SKIP (already triggered)")
             return // already triggered
         }
         if (adManager.isAppOpenAdAvailable()) {
-            MTLog.d(this, "triggerLoadAd() > SKIP (app open already available)")
+            MTLogK.d(this, "triggerLoadAd() > SKIP (app open already available)")
             return // already available // 1st
         }
         val loadTriggered = adManager.loadAppOpenAd()
         if (loadTriggered) {
-            MTLog.d(this, "triggerLoadAd() > adManager.loadAppOpenAd()... TRIGGERED")
+            MTLogK.d(this, "triggerLoadAd() > adManager.loadAppOpenAd()... TRIGGERED")
             loadAdTriggered.set(true)
         }
     }
@@ -178,7 +178,7 @@ class SplashScreenViewModel @Inject constructor(
             dataSourcesReader.refreshSetupRequired(forcePkg = null, skipTimeCheck = false, markUpdated = {})
         }
         if (setupRefreshResult == null) {
-            MTLog.d(this@SplashScreenViewModel, "deployIfNecessary() > refreshSetupRequired() timed out after $FIRST_REFRESH_SETUP_REQUIRED_TIMEOUT.")
+            MTLogK.d(this@SplashScreenViewModel, "deployIfNecessary() > refreshSetupRequired() timed out after $FIRST_REFRESH_SETUP_REQUIRED_TIMEOUT.")
         }
         val agenciesWithSetupRequired = dataSourcesStorage.getAllAgencies()
             .filter { agency ->

@@ -25,7 +25,7 @@ import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.commons.Constants
 import org.mtransit.android.commons.DeviceUtils
 import org.mtransit.android.commons.LocaleUtils
-import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.MTLogK
 import org.mtransit.android.commons.PackageManagerUtils
 import org.mtransit.android.commons.StoreUtils
 import org.mtransit.android.commons.ToastUtils
@@ -52,7 +52,7 @@ import javax.inject.Inject
 import org.mtransit.android.commons.R as commonsR
 
 @AndroidEntryPoint
-class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
+class MainPreferencesFragment : PreferenceFragmentCompat(), MTLogK.Loggable {
 
     companion object {
         private val LOG_TAG: String = MainPreferencesFragment::class.java.simpleName

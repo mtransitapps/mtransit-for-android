@@ -6,7 +6,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.mtransit.android.billing.IBillingManager
-import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.MTLogK
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.provider.remoteconfig.RemoteConfigProvider
 import org.mtransit.android.ui.common.SharedActivityViewModel
@@ -18,7 +18,7 @@ class MainViewModel(
     private val billingManager: IBillingManager,
     private val dataSourcesRepository: DataSourcesRepository,
     private val ioDispatcher: CoroutineDispatcher,
-) : SharedActivityViewModel(remoteConfigProvider), MTLog.Loggable {
+) : SharedActivityViewModel(remoteConfigProvider), MTLogK.Loggable {
 
     @Inject
     constructor(

@@ -8,7 +8,7 @@ import androidx.lifecycle.map
 import org.mtransit.android.R
 import org.mtransit.android.ad.AdConstants
 import org.mtransit.android.ad.AdManager
-import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.MTLogK
 import org.mtransit.android.commons.TimeUtilsK
 import org.mtransit.android.commons.ToastUtils
 import org.mtransit.android.commons.millisToInstant
@@ -32,7 +32,7 @@ class RewardedUserManager @Inject constructor(
     private val userManager: UserManager,
     private val demoModeManager: DemoModeManager,
     private val remoteConfigProvider: RemoteConfigProvider,
-) : MTLog.Loggable {
+) : MTLogK.Loggable {
 
     companion object {
         private val LOG_TAG = "${AdManager.LOG_TAG}>${RewardedUserManager::class.java.simpleName}"

@@ -1,13 +1,13 @@
 package org.mtransit.android.ui.view.map
 
-import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.MTLogK
 
 enum class MTMapIconZoomGroup(
     val minZoom: Float = 0.0f,
     val maxZoom: Float = Float.MAX_VALUE,
     val minCount: Int = 0,
     val maxCount: Int = Int.MAX_VALUE,
-) : MTLog.Loggable {
+) : MTLogK.Loggable {
 
     DEFAULT(maxCount = 10),
     MEDIUM,
@@ -36,7 +36,7 @@ enum class MTMapIconZoomGroup(
                     return group
                 }
             }
-            MTLog.d(LOG_TAG, "from() > Unexpected zoom: $zoom|markerCount: $markerCount -> DEFAULT")
+            MTLogK.d(LOG_TAG, "from() > Unexpected zoom: $zoom|markerCount: $markerCount -> DEFAULT")
             return DEFAULT
         }
     }

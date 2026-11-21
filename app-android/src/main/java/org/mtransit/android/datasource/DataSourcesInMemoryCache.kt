@@ -9,7 +9,7 @@ import kotlinx.coroutines.launch
 import org.mtransit.android.billing.IBillingManager
 import org.mtransit.android.billing.filterExpansiveAgencies
 import org.mtransit.android.billing.filterExpansiveNewsProviders
-import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.MTLogK
 import org.mtransit.android.data.AgencyBaseProperties
 import org.mtransit.android.data.AgencyProperties
 import org.mtransit.android.data.DataSourceType
@@ -41,7 +41,7 @@ class DataSourcesInMemoryCache(
     private val remoteConfigProvider: RemoteConfigProvider,
     private val demoModeManager: DemoModeManager,
     ioDispatcher: CoroutineContext,
-) : MTLog.Loggable {
+) : MTLogK.Loggable {
 
     @Inject
     constructor(

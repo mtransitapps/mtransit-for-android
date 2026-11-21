@@ -9,7 +9,7 @@ import com.google.android.libraries.ads.mobile.sdk.common.LoadAdError // #gmaNex
 import com.google.android.libraries.ads.mobile.sdk.rewarded.RewardedAd // #gmaNextGen
 import org.mtransit.android.ad.AdConstants.logAdsD
 import org.mtransit.android.ad.AdManager
-import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.MTLogK
 import org.mtransit.android.dev.CrashReporter
 
 // import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback as GRewardedAdLoadCallback  // #gmaLegacy
@@ -20,7 +20,7 @@ class RewardedAdLoadCallback(
     private val activityHashCode: Int,
 ) : AdLoadCallback<RewardedAd>, // #gmaNextGen
     // ) : GRewardedAdLoadCallback(), // #gmaLegacy
-    MTLog.Loggable {
+    MTLogK.Loggable {
 
     companion object {
         private val LOG_TAG = "${AdManager.LOG_TAG}>${RewardedAdLoadCallback::class.java.simpleName}"
@@ -62,7 +62,7 @@ class RewardedAdLoadCallback(
 
             // AdRequest.ERROR_CODE_NETWORK_ERROR -> // #gmaLegacy
             LoadAdError.ErrorCode.NETWORK_ERROR -> // #gmaNextGen
-                MTLog.w(this, "Failed to receive rewarded ad! Network error code: '${adError.code}' ($adError).")
+                MTLogK.w(this, "Failed to receive rewarded ad! Network error code: '${adError.code}' ($adError).")
 
             // AdRequest.ERROR_CODE_MEDIATION_NO_FILL, // #gmaLegacy
             // AdRequest.ERROR_CODE_NO_FILL -> // #gmaLegacy

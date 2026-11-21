@@ -38,6 +38,7 @@ import org.mtransit.android.ad.IAdScreenFragment;
 import org.mtransit.android.analytics.AnalyticsScreen;
 import org.mtransit.android.analytics.IAnalyticsManager;
 import org.mtransit.android.commons.MTLog;
+import org.mtransit.android.commons.MTLogK;
 import org.mtransit.android.commons.ThemeUtils;
 import org.mtransit.android.databinding.LayoutScreenToolbarBinding;
 import org.mtransit.android.rate.AppRatingsManager;
@@ -60,6 +61,7 @@ import dagger.hilt.android.AndroidEntryPoint;
 @AndroidEntryPoint
 public abstract class ABFragment extends MTFragmentX implements
 		AnalyticsScreen,
+		MTLogK.Loggable,
 		IAdScreenFragment {
 
 	private static final boolean DEFAULT_THEME_DARK_INSTEAD_OF_LIGHT = false;

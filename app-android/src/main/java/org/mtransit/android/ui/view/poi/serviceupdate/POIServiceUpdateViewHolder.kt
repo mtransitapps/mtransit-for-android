@@ -5,7 +5,7 @@ import android.view.View
 import android.widget.ImageView
 import androidx.core.view.isVisible
 import org.mtransit.android.R
-import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.MTLogK
 import org.mtransit.android.commons.data.POI
 import org.mtransit.android.commons.data.RouteDirectionStop
 import org.mtransit.android.commons.data.ServiceUpdates
@@ -18,7 +18,7 @@ data class POIServiceUpdateViewHolder @JvmOverloads constructor(
     val serviceUpdateImg: ImageView?,
     val otherServiceUpdateImg: ImageView? = null,
     var ignoredOtherTargetUUIDsOrUnknown: Collection<String>? = null,
-) : MTLog.Loggable {
+) : MTLogK.Loggable {
 
     var targetUUID: String = initialTargetUUID
         private set

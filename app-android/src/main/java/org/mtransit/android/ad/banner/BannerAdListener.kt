@@ -12,7 +12,7 @@ import com.google.android.libraries.ads.mobile.sdk.common.LoadAdError // #gmaNex
 import org.mtransit.android.ad.AdConstants.logAdsD
 import org.mtransit.android.ad.AdManager
 import org.mtransit.android.ad.IAdScreenActivity
-import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.MTLogK
 import org.mtransit.android.commons.TimeUtils
 import org.mtransit.android.dev.CrashReporter
 import java.lang.ref.WeakReference
@@ -26,7 +26,7 @@ class BannerAdListener(
 ) : AdLoadCallback<BannerAd>, // #gmaNextGen
     BannerAdRefreshCallback, // #gmaNextGen
     // ) : AdListener(), // #gmaLegacy
-    MTLog.Loggable {
+    MTLogK.Loggable {
 
     constructor(
         bannerAdManager: BannerAdManager,
@@ -71,12 +71,12 @@ class BannerAdListener(
 
             // AdRequest.ERROR_CODE_NETWORK_ERROR -> // #gmaLegacy
             LoadAdError.ErrorCode.NETWORK_ERROR -> // #gmaNextGen
-                MTLog.w(this, "Failed to receive ad! Network error code: '${adError.code}' ($adError).")
+                MTLogK.w(this, "Failed to receive ad! Network error code: '${adError.code}' ($adError).")
 
             // AdRequest.ERROR_CODE_MEDIATION_NO_FILL, // #gmaLegacy
             // AdRequest.ERROR_CODE_NO_FILL -> // #gmaLegacy
             LoadAdError.ErrorCode.NO_FILL -> // #gmaNextGen
-                MTLog.w(this, "Failed to receive ad! No fill error code: '${adError.code}' ($adError).")
+                MTLogK.w(this, "Failed to receive ad! No fill error code: '${adError.code}' ($adError).")
 
             LoadAdError.ErrorCode.TIMEOUT, // #gmaNextGen
             LoadAdError.ErrorCode.CANCELLED, // #gmaNextGen

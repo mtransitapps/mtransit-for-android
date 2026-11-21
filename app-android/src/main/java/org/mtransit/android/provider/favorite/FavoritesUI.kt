@@ -13,7 +13,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.mtransit.android.R
-import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.MTLogK
 import org.mtransit.android.commons.ToastUtils
 import org.mtransit.android.commons.data.DataSourceTypeId
 import org.mtransit.android.commons.data.POI
@@ -22,7 +22,7 @@ import org.mtransit.android.data.TextMessage
 import org.mtransit.android.provider.FavoriteRepository
 import org.mtransit.android.ui.MTDialog
 
-object FavoritesUI : MTLog.Loggable {
+object FavoritesUI : MTLogK.Loggable {
 
     private val LOG_TAG: String = FavoritesUI::class.java.simpleName
 

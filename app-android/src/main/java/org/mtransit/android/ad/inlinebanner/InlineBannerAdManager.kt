@@ -13,7 +13,7 @@ import org.mtransit.android.ad.AdConstants.logAdsD
 import org.mtransit.android.ad.AdManager
 import org.mtransit.android.ad.GlobalAdManager
 import org.mtransit.android.ad.IAdScreenFragment
-import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.MTLogK
 import org.mtransit.android.commons.TaskUtils
 import org.mtransit.android.dev.CrashReporter
 import org.mtransit.android.ui.view.common.IFragment
@@ -30,7 +30,7 @@ import javax.inject.Singleton
 class InlineBannerAdManager @Inject constructor(
     private val globalAdManager: GlobalAdManager,
     private val crashReporter: CrashReporter,
-) : MTLog.Loggable {
+) : MTLogK.Loggable {
 
     companion object {
         private val LOG_TAG = "${AdManager.LOG_TAG}>${InlineBannerAdManager::class.java.simpleName}"

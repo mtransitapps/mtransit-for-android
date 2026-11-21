@@ -12,7 +12,7 @@ import androidx.viewbinding.ViewBinding
 import com.google.android.material.transition.Hold
 import com.google.android.material.transition.MaterialContainerTransform
 import org.mtransit.android.R
-import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.MTLogK
 import org.mtransit.commons.FeatureFlags
 
 /**
@@ -33,7 +33,7 @@ import org.mtransit.commons.FeatureFlags
  *  - POI scree
  *  - Home screen
  */
-object MTTransitions : MTLog.Loggable {
+object MTTransitions : MTLogK.Loggable {
 
     private val LOG_TAG: String = MTTransitions::class.java.simpleName
 

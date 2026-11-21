@@ -7,7 +7,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.MTLogK
 import org.mtransit.android.commons.data.Direction
 import org.mtransit.android.commons.data.Route
 import org.mtransit.android.commons.data.Trip
@@ -46,7 +46,7 @@ class DataSourceRequestManager(
     private val dataSourcesInMemoryCache: DataSourcesInMemoryCache,
     private val dataSourcesDatabase: DataSourcesDatabase,
     private val ioDispatcher: CoroutineDispatcher,
-) : MTLog.Loggable {
+) : MTLogK.Loggable {
 
     @Inject
     constructor(
@@ -105,7 +105,7 @@ class DataSourceRequestManager(
             ?.takeIf { it.setupRequired }
             ?: return@withContext
         dataSourcesDatabase.agencyPropertiesDao().updateAgencySetupRequired(authority = agencyAuthority, setupRequired = false)
-        MTLog.d(this@DataSourceRequestManager, "Agency '$agencyAuthority' > new setup required: false.")
+        MTLogK.d(this@DataSourceRequestManager, "Agency '$agencyAuthority' > new setup required: false.")
     }
 
     // end region

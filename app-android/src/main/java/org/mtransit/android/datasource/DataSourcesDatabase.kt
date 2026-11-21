@@ -8,7 +8,7 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
-import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.MTLogK
 import org.mtransit.android.data.AgencyProperties
 import org.mtransit.android.data.NewsProviderProperties
 import org.mtransit.android.data.ScheduleProviderProperties
@@ -61,65 +61,65 @@ abstract class DataSourcesDatabase : RoomDatabase() {
 
         private val MIGRATION_1_2 = object : Migration(1, 2) {
             override fun migrate(db: SupportSQLiteDatabase) {
-                MTLog.i(LOG_TAG, "DB migration from version 1 to 2...")
+                MTLogK.i(LOG_TAG, "DB migration from version 1 to 2...")
                 db.execSQL(
                     "ALTER TABLE agency_properties ADD COLUMN available_version_code INTEGER NOT NULL DEFAULT -1"
                 )
-                MTLog.i(LOG_TAG, "DB migration from version 1 to 2... DONE")
+                MTLogK.i(LOG_TAG, "DB migration from version 1 to 2... DONE")
             }
         }
 
         private val MIGRATION_2_3 = object : Migration(2, 3) {
             override fun migrate(db: SupportSQLiteDatabase) {
-                MTLog.i(LOG_TAG, "DB migration from version 2 to 3...")
+                MTLogK.i(LOG_TAG, "DB migration from version 2 to 3...")
                 db.execSQL(
                     "ALTER TABLE agency_properties ADD COLUMN contact_us_web ${SQLUtils.TXT} DEFAULT null"
                 )
                 db.execSQL(
                     "ALTER TABLE agency_properties ADD COLUMN contact_us_web_fr ${SQLUtils.TXT} DEFAULT null"
                 )
-                MTLog.i(LOG_TAG, "DB migration from version 2 to 3... DONE")
+                MTLogK.i(LOG_TAG, "DB migration from version 2 to 3... DONE")
             }
         }
 
         private val MIGRATION_3_4 = object : Migration(3, 4) {
             override fun migrate(db: SupportSQLiteDatabase) {
-                MTLog.i(LOG_TAG, "DB migration from version 3 to 4...")
+                MTLogK.i(LOG_TAG, "DB migration from version 3 to 4...")
                 db.execSQL(
                     "ALTER TABLE agency_properties ADD COLUMN extended_type ${SQLUtils.INT} DEFAULT null"
                 )
-                MTLog.i(LOG_TAG, "DB migration from version 3 to 4... DONE")
+                MTLogK.i(LOG_TAG, "DB migration from version 3 to 4... DONE")
             }
         }
 
         private val MIGRATION_4_5 = object : Migration(4, 5) {
             override fun migrate(db: SupportSQLiteDatabase) {
-                MTLog.i(LOG_TAG, "DB migration from version 4 to 5...")
+                MTLogK.i(LOG_TAG, "DB migration from version 4 to 5...")
                 db.execSQL(
                     "ALTER TABLE agency_properties ADD COLUMN fares_web ${SQLUtils.TXT} DEFAULT null"
                 )
                 db.execSQL(
                     "ALTER TABLE agency_properties ADD COLUMN fares_web_fr ${SQLUtils.TXT} DEFAULT null"
                 )
-                MTLog.i(LOG_TAG, "DB migration from version 4 to 5... DONE")
+                MTLogK.i(LOG_TAG, "DB migration from version 4 to 5... DONE")
             }
         }
         private val MIGRATION_6_7 = object : Migration(6, 7) {
             override fun migrate(db: SupportSQLiteDatabase) {
-                MTLog.i(LOG_TAG, "DB migration from version 6 to 7...")
+                MTLogK.i(LOG_TAG, "DB migration from version 6 to 7...")
                 db.execSQL(
                     "ALTER TABLE agency_properties ADD COLUMN setup_required ${SQLUtils.INT} NOT NULL DEFAULT ${SQLUtils.BOOLEAN_FALSE}"
                 )
-                MTLog.i(LOG_TAG, "DB migration from version 6 to 7... DONE")
+                MTLogK.i(LOG_TAG, "DB migration from version 6 to 7... DONE")
             }
         }
         private val MIGRATION_7_8 = object : Migration(7, 8) {
             override fun migrate(db: SupportSQLiteDatabase) {
-                MTLog.i(LOG_TAG, "DB migration from version 7 to 8...")
+                MTLogK.i(LOG_TAG, "DB migration from version 7 to 8...")
                 db.execSQL(
                     "ALTER TABLE agency_properties ADD COLUMN tz ${SQLUtils.TXT} DEFAULT null"
                 )
-                MTLog.i(LOG_TAG, "DB migration from version 7 to 8... DONE")
+                MTLogK.i(LOG_TAG, "DB migration from version 7 to 8... DONE")
             }
         }
 

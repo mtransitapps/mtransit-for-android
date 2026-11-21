@@ -6,7 +6,7 @@ import androidx.lifecycle.liveData
 import androidx.lifecycle.switchMap
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.LocationUtils
-import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.MTLogK
 import org.mtransit.android.commons.TimeUtils
 import org.mtransit.android.commons.pref.liveDataN
 import org.mtransit.android.datasource.DataSourcesRepository
@@ -24,7 +24,7 @@ class NetworkLocationRepository @Inject constructor(
     private val lclPrefRepository: LocalPreferenceRepository,
     private val dataSourcesRepository: DataSourcesRepository,
     private val locationPermissionProvider: LocationPermissionProvider,
-) : MTLog.Loggable {
+) : MTLogK.Loggable {
 
     companion object {
         private val LOG_TAG: String = NetworkLocationRepository::class.java.simpleName
@@ -90,7 +90,7 @@ class NetworkLocationRepository @Inject constructor(
                 }
             },
             onFailure = { t ->
-                MTLog.e(this@NetworkLocationRepository, t, "Error while fetching current IP location!")
+                MTLogK.e(this@NetworkLocationRepository, "Error while fetching current IP location!", t)
             }
         )
     }

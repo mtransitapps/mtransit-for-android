@@ -7,7 +7,7 @@ import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayout.OnTabSelectedListener
 import com.google.android.material.tabs.TabLayoutMediator
-import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.MTLogK
 import java.lang.ref.WeakReference
 import kotlin.math.abs
 import kotlin.math.min
@@ -23,7 +23,7 @@ class MTTabLayoutMediator @JvmOverloads constructor(
     private val autoRefresh: Boolean = true,
     private val smoothScroll: Boolean = true,
     private val tabConfigurationStrategy: TabLayoutMediator.TabConfigurationStrategy
-) : MTLog.Loggable {
+) : MTLogK.Loggable {
 
     companion object {
         private val LOG_TAG: String = MTTabLayoutMediator::class.java.simpleName

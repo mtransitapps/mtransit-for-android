@@ -16,7 +16,7 @@ import org.mtransit.android.analytics.AnalyticsEventsParamsProvider
 import org.mtransit.android.analytics.AnalyticsScreen
 import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.commons.Constants
-import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.MTLogK
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.dev.DemoModeManager
 import org.mtransit.android.provider.FavoriteRepository
@@ -38,7 +38,7 @@ class AppRatingsManager @Inject constructor(
     private val favoriteRepository: FavoriteRepository,
     private val analyticsManager: IAnalyticsManager,
     private val demoModeManager: DemoModeManager,
-) : MTLog.Loggable {
+) : MTLogK.Loggable {
 
     companion object {
         private val LOG_TAG: String = AppRatingsManager::class.java.simpleName

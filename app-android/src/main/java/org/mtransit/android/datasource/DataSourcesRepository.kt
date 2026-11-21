@@ -19,7 +19,7 @@ import org.mtransit.android.billing.IBillingManager
 import org.mtransit.android.billing.filterExpansiveAgencies
 import org.mtransit.android.billing.filterExpansiveAgencyAuthorities
 import org.mtransit.android.billing.filterExpansiveNewsProviders
-import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.MTLogK
 import org.mtransit.android.commons.isAppEnabled
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.DataSourceType.DataSourceTypeShortNameComparator
@@ -53,7 +53,7 @@ class DataSourcesRepository(
     private val remoteConfigProvider: RemoteConfigProvider,
     private val pm: PackageManager,
     ioDispatcher: CoroutineContext,
-) : MTLog.Loggable {
+) : MTLogK.Loggable {
 
     @Inject
     constructor(
@@ -405,15 +405,15 @@ class DataSourcesRepository(
     private val updateLockMutex = Mutex()
 
     suspend fun updateLock(forcePkg: String? = null): Boolean {
-        MTLog.d(this@DataSourcesRepository, "updateLock($forcePkg)")
+        MTLogK.d(this@DataSourcesRepository, "updateLock($forcePkg)")
         if (runningUpdateMap.put(forcePkg ?: ALL_PKG, true) == true) {
-            MTLog.d(this@DataSourcesRepository, "updateLock($forcePkg) > SKIP (was running - before sync)")
+            MTLogK.d(this@DataSourcesRepository, "updateLock($forcePkg) > SKIP (was running - before sync)")
             return false
         }
         try {
             this.updateLockMutex.withLock {
                 val updated = update(forcePkg)
-                MTLog.d(this@DataSourcesRepository, "updateLock($forcePkg) > updated: $updated")
+                MTLogK.d(this@DataSourcesRepository, "updateLock($forcePkg) > updated: $updated")
                 return updated
             }
         } finally {
@@ -422,10 +422,10 @@ class DataSourcesRepository(
     }
 
     private suspend fun update(forcePkg: String? = null) = withContext(Dispatchers.IO) {
-        MTLog.i(this@DataSourcesRepository, "update($forcePkg) > Updating... ")
+        MTLogK.i(this@DataSourcesRepository, "update($forcePkg) > Updating... ")
         val updated = dataSourcesReader.update(forcePkg)
-        MTLog.i(this@DataSourcesRepository, "update($forcePkg) > Updating...  DONE")
-        MTLog.d(this@DataSourcesRepository, "update($forcePkg) > $updated")
+        MTLogK.i(this@DataSourcesRepository, "update($forcePkg) > Updating...  DONE")
+        MTLogK.d(this@DataSourcesRepository, "update($forcePkg) > $updated")
         updated
     }
 

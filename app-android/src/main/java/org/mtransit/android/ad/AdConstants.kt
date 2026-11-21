@@ -1,6 +1,6 @@
 package org.mtransit.android.ad
 
-import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.MTLogK
 
 object AdConstants {
 
@@ -23,13 +23,13 @@ object AdConstants {
         "light rail", "transport", "velo", "metro", "taxi", "train", "traversier"
     )
 
-    fun logAdsD(loggable: MTLog.Loggable, msg: String) {
+    fun logAdsD(loggable: MTLogK.Loggable, msg: String) {
         if (!DEBUG) return
-        MTLog.d(loggable, msg)
+        MTLogK.d(loggable, msg)
     }
 
     fun logAdsD(tag: String, msg: String) {
         if (!DEBUG) return
-        MTLog.d(tag, msg)
+        MTLogK.d(tag, msg)
     }
 }

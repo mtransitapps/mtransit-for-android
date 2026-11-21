@@ -6,7 +6,7 @@ import org.mtransit.android.BuildConfig
 import org.mtransit.android.R
 import org.mtransit.android.billing.IBillingManager
 import org.mtransit.android.commons.KeysIds
-import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.MTLogK
 import org.mtransit.android.commons.StringUtils.EMPTY
 import org.mtransit.android.data.ITargetedProviderProperties
 import org.mtransit.android.provider.remoteconfig.RemoteConfigProvider
@@ -43,7 +43,7 @@ class KeysManager @Inject constructor(
             KeysIds.CA_SUDBURY_TRANSIT_AUTH_TOKEN -> context.resources.getStringArray(R.array.greater_sudbury_auth_token).join()
             KeysIds.CA_WINNIPEG_TRANSIT_API_KEY -> context.resources.getStringArray(R.array.ca_winnipeg_transit_api_key).join()
             else -> {
-                if (DEBUGGING_KEYS) MTLog.w(LOG_TAG, "Unexpected '$key'!")
+                if (DEBUGGING_KEYS) MTLogK.w(LOG_TAG, "Unexpected '$key'!")
                 null
             }
         }?.takeIf { it.isNotBlank() }
@@ -115,7 +115,7 @@ class KeysManager @Inject constructor(
                     }
 
                     else -> {
-                        if (DEBUGGING_KEYS) MTLog.d(LOG_TAG, "Unexpected '$authority'!")
+                        if (DEBUGGING_KEYS) MTLogK.d(LOG_TAG, "Unexpected '$authority'!")
                         null
                     }
                 }
@@ -128,7 +128,7 @@ class KeysManager @Inject constructor(
                     }
 
                     else -> {
-                        if (DEBUGGING_KEYS) MTLog.d(LOG_TAG, "Unexpected '$authority'!")
+                        if (DEBUGGING_KEYS) MTLogK.d(LOG_TAG, "Unexpected '$authority'!")
                         null
                     }
                 }
@@ -137,7 +137,7 @@ class KeysManager @Inject constructor(
             authority.endsWith("$debugS.mybus") -> getKeyEntry(context, KeysIds.CA_SUDBURY_TRANSIT_AUTH_TOKEN)?.let { mapOf(it) }
             authority.endsWith("$debugS.winnipeg_transit") -> getKeyEntry(context, KeysIds.CA_WINNIPEG_TRANSIT_API_KEY)?.let { mapOf(it) }
             else -> {
-                if (DEBUGGING_KEYS) MTLog.d(LOG_TAG, "No key for '$authority'.")
+                if (DEBUGGING_KEYS) MTLogK.d(LOG_TAG, "No key for '$authority'.")
                 null
             }
         }

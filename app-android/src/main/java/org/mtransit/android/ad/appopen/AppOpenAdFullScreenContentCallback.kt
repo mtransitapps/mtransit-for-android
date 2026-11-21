@@ -6,7 +6,7 @@ import com.google.android.libraries.ads.mobile.sdk.appopen.AppOpenAdEventCallbac
 import com.google.android.libraries.ads.mobile.sdk.common.FullScreenContentError // #gmaNextGen
 import org.mtransit.android.ad.AdConstants.logAdsD
 import org.mtransit.android.ad.AdManager
-import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.MTLogK
 import org.mtransit.android.dev.CrashReporter
 
 class AppOpenAdFullScreenContentCallback(
@@ -15,7 +15,7 @@ class AppOpenAdFullScreenContentCallback(
     private val onShowAdComplete: () -> Unit
 ) : AppOpenAdEventCallback, // #gmaNextGen
     // ) : FullScreenContentCallback(), // #gmaLegacy
-    MTLog.Loggable {
+    MTLogK.Loggable {
 
     companion object {
         private val LOG_TAG = "${AdManager.LOG_TAG}>${AppOpenAdFullScreenContentCallback::class.java.simpleName}"

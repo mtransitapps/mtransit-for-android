@@ -23,7 +23,7 @@ import org.mtransit.android.ad.AdConstants.logAdsD
 import org.mtransit.android.ad.appopen.AppOpenAdManager
 import org.mtransit.android.ad.banner.BannerAdManager
 import org.mtransit.android.ad.rewarded.RewardedAdManager
-import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.MTLogK
 import org.mtransit.android.ui.view.common.IActivity
 import javax.inject.Inject
 import kotlin.time.Instant
@@ -47,7 +47,7 @@ class AdManager @Inject internal constructor(
     private val rewardedAdManager: RewardedAdManager,
     private val appOpenAdManager: AppOpenAdManager,
 ) : IAdManager,
-    MTLog.Loggable {
+    MTLogK.Loggable {
 
     companion object {
 
@@ -202,7 +202,7 @@ class AdManager @Inject internal constructor(
             if (error == null) {
                 logAdsD(this@AdManager, "Ad inspector closed.")
             } else {
-                MTLog.w(this@AdManager, "Ad inspector closed: ${error.code} > $error!")
+                MTLogK.w(this@AdManager, "Ad inspector closed: ${error.code} > $error!")
             }
         }
     }

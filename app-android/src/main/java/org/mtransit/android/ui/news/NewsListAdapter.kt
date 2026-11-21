@@ -16,7 +16,7 @@ import androidx.recyclerview.widget.RecyclerView
 import org.mtransit.android.R
 import org.mtransit.android.common.IContext
 import org.mtransit.android.commons.ColorUtils
-import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.MTLogK
 import org.mtransit.android.commons.ThreadSafeDateFormatter
 import org.mtransit.android.commons.data.News
 import org.mtransit.android.data.AuthorityAndUuid
@@ -39,7 +39,7 @@ class NewsListAdapter(
     private val horizontal: Boolean = false,
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>(),
     StickyHeaderItemDecorator.StickyAdapter<RecyclerView.ViewHolder>,
-    MTLog.Loggable {
+    MTLogK.Loggable {
 
     companion object {
         private val LOG_TAG: String = NewsListAdapter::class.java.simpleName
@@ -258,7 +258,7 @@ class NewsListAdapter(
             }
             index += newsList.size
         }
-        MTLog.d(this, "getItemPosition() > No news article for '$authorityAndUuid'!")
+        MTLogK.d(this, "getItemPosition() > No news article for '$authorityAndUuid'!")
         return null
     }
 

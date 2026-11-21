@@ -41,7 +41,7 @@ import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.billing.IBillingManager
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.LocaleUtils
-import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.MTLogK
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.dev.CrashReporter
 import org.mtransit.android.dev.DemoModeManager
@@ -76,7 +76,7 @@ class MainActivity :
     AnalyticsScreen,
     IActivity,
     IAdScreenActivity,
-    MTLog.Loggable,
+    MTLogK.Loggable,
     IAdManager.RewardedAdListener {
 
     companion object {
@@ -375,7 +375,7 @@ class MainActivity :
         optTransitionSharedElement: View?,
         optTransitionName: String?,
     ) {
-        MTLog.d(this, "showNewFragment(%s, %s, %s, %s, %s)", newFragment, addToStack, optSource, optTransitionSharedElement, optTransitionName)
+        MTLogK.d(this, "showNewFragment($newFragment, $addToStack, $optSource, $optTransitionSharedElement, $optTransitionName)")
         FragmentUtils.replaceFragment(this, R.id.content_frame, newFragment, addToStack, optSource, optTransitionSharedElement, optTransitionName)
         if (addToStack) {
             this.backStackEntryCount++
@@ -535,7 +535,7 @@ class MainActivity :
             }
             this.fragmentsToPopWR.clear()
         } catch (e: Exception) {
-            MTLog.w(this, e, "Error while pop-ing fragments to pop from stack!")
+            MTLogK.w(this, "Error while pop-ing fragments to pop from stack!", e)
         }
     }
 
