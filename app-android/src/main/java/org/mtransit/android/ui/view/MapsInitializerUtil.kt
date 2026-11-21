@@ -3,10 +3,10 @@ package org.mtransit.android.ui.view
 import android.content.Context
 import androidx.annotation.MainThread
 import com.google.android.gms.maps.MapsInitializer
-import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.MTLogK
 import java.util.concurrent.atomic.AtomicReference
 
-object MapsInitializerUtil : MTLog.Loggable {
+object MapsInitializerUtil : MTLogK.Loggable {
 
     private val LOG_TAG: String = MapsInitializerUtil::class.java.simpleName
 
@@ -27,7 +27,7 @@ object MapsInitializerUtil : MTLog.Loggable {
     @MainThread
     fun initMap(context: Context, onMapInitialized: (MapsInitializer.Renderer?) -> (Unit) = {}) {
         rendererInitialized.get()?.let { renderer ->
-            MTLog.d(this, "initMap() > SKIP (already running)")
+            MTLogK.d(this, "initMap() > SKIP (already running)")
             onMapInitialized(renderer)
             return
         }
@@ -36,18 +36,18 @@ object MapsInitializerUtil : MTLog.Loggable {
             MapsInitializer.initialize(context.applicationContext, PREFERRED_RENDERER) { renderer ->
                 when (renderer) {
                     MapsInitializer.Renderer.LATEST -> {
-                        MTLog.d(this, "The latest version of the renderer is used.")
+                        MTLogK.d(this, "The latest version of the renderer is used.")
                     }
 
                     MapsInitializer.Renderer.LEGACY -> {
-                        MTLog.d(this, "The legacy version of the renderer is used.")
+                        MTLogK.d(this, "The legacy version of the renderer is used.")
                     }
                 }
                 rendererInitialized.set(renderer)
                 onMapInitialized(renderer)
             }
         } catch (e: Exception) {
-            MTLog.w(this, e, "Error while initializing map!")
+            MTLogK.w(this, "Error while initializing map!", e)
             rendererInitialized.set(null)
         }
     }

@@ -26,7 +26,7 @@ import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.commons.ColorUtils
-import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.MTLogK
 import org.mtransit.android.commons.ThemeUtils
 import org.mtransit.android.commons.data.News
 import org.mtransit.android.commons.provider.news.NewsProviderContract.Filter.Companion.toTargetsUUIDs
@@ -186,11 +186,11 @@ class NewsListDetailFragment :
         }
 
         override fun onPanelOpened(panel: View) {
-            MTLog.d(this@NewsListDetailFragment, "onPanelOpened()")
+            MTLogK.d(this@NewsListDetailFragment, "onPanelOpened()")
         }
 
         override fun onPanelClosed(panel: View) {
-            MTLog.d(this@NewsListDetailFragment, "onPanelClosed()")
+            MTLogK.d(this@NewsListDetailFragment, "onPanelClosed()")
             attachedViewModel?.cleanSelectedNewsArticle()
         }
     }

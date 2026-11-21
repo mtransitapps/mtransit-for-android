@@ -6,7 +6,7 @@ import androidx.core.content.getSystemService
 import androidx.core.os.ConfigurationCompat
 import dagger.hilt.android.qualifiers.ApplicationContext
 import org.mtransit.android.common.repository.LocalPreferenceRepository
-import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.MTLogK
 import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -15,7 +15,7 @@ import javax.inject.Singleton
 class CountryProvider @Inject constructor(
     @ApplicationContext private val appContext: Context,
     private val lclPrefRepository: LocalPreferenceRepository,
-) : MTLog.Loggable {
+) : MTLogK.Loggable {
 
     companion object {
         private val LOG_TAG: String = CountryProvider::class.java.simpleName
@@ -25,18 +25,18 @@ class CountryProvider @Inject constructor(
 
     fun getCurrentCountryCode(): String? {
         getCurrentCountryCodeNetwork()?.let {
-            MTLog.d(this, "getCurrentCountryCode() > use network country code: $it")
+            MTLogK.d(this, "getCurrentCountryCode() > use network country code: $it")
             return it
         }
         getCurrentCountryCodeFromIP()?.let {
-            MTLog.d(this, "getCurrentCountryCode() > use IP country code: $it")
+            MTLogK.d(this, "getCurrentCountryCode() > use IP country code: $it")
             return it
         }
         getCurrentCountryCodeFromLocale()?.let {
-            MTLog.d(this, "getCurrentCountryCode() > use locale country code: $it")
+            MTLogK.d(this, "getCurrentCountryCode() > use locale country code: $it")
             return it
         }
-        MTLog.d(this, "getCurrentCountryCode() > not found")
+        MTLogK.d(this, "getCurrentCountryCode() > not found")
         return null
     }
 

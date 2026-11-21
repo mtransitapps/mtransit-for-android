@@ -5,7 +5,7 @@ import android.view.View
 import com.google.android.gms.maps.model.LatLng
 import org.mtransit.android.R
 import org.mtransit.android.commons.LocationUtils
-import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.MTLogK
 import org.mtransit.android.commons.TimeUtils
 import org.mtransit.android.commons.dpToPx
 import org.mtransit.android.commons.provider.vehiclelocations.model.VehicleLocation
@@ -53,15 +53,15 @@ fun MapViewController.updateVehicleLocationMarkers(
 ): Boolean {
     selectedUuid?.let { setInitialSelectedUUID(selectedUuid) }
     val googleMap = this.extendedGoogleMap ?: run {
-        MTLog.d(this, "updateVehicleLocationMarkers() > SKIP (no google map)")
+        MTLogK.d(this, "updateVehicleLocationMarkers() > SKIP (no google map)")
         return false
     }
     val markerProvider = markerProvider ?: run {
-        MTLog.d(this, "updateVehicleLocationMarkers() > SKIP (no marker provider)")
+        MTLogK.d(this, "updateVehicleLocationMarkers() > SKIP (no marker provider)")
         return false
     }
     val newVehicleLocations = newVehicleLocations?.takeIf { it.isNotEmpty() } ?: run {
-        MTLog.d(this, "updateVehicleLocationMarkers() > SKIP (no vehicle locations)")
+        MTLogK.d(this, "updateVehicleLocationMarkers() > SKIP (no vehicle locations)")
         removeMissingVehicleLocationMarkers()
         return true
     }
@@ -104,7 +104,7 @@ fun MapViewController.updateVehicleLocationMarkers(
 
 fun MapViewController.areMarkerCollapsing(latLng1: LatLng, latLng2: LatLng): Boolean? {
     val projection = this.extendedGoogleMap?.projection ?: run {
-        MTLog.d(this, "areMarkerCollapsing() > UNKNOWN (no map) #20260717")
+        MTLogK.d(this, "areMarkerCollapsing() > UNKNOWN (no map) #20260717")
         return null
     }
     val point1 = projection.toScreenLocation(latLng1)

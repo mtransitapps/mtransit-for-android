@@ -9,7 +9,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.mtransit.android.ad.AdConstants.logAdsD
 import org.mtransit.android.ad.AdManager
-import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.MTLogK
 import org.mtransit.android.dev.CrashReporter
 import org.mtransit.android.ui.view.common.IActivity
 import java.lang.ref.WeakReference
@@ -20,7 +20,7 @@ class RewardedAdFullScreenContentCallback(
     private val activityWR: WeakReference<IActivity>,
 ) : RewardedAdEventCallback, // #gmaNextGen
     // ) : FullScreenContentCallback(), // #gmaLegacy
-    MTLog.Loggable {
+    MTLogK.Loggable {
 
     constructor(
         rewardedAdManager: RewardedAdManager,

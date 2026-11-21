@@ -30,7 +30,7 @@ import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.common.roundTo
-import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.MTLogK
 import org.mtransit.android.commons.data.LocationPOI
 import org.mtransit.android.commons.data.RouteDirectionStop
 import org.mtransit.android.commons.isAppEnabled
@@ -195,18 +195,18 @@ class MapViewModel @Inject constructor(
             try {
                 val type = DataSourceType.parseId(typeIdString.toInt())
                 if (type == null) {
-                    MTLog.d(this, "makeFilterTypeId() > '$typeIdString' not valid")
+                    MTLogK.d(this, "makeFilterTypeId() > '$typeIdString' not valid")
                     prefHasChanged = true
                     return@forEach
                 }
                 if (!availableTypes.contains(type)) {
-                    MTLog.d(this, "makeFilterTypeId() > '$type' not available (in map screen)")
+                    MTLogK.d(this, "makeFilterTypeId() > '$type' not available (in map screen)")
                     prefHasChanged = true
                     return@forEach
                 }
                 filterTypeIds.add(type.id)
             } catch (e: Exception) {
-                MTLog.w(this, e, "Error while parsing filter type ID '%s'!", typeIdString)
+                MTLogK.w(this, "Error while parsing filter type ID '$typeIdString'!", e)
                 prefHasChanged = true
             }
         }
@@ -217,17 +217,17 @@ class MapViewModel @Inject constructor(
                 prefHasChanged = try {
                     val type = DataSourceType.parseId(includedTypeId)
                     if (type == null) {
-                        MTLog.d(this, "makeFilterTypeId() > included '$includedTypeId' not valid")
+                        MTLogK.d(this, "makeFilterTypeId() > included '$includedTypeId' not valid")
                         return@let // DO NOTHING
                     }
                     if (!availableTypes.contains(type)) {
-                        MTLog.d(this, "makeFilterTypeId() > included '$includedTypeId' not available")
+                        MTLogK.d(this, "makeFilterTypeId() > included '$includedTypeId' not available")
                         return@let // DO NOTHING
                     }
                     filterTypeIds.add(type.id)
                     true
                 } catch (e: Exception) {
-                    MTLog.w(this, e, "Error while parsing filter type ID '%s'!", includedTypeId)
+                    MTLogK.w(this, "Error while parsing filter type ID '$includedTypeId'!", e)
                     true
                 }
             }
@@ -294,7 +294,7 @@ class MapViewModel @Inject constructor(
                     .firstOrNull()
                     ?.latLng
                     ?: run {
-                        MTLog.d(this@MapViewModel, "initialVisibleArea.onChanged() > SKIP (no POI nearby)")
+                        MTLogK.d(this@MapViewModel, "initialVisibleArea.onChanged() > SKIP (no POI nearby)")
                         emit(emptyList())
                         return@liveData
                     }
@@ -325,7 +325,7 @@ class MapViewModel @Inject constructor(
         val loaded = loadedArea.containsEntirely(newVisibleArea)
         val loading = loadingArea.containsEntirely(newVisibleArea)
         if (loaded || loading) {
-            MTLog.d(this, "onCameraChanged() > SKIP (no change)")
+            MTLogK.d(this, "onCameraChanged() > SKIP (no change)")
             return false // no change
         }
         var newLoadingArea: LatLngBounds = getBigCameraPosition() ?: newVisibleArea
@@ -355,7 +355,7 @@ class MapViewModel @Inject constructor(
                 _poiMarkers.value = null
             }
             if (loadedArea == loadingArea) {
-                MTLog.d(this@MapViewModel, "poiMarkersTrigger.onChanged() > SKIP (loading area already loaded)")
+                MTLogK.d(this@MapViewModel, "poiMarkersTrigger.onChanged() > SKIP (loading area already loaded)")
                 return@map null
             }
             poiMarkersLoadJob = viewModelScope.launch(Dispatchers.IO) {

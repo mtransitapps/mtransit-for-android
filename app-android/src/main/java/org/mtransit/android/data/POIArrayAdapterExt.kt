@@ -8,7 +8,7 @@ import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
 import kotlinx.coroutines.Dispatchers
 import org.mtransit.android.analytics.AnalyticsScreen
-import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.MTLogK
 import org.mtransit.android.ui.view.common.MediatorLiveData2
 import org.mtransit.android.ui.view.common.MediatorLiveData4
 import android.location.Location as AndroidLocation
@@ -110,7 +110,7 @@ internal fun POIArrayAdapter.trackTypeHeaderButtonClick(buttonId: Int) {
             analyticsManager.trackButtonClick("header_all", buttonId.toString(), analyticsScreen)
 
         else -> {
-            MTLog.w(this, "trackTypeHeaderButtonClick() > Unexpected button ID '$buttonId'!")
+            MTLogK.w(this, "trackTypeHeaderButtonClick() > Unexpected button ID '$buttonId'!")
             this.analyticsManager.trackButtonClick("header_unknown", buttonId.toString(), analyticsScreen)
         }
     }

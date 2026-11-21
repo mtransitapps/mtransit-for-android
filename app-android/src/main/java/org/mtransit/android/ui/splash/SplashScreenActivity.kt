@@ -129,9 +129,9 @@ open class SplashScreenActivity :
         // this,
         // com.google.android.gms.ads.OnAdInspectorClosedListener { error: com.google.android.gms.ads.AdInspectorError? ->
         // if (error == null) {
-        // org.mtransit.android.commons.MTLog.d(this, "Ad inspector closed.")
+        // org.mtransit.android.commons.MTLogK.d(this, "Ad inspector closed.")
         // } else {
-        // org.mtransit.android.commons.MTLog.w(this, "Ad inspector closed: ${error.code} > $error!")
+        // org.mtransit.android.commons.MTLogK.w(this, "Ad inspector closed: ${error.code} > $error!")
         // }
         // })
         // finish()

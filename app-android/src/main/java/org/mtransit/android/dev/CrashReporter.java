@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import org.mtransit.android.commons.MTLog;
+import org.mtransit.android.commons.MTLogK;
 
 @SuppressWarnings("unused")
 public interface CrashReporter {
@@ -27,9 +28,13 @@ public interface CrashReporter {
 
 	void w(@NonNull MTLog.Loggable loggable, @NonNull String msg, @NonNull Object... args);
 
+	void w(@NonNull MTLogK.Loggable loggable, @NonNull String msg);
+
 	void w(@NonNull String tag, @NonNull String msg, @NonNull Object... args);
 
 	void w(@NonNull MTLog.Loggable loggable, @Nullable Throwable t, @NonNull String msg, @NonNull Object... args);
+
+	void w(@NonNull MTLogK.Loggable loggable, @Nullable Throwable t, @NonNull String msg);
 
 	void w(@NonNull String tag, @Nullable Throwable t, @NonNull String msg, @NonNull Object... args);
 

@@ -15,7 +15,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.mtransit.android.commons.ColorUtils
-import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.MTLogK
 import org.mtransit.android.commons.data.Route
 import org.mtransit.android.data.AgencyProperties
 import org.mtransit.android.data.IAgencyProperties
@@ -37,7 +37,7 @@ class RDSAgencyRoutesViewModel @Inject constructor(
     private val dataSourcesRepository: DataSourcesRepository,
     dataSourceRequestManager: DataSourceRequestManager,
     private val userPrefManager: UserPrefManager,
-) : ViewModel(), MTLog.Loggable {
+) : ViewModel(), MTLogK.Loggable {
 
     companion object {
         private val LOG_TAG: String = RDSAgencyRoutesViewModel::class.java.simpleName

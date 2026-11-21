@@ -14,7 +14,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.NO_POSITION
 import org.mtransit.android.R
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
-import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.MTLogK
 import org.mtransit.android.commons.SpanUtils
 import org.mtransit.android.commons.ThreadSafeDateFormatter
 import org.mtransit.android.commons.data.Accessibility
@@ -58,7 +58,7 @@ class ScheduleAdapter(
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>(),
     StickyHeaderItemDecorator.StickyAdapter<RecyclerView.ViewHolder>,
     ServiceUpdateLoader.ServiceUpdateLoaderListener,
-    MTLog.Loggable {
+    MTLogK.Loggable {
 
     companion object {
         private val LOG_TAG: String = ScheduleAdapter::class.java.simpleName

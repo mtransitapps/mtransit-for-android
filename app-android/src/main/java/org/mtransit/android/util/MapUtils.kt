@@ -2,10 +2,10 @@ package org.mtransit.android.util
 
 import android.content.Context
 import android.view.ViewGroup
-import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.MTLogK
 import org.mtransit.android.commons.ResourceUtils
 
-object MapUtils : MTLog.Loggable {
+object MapUtils : MTLogK.Loggable {
 
     private val LOG_TAG: String = MapUtils::class.java.simpleName
 

@@ -13,14 +13,14 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.tasks.await
 import org.mtransit.android.BuildConfig
-import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.MTLogK
 import org.mtransit.commons.suspendRunCatching
 import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class RemoteConfigProvider @Inject constructor() : MTLog.Loggable {
+class RemoteConfigProvider @Inject constructor() : MTLogK.Loggable {
 
     companion object {
         private val LOG_TAG: String = RemoteConfigProvider::class.java.simpleName
@@ -53,7 +53,7 @@ class RemoteConfigProvider @Inject constructor() : MTLog.Loggable {
         // activate cached Remote Config values
         suspendRunCatching { remoteConfig.activate().await() }
             .onFailure { e ->
-                MTLog.w(this, e, "Remote config activation failed!")
+                MTLogK.w(this, "Remote config activation failed!", e)
             }
 
         // use activated Remote Config values
@@ -78,7 +78,7 @@ class RemoteConfigProvider @Inject constructor() : MTLog.Loggable {
         // fetch latest remote config value for next app start
         remoteConfig.fetch()
             .addOnFailureListener { e ->
-                MTLog.w(this, e, "Remote config fetch failed!")
+                MTLogK.w(this, "Remote config fetch failed!", e)
             }
     }
 
@@ -114,10 +114,10 @@ class RemoteConfigProvider @Inject constructor() : MTLog.Loggable {
     suspend fun getInstallationToken(forceRefresh: Boolean): InstallationTokenResult? = try {
         installations.getToken(forceRefresh).await()
     } catch (e: FirebaseInstallationsException) {
-        MTLog.w(this, e, "Firebase installation error while getting installation token!")
+        MTLogK.w(this, "Firebase installation error while getting installation token!", e)
         null
     } catch (e: IOException) {
-        MTLog.w(this, e, "I/O Error while getting installation token!")
+        MTLogK.w(this, "I/O Error while getting installation token!", e)
         null
     }
 }

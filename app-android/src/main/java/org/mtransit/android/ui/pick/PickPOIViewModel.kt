@@ -8,7 +8,7 @@ import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.MTLogK
 import org.mtransit.android.commons.provider.poi.POIProviderContract
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.IAgencyProperties
@@ -71,7 +71,7 @@ class PickPOIViewModel @Inject constructor(
 
     private fun checkForDataSourceRemoved(authorities: List<String>, allAgencies: List<IAgencyProperties>): Boolean {
         authorities.firstOrNull { authority -> allAgencies.none { it.authority == authority } }?.let {
-            MTLog.d(this, "Authority $it doesn't exist anymore, dismissing dialog.")
+            MTLogK.d(this, "Authority $it doesn't exist anymore, dismissing dialog.")
             return true
         }
         return false
@@ -94,7 +94,7 @@ class PickPOIViewModel @Inject constructor(
             allAgencies.singleOrNull { it.authority == poiAuthorities[i] }?.let { agency ->
                 agencyToUUIDs.getOrPut(agency, defaultValue = { mutableListOf() }).add(poiUuids[i])
             } ?: run {
-                MTLog.w(this, "getPOIList() > SKIP (missing agency for ${poiAuthorities[i]}!")
+                MTLogK.w(this, "getPOIList() > SKIP (missing agency for ${poiAuthorities[i]}!")
             }
         }
         val poiList = mutableListOf<POIManager>()

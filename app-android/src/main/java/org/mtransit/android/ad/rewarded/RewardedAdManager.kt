@@ -13,7 +13,7 @@ import org.mtransit.android.ad.AdConstants.logAdsD
 import org.mtransit.android.ad.AdManager
 import org.mtransit.android.ad.GlobalAdManager
 import org.mtransit.android.ad.IAdManager.RewardedAdListener
-import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.MTLogK
 import org.mtransit.android.dev.CrashReporter
 import org.mtransit.android.dev.DemoModeManager
 import org.mtransit.android.ui.view.common.IActivity
@@ -30,7 +30,7 @@ class RewardedAdManager @Inject constructor(
     private val userManager: UserManager,
     private val demoModeManager: DemoModeManager,
     private val crashReporter: CrashReporter,
-) : MTLog.Loggable {
+) : MTLogK.Loggable {
 
     companion object {
         private val LOG_TAG = "${AdManager.LOG_TAG}>${RewardedAdManager::class.java.simpleName}"

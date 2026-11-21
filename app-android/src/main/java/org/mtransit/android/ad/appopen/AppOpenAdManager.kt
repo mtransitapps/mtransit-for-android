@@ -14,7 +14,7 @@ import org.mtransit.android.ad.AdConstants
 import org.mtransit.android.ad.AdConstants.logAdsD
 import org.mtransit.android.ad.AdManager
 import org.mtransit.android.ad.GlobalAdManager
-import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.MTLogK
 import org.mtransit.android.commons.TimeUtilsK
 import org.mtransit.android.commons.millisToInstant
 import org.mtransit.android.commons.toMillis
@@ -30,7 +30,7 @@ class AppOpenAdManager @Inject constructor(
     @param:ApplicationContext private val appContext: Context,
     private val globalAdManager: GlobalAdManager,
     private val crashReporter: CrashReporter,
-) : MTLog.Loggable {
+) : MTLogK.Loggable {
 
     companion object {
         private val LOG_TAG = "${AdManager.LOG_TAG}>${AppOpenAdManager::class.java.simpleName}"

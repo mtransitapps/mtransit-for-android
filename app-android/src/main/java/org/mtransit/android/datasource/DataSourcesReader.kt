@@ -13,7 +13,7 @@ import org.mtransit.android.analytics.AnalyticsUserProperties
 import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.Constants
-import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.MTLogK
 import org.mtransit.android.commons.TimeUtils
 import org.mtransit.android.commons.TimeUtilsK
 import org.mtransit.android.commons.getAllInstalledProvidersWithMetaData
@@ -50,7 +50,7 @@ class DataSourcesReader @Inject constructor(
     private val dataSourcesDatabase: DataSourcesDatabase,
     private val dataSourceRequestManager: DataSourceRequestManager,
     private val lclPrefRepository: LocalPreferenceRepository,
-) : MTLog.Loggable {
+) : MTLogK.Loggable {
 
     companion object {
         private val LOG_TAG: String = DataSourcesReader::class.java.simpleName
@@ -167,7 +167,7 @@ class DataSourcesReader @Inject constructor(
     fun isAProvider(pkg: String?, agencyOnly: Boolean = false): Boolean {
         if (pkg.isNullOrBlank()) return false
         if (skipNotSupportedPkg(pkg)) {
-            MTLog.d(this, "isAProvider() > SKIP not supported '$pkg'.")
+            MTLogK.d(this, "isAProvider() > SKIP not supported '$pkg'.")
             return false
         }
         pm.getInstalledProvidersWithMetaData(pkg)?.forEach { providerInfo ->
@@ -188,24 +188,24 @@ class DataSourcesReader @Inject constructor(
 
     internal suspend fun update(forcePkg: String? = null) = withContext(Dispatchers.IO) {
         var updated = false
-        MTLog.d(this@DataSourcesReader, "update($forcePkg) > updateKnownActiveDataSources()... - updated: $updated")
+        MTLogK.d(this@DataSourcesReader, "update($forcePkg) > updateKnownActiveDataSources()... - updated: $updated")
         updateKnownActiveDataSources(forcePkg) { updated = true }
-        MTLog.d(this@DataSourcesReader, "update($forcePkg) > updateReInstalledReEnabledDataSources()... - updated: $updated")
+        MTLogK.d(this@DataSourcesReader, "update($forcePkg) > updateReInstalledReEnabledDataSources()... - updated: $updated")
         updateReInstalledReEnabledDataSources(forcePkg) { updated = true }
-        MTLog.d(this@DataSourcesReader, "update($forcePkg) > lookForNewDataSources()... - updated: $updated")
+        MTLogK.d(this@DataSourcesReader, "update($forcePkg) > lookForNewDataSources()... - updated: $updated")
         lookForNewDataSources(forcePkg) { updated = true }
-        MTLog.d(this@DataSourcesReader, "update($forcePkg) > refreshAvailableVersions()... - updated: $updated")
+        MTLogK.d(this@DataSourcesReader, "update($forcePkg) > refreshAvailableVersions()... - updated: $updated")
         refreshAvailableVersions(forcePkg, skipTimeCheck = false, forceAppUpdateRefresh = true) { updated = true }
-        MTLog.d(this@DataSourcesReader, "update($forcePkg) > refreshSetupRequired()... - updated: $updated")
+        MTLogK.d(this@DataSourcesReader, "update($forcePkg) > refreshSetupRequired()... - updated: $updated")
         refreshSetupRequired(forcePkg, skipTimeCheck = false) { updated = true }
         if (updated) {
-            MTLog.d(this@DataSourcesReader, "update($forcePkg) > analyticsManager.setUserProperty()... - updated: $updated")
+            MTLogK.d(this@DataSourcesReader, "update($forcePkg) > analyticsManager.setUserProperty()... - updated: $updated")
             analyticsManager.setUserProperty(
                 AnalyticsUserProperties.MODULES_COUNT,
                 dataSourcesDatabase.agencyPropertiesDao().getAllAgenciesInclNotInstalled().size
             )
         }
-        MTLog.d(this@DataSourcesReader, "update($forcePkg) > DONE - updated: $updated")
+        MTLogK.d(this@DataSourcesReader, "update($forcePkg) > DONE - updated: $updated")
         return@withContext updated
     }
 
@@ -219,7 +219,7 @@ class DataSourcesReader @Inject constructor(
         val shortTimeAgo = TimeUtils.currentTimeMillis() - MIN_DURATION_BETWEEN_APP_VERSION_CHECK_IN_MS
         if (!skipTimeCheck && shortTimeAgo < lastCheckInMs) {
             val timeLapsedInHours = TimeUnit.MILLISECONDS.toHours(TimeUtils.currentTimeMillis() - lastCheckInMs)
-            MTLog.d(this, "refreshAvailableVersions() > SKIP (last successful refresh too recent: $timeLapsedInHours hours ago)")
+            MTLogK.d(this, "refreshAvailableVersions() > SKIP (last successful refresh too recent: $timeLapsedInHours hours ago)")
             return
         }
         var updated = false
@@ -228,12 +228,12 @@ class DataSourcesReader @Inject constructor(
             val pkg = agencyProperties.pkg
             val authority = agencyProperties.authority
             if (skipNotSupportedPkg(pkg)) {
-                MTLog.d(this, "refreshAvailableVersions > SKIP not supported '$pkg .")
+                MTLogK.d(this, "refreshAvailableVersions > SKIP not supported '$pkg .")
                 return@forEach // skip not supported
             }
             val newLongVersionCode = pm.getAppLongVersionCode(pkg, agencyProperties.longVersionCode)
             if (newLongVersionCode > agencyProperties.longVersionCode) {
-                MTLog.d(this, "Agency '$authority' > new version installed: r$newLongVersionCode.")
+                MTLogK.d(this, "Agency '$authority' > new version installed: r$newLongVersionCode.")
                 dataSourcesDatabase.agencyPropertiesDao().update(
                     agencyProperties.copy(longVersionCode = newLongVersionCode)
                 )
@@ -243,7 +243,7 @@ class DataSourcesReader @Inject constructor(
             this.dataSourceRequestManager.findAgencyAvailableVersionCode(agencyProperties, forceAppUpdateRefresh, forcePkg != null)
                 ?.let { newAvailableVersionCode ->
                     if (agencyProperties.availableVersionCode != newAvailableVersionCode) {
-                        MTLog.d(this, "Agency '$authority' > new version available: r$newAvailableVersionCode.")
+                        MTLogK.d(this, "Agency '$authority' > new version available: r$newAvailableVersionCode.")
                         dataSourcesDatabase.agencyPropertiesDao().update(
                             agencyProperties.copy(availableVersionCode = newAvailableVersionCode)
                         )
@@ -266,10 +266,10 @@ class DataSourcesReader @Inject constructor(
         if (!skipTimeCheck) {
             val lastCheck = lclPrefRepository.pref.getLong(PREFS_LCL_SETUP_REQUIRED_LAST_CHECK_IN_MS, -1L).millisToInstant()
             if (now < lastCheck + MIN_DURATION_BETWEEN_SETUP_REQUIRED_CHECK) {
-                MTLog.d(this, "refreshSetupRequired() > SKIP (last successful refresh too recent: ${(now - lastCheck).toDurationLog()} ago)")
+                MTLogK.d(this, "refreshSetupRequired() > SKIP (last successful refresh too recent: ${(now - lastCheck).toDurationLog()} ago)")
                 return false
             } else {
-                MTLog.d(this, "refreshSetupRequired() > do not skip (last check too old: ${(now - lastCheck).toDurationLog()} ago)")
+                MTLogK.d(this, "refreshSetupRequired() > do not skip (last check too old: ${(now - lastCheck).toDurationLog()} ago)")
             }
         }
         var updated = false
@@ -279,12 +279,12 @@ class DataSourcesReader @Inject constructor(
                 yield() // stop if canceled #SplashScreen
                 val pkg = agencyProperties.pkg
                 if (skipNotSupportedPkg(pkg)) {
-                    MTLog.d(this, "refreshSetupRequired > SKIP not supported '$pkg .")
+                    MTLogK.d(this, "refreshSetupRequired > SKIP not supported '$pkg .")
                     return@forEach // skip not supported
                 }
                 this.dataSourceRequestManager.findAgencySetupRequired(agencyProperties)?.let { newSetupRequired ->
                     if (agencyProperties.setupRequired != newSetupRequired) {
-                        MTLog.d(this, "Agency '${agencyProperties.authority}' > new setup required: $newSetupRequired.")
+                        MTLogK.d(this, "Agency '${agencyProperties.authority}' > new setup required: $newSetupRequired.")
                         dataSourcesDatabase.agencyPropertiesDao().update(
                             agencyProperties.copy(setupRequired = newSetupRequired)
                         )
@@ -294,7 +294,7 @@ class DataSourcesReader @Inject constructor(
                 }
             }
         if (!skipTimeCheck || updated) { // store last check (if time checked) OR if updated
-            MTLog.d(this, "refreshSetupRequired() > last updated now: ${now.toDateTimeLog()}")
+            MTLogK.d(this, "refreshSetupRequired() > last updated now: ${now.toDateTimeLog()}")
             lclPrefRepository.pref.edit { putLong(PREFS_LCL_SETUP_REQUIRED_LAST_CHECK_IN_MS, now.toMillis()) }
         }
         return updated
@@ -316,7 +316,7 @@ class DataSourcesReader @Inject constructor(
             val pkg = packageInfo.packageName
             if (!pm.isAppEnabled(pkg)) return@pkg // skip unknown disabled (processed before)
             if (skipNotSupportedPkg(pkg)) {
-                MTLog.d(this, "lookForNewDataSources() > SKIP not supported '$pkg .")
+                MTLogK.d(this, "lookForNewDataSources() > SKIP not supported '$pkg .")
                 return@pkg // skip not supported
             }
             val pkgProviders: List<ProviderInfo> = packageInfo.providers?.toList() ?: return@pkg
@@ -344,7 +344,7 @@ class DataSourcesReader @Inject constructor(
                             val validTargetAuthority = targetAuthority.takeIf { it.isNotEmpty() }
                                 ?: pkgProviders.singleOrNull { it.metaData.isKeyMT(agencyProviderMetaData) }?.authority
                                     .orEmpty() // will never be visible!
-                            MTLog.d(this, "Status provider '$providerAuthority' added (target: '$validTargetAuthority').")
+                            MTLogK.d(this, "Status provider '$providerAuthority' added (target: '$validTargetAuthority').")
                             dataSourcesDatabase.statusProviderPropertiesDao().insert(
                                 StatusProviderProperties(providerAuthority, validTargetAuthority, pkg)
                             )
@@ -359,7 +359,7 @@ class DataSourcesReader @Inject constructor(
                             val validTargetAuthority = targetAuthority.takeIf { it.isNotEmpty() }
                                 ?: pkgProviders.singleOrNull { it.metaData.isKeyMT(agencyProviderMetaData) }?.authority
                                     .orEmpty() // will never be visible!
-                            MTLog.d(this, "Schedule provider '$providerAuthority' added (target: '$validTargetAuthority').")
+                            MTLogK.d(this, "Schedule provider '$providerAuthority' added (target: '$validTargetAuthority').")
                             dataSourcesDatabase.scheduleProviderPropertiesDao().insert(
                                 ScheduleProviderProperties(providerAuthority, validTargetAuthority, pkg)
                             )
@@ -374,7 +374,7 @@ class DataSourcesReader @Inject constructor(
                             val validTargetAuthority = targetAuthority.takeIf { it.isNotEmpty() }
                                 ?: pkgProviders.singleOrNull { it.metaData.isKeyMT(agencyProviderMetaData) }?.authority
                                     .orEmpty() // will never be visible!
-                            MTLog.d(this, "Service Update provider '$providerAuthority' added (target: '$validTargetAuthority').")
+                            MTLogK.d(this, "Service Update provider '$providerAuthority' added (target: '$validTargetAuthority').")
                             dataSourcesDatabase.serviceUpdateProviderPropertiesDao().insert(
                                 ServiceUpdateProviderProperties(providerAuthority, validTargetAuthority, pkg)
                             )
@@ -390,7 +390,7 @@ class DataSourcesReader @Inject constructor(
                                 val validTargetAuthority = targetAuthority.takeIf { it.isNotEmpty() }
                                     ?: pkgProviders.singleOrNull { it.metaData.isKeyMT(agencyProviderMetaData) }?.authority
                                         .orEmpty()
-                                MTLog.d(this, "Vehicle Location provider '$providerAuthority' added (target: '$validTargetAuthority').")
+                                MTLogK.d(this, "Vehicle Location provider '$providerAuthority' added (target: '$validTargetAuthority').")
                                 dataSourcesDatabase.vehicleLocationProviderPropertiesDao().insert(
                                     VehicleLocationProviderProperties(providerAuthority, validTargetAuthority, pkg)
                                 )
@@ -427,11 +427,11 @@ class DataSourcesReader @Inject constructor(
             val pkg = agencyProperties.pkg
             if (skipNotSupportedPkg(pkg)) {
                 agencyProperties.let {
-                    MTLog.d(this, "Agency '${agencyProperties.authority}' not supported (removed).")
+                    MTLogK.d(this, "Agency '${agencyProperties.authority}' not supported (removed).")
                     dataSourcesDatabase.agencyPropertiesDao().delete(it)
                     markUpdated()
                 }
-                MTLog.d(this, "updateReInstalledReEnabledDataSources() > SKIP not supported '$pkg .")
+                MTLogK.d(this, "updateReInstalledReEnabledDataSources() > SKIP not supported '$pkg .")
                 return@forEach // skip not supported
             }
             val authority = agencyProperties.authority
@@ -446,7 +446,7 @@ class DataSourcesReader @Inject constructor(
             // App RE-installed OR RE-enabled
             val longVersionCode = pm.getAppLongVersionCode(pkg, IAgencyProperties.DEFAULT_LONG_VERSION_CODE)
             if (longVersionCode == agencyProperties.longVersionCode) {
-                MTLog.d(this, "Agency '$authority' re-installed / re-enabled.")
+                MTLogK.d(this, "Agency '$authority' re-installed / re-enabled.")
                 dataSourcesDatabase.agencyPropertiesDao().update(
                     agencyProperties.copy(isInstalled = true, isEnabled = true) // no need to refresh properties == same data
                 )
@@ -481,11 +481,11 @@ class DataSourcesReader @Inject constructor(
             val authority = agencyProperties.authority
             if (skipNotSupportedPkg(pkg)) {
                 agencyProperties.let {
-                    MTLog.d(this, "Agency '$authority' not supported (removed).")
+                    MTLogK.d(this, "Agency '$authority' not supported (removed).")
                     dataSourcesDatabase.agencyPropertiesDao().delete(it)
                     markUpdated()
                 }
-                MTLog.d(this, "updateKnownActiveDataSources() > SKIP not supported '$pkg .")
+                MTLogK.d(this, "updateKnownActiveDataSources() > SKIP not supported '$pkg .")
                 return@forEach // skip not supported
             }
             if (!pm.isAppInstalled(pkg)) { // APP UNINSTALLED
@@ -540,7 +540,7 @@ class DataSourcesReader @Inject constructor(
 
     private suspend fun updateDisabledAgencyProperties(agencyProperties: AgencyProperties, authority: String, markUpdated: () -> Unit) {
         if (agencyProperties.isEnabled) {
-            MTLog.d(this, "Agency '$authority' disabled.")
+            MTLogK.d(this, "Agency '$authority' disabled.")
             dataSourcesDatabase.agencyPropertiesDao().update(
                 agencyProperties.copy(isEnabled = false)
             )
@@ -550,7 +550,7 @@ class DataSourcesReader @Inject constructor(
 
     private suspend fun updateUninstalledAgencyProperties(agencyProperties: AgencyProperties, authority: String, markUpdated: () -> Unit) {
         if (agencyProperties.isInstalled) {
-            MTLog.d(this, "Agency '$authority' uninstalled.")
+            MTLogK.d(this, "Agency '$authority' uninstalled.")
             dataSourcesDatabase.agencyPropertiesDao().update(
                 agencyProperties.copy(isInstalled = false)
             )
@@ -568,7 +568,7 @@ class DataSourcesReader @Inject constructor(
         markUpdated: () -> Unit,
     ) {
         if (pkgProviders.isNullOrEmpty()) {
-            MTLog.d(this, "Agency '$agencyAuthority' invalid (no content providers).")
+            MTLogK.d(this, "Agency '$agencyAuthority' invalid (no content providers).")
             agencyProperties?.let {
                 dataSourcesDatabase.agencyPropertiesDao().delete(it)
                 markUpdated()
@@ -581,7 +581,7 @@ class DataSourcesReader @Inject constructor(
                 it.metaData.isKeyMT(agencyProviderMetaData)
             }
         if (thisAgencyPropertiesProvider?.metaData == null) {
-            MTLog.d(this, "Agency '$agencyAuthority' invalid (no agency meta-data).")
+            MTLogK.d(this, "Agency '$agencyAuthority' invalid (no agency meta-data).")
             agencyProperties?.let {
                 dataSourcesDatabase.agencyPropertiesDao().delete(it)
                 markUpdated()
@@ -592,7 +592,7 @@ class DataSourcesReader @Inject constructor(
         val agencyTypeId: Int = providerMetaData.getInt(agencyProviderTypeMetaData, -1)
         val agencyType = if (agencyTypeId == -1) null else DataSourceType.parseId(agencyTypeId)
         if (agencyType == null) {
-            MTLog.d(this, "Agency '$agencyAuthority' invalid (type ID '$agencyTypeId' invalid).")
+            MTLogK.d(this, "Agency '$agencyAuthority' invalid (type ID '$agencyTypeId' invalid).")
             agencyProperties?.let {
                 dataSourcesDatabase.agencyPropertiesDao().delete(it)
                 markUpdated()
@@ -613,7 +613,7 @@ class DataSourcesReader @Inject constructor(
             trigger
         )
         if (newAgencyProperties == null) {
-            MTLog.d(this, "Agency '$agencyAuthority' invalid (error while fetching new agency properties).")
+            MTLogK.d(this, "Agency '$agencyAuthority' invalid (error while fetching new agency properties).")
             agencyProperties?.let {
                 dataSourcesDatabase.agencyPropertiesDao().delete(it)
                 markUpdated()
@@ -621,11 +621,11 @@ class DataSourcesReader @Inject constructor(
             return
         }
         if (agencyProperties == null) {
-            MTLog.d(this, "Agency '$agencyAuthority' properties added.")
+            MTLogK.d(this, "Agency '$agencyAuthority' properties added.")
             dataSourcesDatabase.agencyPropertiesDao().insert(newAgencyProperties)
             markUpdated()
         } else {
-            MTLog.d(this, "Agency '$agencyAuthority' properties updated.")
+            MTLogK.d(this, "Agency '$agencyAuthority' properties updated.")
             dataSourcesDatabase.agencyPropertiesDao().update(newAgencyProperties)
             markUpdated()
         }
@@ -635,7 +635,7 @@ class DataSourcesReader @Inject constructor(
         val pkg = statusProviderProperties.pkg
         val authority = statusProviderProperties.authority
         if (skipNotSupportedPkg(pkg)) {
-            MTLog.d(this, "Status '$authority' not supported")
+            MTLogK.d(this, "Status '$authority' not supported")
             dataSourcesDatabase.statusProviderPropertiesDao().delete(statusProviderProperties)
             markUpdated()
             return
@@ -643,7 +643,7 @@ class DataSourcesReader @Inject constructor(
         if (!pm.isAppInstalled(pkg)
             || !pm.isAppEnabled(pkg)
         ) {
-            MTLog.d(this, "Status '$authority' removed (uninstalled | disabled)")
+            MTLogK.d(this, "Status '$authority' removed (uninstalled | disabled)")
             dataSourcesDatabase.statusProviderPropertiesDao().delete(statusProviderProperties)
             markUpdated()
             return
@@ -651,20 +651,20 @@ class DataSourcesReader @Inject constructor(
         val provider = pm.getInstalledProviderWithMetaData(pkg, authority)
         val providerMetadata = provider?.metaData
         if (providerMetadata == null) {
-            MTLog.d(this, "Status '$authority' removed (no provider metadata)")
+            MTLogK.d(this, "Status '$authority' removed (no provider metadata)")
             dataSourcesDatabase.statusProviderPropertiesDao().delete(statusProviderProperties)
             markUpdated()
             return
         }
         val newTargetAuthority = providerMetadata.getString(statusProviderTargetMetaData)
         if (newTargetAuthority == null) {
-            MTLog.d(this, "Status '$authority' removed (invalid target authority)")
+            MTLogK.d(this, "Status '$authority' removed (invalid target authority)")
             dataSourcesDatabase.statusProviderPropertiesDao().delete(statusProviderProperties)
             markUpdated()
             return
         }
         if (newTargetAuthority != statusProviderProperties.targetAuthority) {
-            MTLog.d(this, "Status '$authority' updated")
+            MTLogK.d(this, "Status '$authority' updated")
             dataSourcesDatabase.statusProviderPropertiesDao().update(
                 statusProviderProperties.copy(targetAuthority = newTargetAuthority)
             )
@@ -676,7 +676,7 @@ class DataSourcesReader @Inject constructor(
         val pkg = scheduleProviderProperties.pkg
         val authority = scheduleProviderProperties.authority
         if (skipNotSupportedPkg(pkg)) {
-            MTLog.d(this, "Schedule '$authority' not supported")
+            MTLogK.d(this, "Schedule '$authority' not supported")
             dataSourcesDatabase.scheduleProviderPropertiesDao().delete(scheduleProviderProperties)
             markUpdated()
             return
@@ -684,7 +684,7 @@ class DataSourcesReader @Inject constructor(
         if (!pm.isAppInstalled(pkg)
             || !pm.isAppEnabled(pkg)
         ) {
-            MTLog.d(this, "Schedule '$authority' removed (uninstalled | disabled)")
+            MTLogK.d(this, "Schedule '$authority' removed (uninstalled | disabled)")
             dataSourcesDatabase.scheduleProviderPropertiesDao().delete(scheduleProviderProperties)
             markUpdated()
             return
@@ -692,20 +692,20 @@ class DataSourcesReader @Inject constructor(
         val provider = pm.getInstalledProviderWithMetaData(pkg, authority)
         val providerMetadata = provider?.metaData
         if (providerMetadata == null) {
-            MTLog.d(this, "Schedule '$authority' removed (no provider metadata)")
+            MTLogK.d(this, "Schedule '$authority' removed (no provider metadata)")
             dataSourcesDatabase.scheduleProviderPropertiesDao().delete(scheduleProviderProperties)
             markUpdated()
             return
         }
         val newTargetAuthority = providerMetadata.getString(scheduleProviderTargetMetaData)
         if (newTargetAuthority == null) {
-            MTLog.d(this, "Schedule '$authority' removed (invalid target authority)")
+            MTLogK.d(this, "Schedule '$authority' removed (invalid target authority)")
             dataSourcesDatabase.scheduleProviderPropertiesDao().delete(scheduleProviderProperties)
             markUpdated()
             return
         }
         if (newTargetAuthority != scheduleProviderProperties.targetAuthority) {
-            MTLog.d(this, "Schedule '$authority' updated")
+            MTLogK.d(this, "Schedule '$authority' updated")
             dataSourcesDatabase.scheduleProviderPropertiesDao().update(
                 scheduleProviderProperties.copy(targetAuthority = newTargetAuthority)
             )
@@ -717,7 +717,7 @@ class DataSourcesReader @Inject constructor(
         val pkg = serviceUpdateProviderProperties.pkg
         val authority = serviceUpdateProviderProperties.authority
         if (skipNotSupportedPkg(pkg)) {
-            MTLog.d(this, "Service Update '$authority' not supported")
+            MTLogK.d(this, "Service Update '$authority' not supported")
             dataSourcesDatabase.serviceUpdateProviderPropertiesDao().delete(serviceUpdateProviderProperties)
             markUpdated()
             return
@@ -725,7 +725,7 @@ class DataSourcesReader @Inject constructor(
         if (!pm.isAppInstalled(pkg)
             || !pm.isAppEnabled(pkg)
         ) {
-            MTLog.d(this, "Service Update '$authority' removed (uninstalled | disabled)")
+            MTLogK.d(this, "Service Update '$authority' removed (uninstalled | disabled)")
             dataSourcesDatabase.serviceUpdateProviderPropertiesDao().delete(serviceUpdateProviderProperties)
             markUpdated()
             return
@@ -733,20 +733,20 @@ class DataSourcesReader @Inject constructor(
         val provider = pm.getInstalledProviderWithMetaData(pkg, authority)
         val providerMetadata = provider?.metaData
         if (providerMetadata == null) {
-            MTLog.d(this, "Service Update '$authority' removed (no provider metadata)")
+            MTLogK.d(this, "Service Update '$authority' removed (no provider metadata)")
             dataSourcesDatabase.serviceUpdateProviderPropertiesDao().delete(serviceUpdateProviderProperties)
             markUpdated()
             return
         }
         val newTargetAuthority = providerMetadata.getString(serviceUpdateProviderTargetMetaData)
         if (newTargetAuthority == null) {
-            MTLog.d(this, "Service Update '$authority' removed (invalid target authority)")
+            MTLogK.d(this, "Service Update '$authority' removed (invalid target authority)")
             dataSourcesDatabase.serviceUpdateProviderPropertiesDao().delete(serviceUpdateProviderProperties)
             markUpdated()
             return
         }
         if (newTargetAuthority != serviceUpdateProviderProperties.targetAuthority) {
-            MTLog.d(this, "Service Update '$authority' updated")
+            MTLogK.d(this, "Service Update '$authority' updated")
             dataSourcesDatabase.serviceUpdateProviderPropertiesDao().update(
                 serviceUpdateProviderProperties.copy(targetAuthority = newTargetAuthority)
             )
@@ -762,7 +762,7 @@ class DataSourcesReader @Inject constructor(
         val pkg = vehicleLocationProviderProperties.pkg
         val authority = vehicleLocationProviderProperties.authority
         if (skipNotSupportedPkg(pkg)) {
-            MTLog.d(this, "Vehicle Location '$authority' not supported")
+            MTLogK.d(this, "Vehicle Location '$authority' not supported")
             dataSourcesDatabase.vehicleLocationProviderPropertiesDao().delete(vehicleLocationProviderProperties)
             markUpdated()
             return
@@ -770,7 +770,7 @@ class DataSourcesReader @Inject constructor(
         if (!pm.isAppInstalled(pkg)
             || !pm.isAppEnabled(pkg)
         ) {
-            MTLog.d(this, "Vehicle Location '$authority' removed (uninstalled | disabled)")
+            MTLogK.d(this, "Vehicle Location '$authority' removed (uninstalled | disabled)")
             dataSourcesDatabase.vehicleLocationProviderPropertiesDao().delete(vehicleLocationProviderProperties)
             markUpdated()
             return
@@ -778,20 +778,20 @@ class DataSourcesReader @Inject constructor(
         val provider = pm.getInstalledProviderWithMetaData(pkg, authority)
         val providerMetadata = provider?.metaData
         if (providerMetadata == null) {
-            MTLog.d(this, "Vehicle Location '$authority' removed (no provider metadata)")
+            MTLogK.d(this, "Vehicle Location '$authority' removed (no provider metadata)")
             dataSourcesDatabase.vehicleLocationProviderPropertiesDao().delete(vehicleLocationProviderProperties)
             markUpdated()
             return
         }
         val newTargetAuthority = providerMetadata.getString(vehicleLocationProviderTargetMetaData)
         if (newTargetAuthority == null) {
-            MTLog.d(this, "Vehicle Location '$authority' removed (invalid target authority)")
+            MTLogK.d(this, "Vehicle Location '$authority' removed (invalid target authority)")
             dataSourcesDatabase.vehicleLocationProviderPropertiesDao().delete(vehicleLocationProviderProperties)
             markUpdated()
             return
         }
         if (newTargetAuthority != vehicleLocationProviderProperties.targetAuthority) {
-            MTLog.d(this, "Vehicle Location '$authority' updated")
+            MTLogK.d(this, "Vehicle Location '$authority' updated")
             dataSourcesDatabase.vehicleLocationProviderPropertiesDao().update(
                 vehicleLocationProviderProperties.copy(targetAuthority = newTargetAuthority)
             )
@@ -803,7 +803,7 @@ class DataSourcesReader @Inject constructor(
         val pkg = newsProviderProperties.pkg
         val authority = newsProviderProperties.authority
         if (skipNotSupportedPkg(pkg)) {
-            MTLog.d(this, "News '$authority' not supported")
+            MTLogK.d(this, "News '$authority' not supported")
             dataSourcesDatabase.newsProviderPropertiesDao().delete(newsProviderProperties)
             markUpdated()
             return
@@ -811,7 +811,7 @@ class DataSourcesReader @Inject constructor(
         if (!pm.isAppInstalled(pkg)
             || !pm.isAppEnabled(pkg)
         ) {
-            MTLog.d(this, "News '$authority' removed (uninstalled | disabled)")
+            MTLogK.d(this, "News '$authority' removed (uninstalled | disabled)")
             dataSourcesDatabase.newsProviderPropertiesDao().delete(newsProviderProperties)
             markUpdated()
             return
@@ -819,20 +819,20 @@ class DataSourcesReader @Inject constructor(
         val provider = pm.getInstalledProviderWithMetaData(pkg, authority)
         val providerMetadata = provider?.metaData
         if (providerMetadata == null) {
-            MTLog.d(this, "News '$authority' removed (no provider metadata)")
+            MTLogK.d(this, "News '$authority' removed (no provider metadata)")
             dataSourcesDatabase.newsProviderPropertiesDao().delete(newsProviderProperties)
             markUpdated()
             return
         }
         val newTargetAuthority = providerMetadata.getString(newsProviderTargetMetaData)
         if (newTargetAuthority == null) {
-            MTLog.d(this, "News '$authority' removed (invalid target authority)")
+            MTLogK.d(this, "News '$authority' removed (invalid target authority)")
             dataSourcesDatabase.newsProviderPropertiesDao().delete(newsProviderProperties)
             markUpdated()
             return
         }
         if (newTargetAuthority != newsProviderProperties.targetAuthority) {
-            MTLog.d(this, "News '$authority' updated")
+            MTLogK.d(this, "News '$authority' updated")
             dataSourcesDatabase.newsProviderPropertiesDao().update(
                 newsProviderProperties.copy(targetAuthority = newTargetAuthority)
             )

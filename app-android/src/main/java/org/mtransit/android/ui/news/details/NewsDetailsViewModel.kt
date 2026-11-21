@@ -10,7 +10,7 @@ import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.MTLogK
 import org.mtransit.android.commons.data.News
 import org.mtransit.android.data.NewsProviderProperties
 import org.mtransit.android.datasource.DataSourcesRepository
@@ -27,7 +27,7 @@ class NewsDetailsViewModel @Inject constructor(
     userPrefManager: UserPrefManager,
     private val dataSourcesRepository: DataSourcesRepository,
     newsRepository: NewsRepository,
-) : ViewModel(), MTLog.Loggable {
+) : ViewModel(), MTLogK.Loggable {
 
     companion object {
         private val LOG_TAG: String = NewsDetailsViewModel::class.java.simpleName
@@ -62,13 +62,13 @@ class NewsDetailsViewModel @Inject constructor(
                 thisNewsProvider,
                 onMissingProvider = { oldNews ->
                     if (oldNews != null) {
-                        MTLog.d(this, "getNewsArticle() > data source removed (no more agency)")
+                        MTLogK.d(this, "getNewsArticle() > data source removed (no more agency)")
                         dataSourceRemovedEvent.postValue(Event(true))
                     }
                 },
                 onNewsLoaded = { loadedNews ->
                     if (loadedNews == null) {
-                        MTLog.d(this, "getNewsArticle() > data source updated (no more news article)")
+                        MTLogK.d(this, "getNewsArticle() > data source updated (no more news article)")
                         dataSourceRemovedEvent.postValue(Event(true))
                     }
                 },

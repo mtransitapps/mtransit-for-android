@@ -13,7 +13,7 @@ import org.mtransit.android.ad.AdsConsentManager
 import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.billing.IBillingManager
 import org.mtransit.android.common.repository.LocalPreferenceRepository
-import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.MTLogK
 import org.mtransit.android.commons.pref.liveData
 import org.mtransit.android.provider.remoteconfig.RemoteConfigProvider
 import org.mtransit.android.ui.view.common.IActivity
@@ -30,7 +30,7 @@ class MainPreferencesViewModel @Inject constructor(
     private val remoteConfigProvider: RemoteConfigProvider,
     lclPrefRepository: LocalPreferenceRepository,
     userPrefManager: UserPrefManager,
-) : ViewModel(), MTLog.Loggable {
+) : ViewModel(), MTLogK.Loggable {
 
     companion object {
         private val LOG_TAG: String = MainPreferencesViewModel::class.java.simpleName

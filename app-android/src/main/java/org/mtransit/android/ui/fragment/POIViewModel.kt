@@ -19,7 +19,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.Constants
-import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.MTLogK
 import org.mtransit.android.commons.SqlUtils
 import org.mtransit.android.commons.data.LocationPOI
 import org.mtransit.android.commons.data.News
@@ -77,7 +77,7 @@ class POIViewModel @Inject constructor(
     devicePrefManager: DevicePrefManager,
     remoteConfigProvider: RemoteConfigProvider,
     getNearbyPOIListUseCase: GetNearbyPOIListUseCase,
-) : ViewModel(), MTLog.Loggable {
+) : ViewModel(), MTLogK.Loggable {
 
     companion object {
         private val LOG_TAG: String = POIViewModel::class.java.simpleName
@@ -118,7 +118,7 @@ class POIViewModel @Inject constructor(
                     dst == DataSourceType.TYPE_LIGHT_RAIL -> maxDistanceInMeters * 2f
                     dst == DataSourceType.TYPE_FERRY -> maxDistanceInMeters * 2f
                     else -> {
-                        MTLog.w(LOG_TAG, "Unexpected type $dst in POI nearby agencies!")
+                        MTLogK.w(LOG_TAG, "Unexpected type $dst in POI nearby agencies!")
                         maxDistanceInMeters
                     }
                 }.coerceAtMost(NEARBY_CONNECTIONS_MAX_COVERAGE * 2f)
@@ -268,7 +268,7 @@ class POIViewModel @Inject constructor(
             poi ?: return@switchMap null
             liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
                 if (Constants.FORCE_NEARBY_POI_LIST_OFF) {
-                    MTLog.d(this@POIViewModel, "nearbyPOIs.onChanged() > SKIP (feature disabled)")
+                    MTLogK.d(this@POIViewModel, "nearbyPOIs.onChanged() > SKIP (feature disabled)")
                     emit(emptyList())
                     return@liveData
                 }

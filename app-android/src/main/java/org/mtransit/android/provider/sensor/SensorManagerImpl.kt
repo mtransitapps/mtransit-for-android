@@ -12,7 +12,7 @@ import android.view.Surface
 import android.widget.AbsListView
 import androidx.core.content.getSystemService
 import dagger.hilt.android.qualifiers.ApplicationContext
-import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.MTLogK
 import org.mtransit.android.dev.DemoModeManager
 import org.mtransit.android.ui.view.common.IFragment
 import java.util.concurrent.TimeUnit
@@ -23,7 +23,7 @@ import android.location.Location as AndroidLocation
 class SensorManagerImpl @Inject constructor(
     @param:ApplicationContext private val appContext: Context,
     private val demoModeManager: DemoModeManager,
-) : MTSensorManager, MTLog.Loggable {
+) : MTSensorManager, MTLogK.Loggable {
 
     companion object {
         private val LOG_TAG: String = SensorManagerImpl::class.java.simpleName

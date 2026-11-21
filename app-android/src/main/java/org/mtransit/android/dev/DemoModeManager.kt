@@ -15,7 +15,7 @@ import org.mtransit.android.R
 import org.mtransit.android.billing.IBillingManager
 import org.mtransit.android.commons.LocaleUtils
 import org.mtransit.android.commons.LocationUtils
-import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.MTLogK
 import org.mtransit.android.commons.TimeUtils
 import org.mtransit.android.commons.data.RouteDirectionStop
 import org.mtransit.android.commons.location.AroundDiff
@@ -44,7 +44,7 @@ import android.location.Location as AndroidLocation
 class DemoModeManager @Inject constructor(
     @param:ApplicationContext private val appContext: Context,
     private val billingManager: IBillingManager,
-) : MTLog.Loggable {
+) : MTLogK.Loggable {
 
     companion object {
         private val LOG_TAG: String = DemoModeManager::class.java.simpleName

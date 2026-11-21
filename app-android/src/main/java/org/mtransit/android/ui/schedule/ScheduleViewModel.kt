@@ -17,7 +17,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.mtransit.android.BuildConfig
 import org.mtransit.android.commons.ColorUtils
-import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.MTLogK
 import org.mtransit.android.commons.data.RouteDirectionStop
 import org.mtransit.android.commons.data.Schedule
 import org.mtransit.android.commons.data.ScheduleTimestamps
@@ -53,7 +53,7 @@ class ScheduleViewModel @Inject constructor(
     private val dataSourcesRepository: DataSourcesRepository,
     private val dataSourceRequestManager: DataSourceRequestManager,
     poiRepository: POIRepository,
-) : ViewModel(), MTLog.Loggable {
+) : ViewModel(), MTLogK.Loggable {
 
     companion object {
         private val LOG_TAG: String = ScheduleViewModel::class.java.simpleName
@@ -200,7 +200,7 @@ class ScheduleViewModel @Inject constructor(
         scheduleProviders: List<ScheduleProviderProperties>?
     ): List<Schedule.Timestamp>? {
         if (rds == null || startsAtInMs == null || endAtInMS == null || scheduleProviders == null) {
-            MTLog.d(this, "getTimestamps() > SKIP (no RDS OR no start/end OR no schedule providers)")
+            MTLogK.d(this, "getTimestamps() > SKIP (no RDS OR no start/end OR no schedule providers)")
             return null // not loaded (loading)
         }
         val scheduleFilter = ScheduleTimestampsProviderContract.Filter(
@@ -244,7 +244,7 @@ class ScheduleViewModel @Inject constructor(
         if (BuildConfig.DEBUG && this?.timestamps?.isNotEmpty() == true) {
             error("No schedule timestamp timezone available!")
         }
-        MTLog.w(LOG_TAG, "No schedule timestamp timezone available (using device TZ)!")
+        MTLogK.w(LOG_TAG, "No schedule timestamp timezone available (using device TZ)!")
         return TimeZone.getDefault().id // must set a timezone to display calendar
     }
 
@@ -266,7 +266,7 @@ class ScheduleViewModel @Inject constructor(
     private val _refreshRTTimestampsTrigger = MutableLiveData<Int>()
 
     fun triggerRealTimeTimestampRefresh() {
-        MTLog.d(this, "triggerRealTimeTimestampRefresh() > trigger refresh")
+        MTLogK.d(this, "triggerRealTimeTimestampRefresh() > trigger refresh")
         _refreshRTTimestampsTrigger.value = (_refreshRTTimestampsTrigger.value ?: 0) + 1
     }
 

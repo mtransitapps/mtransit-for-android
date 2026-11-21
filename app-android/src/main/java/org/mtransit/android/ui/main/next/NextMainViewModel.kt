@@ -13,7 +13,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.mtransit.android.R
 import org.mtransit.android.common.repository.LocalPreferenceRepository
-import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.MTLogK
 import org.mtransit.android.commons.pref.liveData
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.datasource.DataSourcesRepository
@@ -32,7 +32,7 @@ class NextMainViewModel @Inject constructor(
     private val userManager: UserManager,
     private val demoModeManager: DemoModeManager,
     remoteConfigProvider: RemoteConfigProvider,
-) : SharedActivityViewModel(remoteConfigProvider), MTLog.Loggable {
+) : SharedActivityViewModel(remoteConfigProvider), MTLogK.Loggable {
 
     companion object {
         private val LOG_TAG = "Stack-" + NextMainViewModel::class.java.simpleName
@@ -159,7 +159,7 @@ class NextMainViewModel @Inject constructor(
         ITEM_ID_AGENCY_TYPE_START_WITH + DataSourceType.TYPE_MODULE.id -> R.id.root_nav_module
         null -> null
         else -> {
-            MTLog.w(this, "Unknown item ID preference '$idPref'!")
+            MTLogK.w(this, "Unknown item ID preference '$idPref'!")
             null
         }
     }
@@ -181,7 +181,7 @@ class NextMainViewModel @Inject constructor(
         R.id.root_nav_module -> ITEM_ID_AGENCY_TYPE_START_WITH + DataSourceType.TYPE_MODULE.id
         null -> null
         else -> {
-            MTLog.w(this@NextMainViewModel, "Unknown item ID resource '$idRes'!")
+            MTLogK.w(this@NextMainViewModel, "Unknown item ID resource '$idRes'!")
             null
         }
     }

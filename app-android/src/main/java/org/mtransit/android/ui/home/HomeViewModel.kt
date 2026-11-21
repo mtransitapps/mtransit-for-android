@@ -22,7 +22,7 @@ import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.LocationUtils
-import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.MTLogK
 import org.mtransit.android.commons.data.Area
 import org.mtransit.android.commons.data.RouteDirectionStop
 import org.mtransit.android.commons.isAppEnabled
@@ -126,11 +126,11 @@ class HomeViewModel @Inject constructor(
     private fun getNearbyLocation(lastDeviceLocation: AndroidLocation?, forceReset: Boolean): AndroidLocation? {
         if (!forceReset) {
             nearbyLocation.value?.let {
-                MTLog.d(this, "getNearbyLocation() > keep same (${it.toStringSimple()})")
+                MTLogK.d(this, "getNearbyLocation() > keep same (${it.toStringSimple()})")
                 return it
             }
         }
-        MTLog.d(this, "getNearbyLocation() > use last device location (${lastDeviceLocation?.toStringSimple()})")
+        MTLogK.d(this, "getNearbyLocation() > use last device location (${lastDeviceLocation?.toStringSimple()})")
         return lastDeviceLocation
     }
 
@@ -231,7 +231,7 @@ class HomeViewModel @Inject constructor(
         nearbyLocation: AndroidLocation?,
     ) {
         if (typeToHomeAgencies.isNullOrEmpty() || nearbyLocation == null) {
-            MTLog.d(this@HomeViewModel, "loadNearbyPOIs() > SKIP (no agencies OR no location)")
+            MTLogK.d(this@HomeViewModel, "loadNearbyPOIs() > SKIP (no agencies OR no location)")
             _loadingPOIs.postValue(false)
             _nearbyPOIs.postValue(emptyList())
             _nearbyPOIsTrigger.postValue(Event(true))
@@ -414,11 +414,11 @@ class HomeViewModel @Inject constructor(
         if (!IGNORE_SAME_LOCATION_CHECK
             && LocationUtils.areAlmostTheSame(currentNearbyLocation, newDeviceLocation, LocationUtils.LOCATION_CHANGED_ALLOW_REFRESH_IN_METERS)
         ) {
-            MTLog.d(this, "initiateRefresh() > SKIP (same location)")
+            MTLogK.d(this, "initiateRefresh() > SKIP (same location)")
             return false
         }
         this.nearbyLocationForceReset.value = Event(true)
-        MTLog.d(this, "initiateRefresh() > use NEW location")
+        MTLogK.d(this, "initiateRefresh() > use NEW location")
         return true
     }
 

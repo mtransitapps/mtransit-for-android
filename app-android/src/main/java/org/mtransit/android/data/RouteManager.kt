@@ -1,6 +1,6 @@
 package org.mtransit.android.data
 
-import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.MTLogK
 import org.mtransit.android.commons.data.Route
 import org.mtransit.android.commons.data.ServiceUpdate
 import org.mtransit.android.commons.data.ServiceUpdates
@@ -18,7 +18,7 @@ data class RouteManager(
     private var serviceUpdates: ServiceUpdates? = null,
     private var lastTriggerServiceUpdateRefreshMinTimestampMs: Long = -1L,
     private var inFocus: Boolean = false, // TODO?
-) : ServiceUpdateLoaderListener, ServiceUpdatesHolder, MTLog.Loggable {
+) : ServiceUpdateLoaderListener, ServiceUpdatesHolder, MTLogK.Loggable {
 
     companion object {
         private val LOG_TAG: String = RouteManager::class.java.simpleName

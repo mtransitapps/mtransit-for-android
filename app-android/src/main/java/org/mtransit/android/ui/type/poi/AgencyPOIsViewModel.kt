@@ -15,7 +15,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.MTLogK
 import org.mtransit.android.commons.provider.poi.POIProviderContract
 import org.mtransit.android.data.AgencyProperties
 import org.mtransit.android.data.POIManager
@@ -40,7 +40,7 @@ class AgencyPOIsViewModel @Inject constructor(
     poiRepository: POIRepository,
     private val userPrefManager: UserPrefManager,
     private val demoModeManager: DemoModeManager,
-) : ViewModel(), MTLog.Loggable {
+) : ViewModel(), MTLogK.Loggable {
 
     companion object {
         private val LOG_TAG: String = AgencyPOIsViewModel::class.java.simpleName

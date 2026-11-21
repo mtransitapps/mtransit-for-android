@@ -13,7 +13,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import org.mtransit.android.commons.LocationUtils
-import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.MTLogK
 import org.mtransit.android.commons.data.Area
 import org.mtransit.android.commons.location.AroundDiff
 import org.mtransit.android.commons.removeTooMuchWhenNotInCoverage
@@ -36,7 +36,7 @@ class NearbyAgencyTypeViewModel @Inject constructor(
     private val dataSourcesRepository: DataSourcesRepository,
     private val poiRepository: POIRepository,
     private val pm: PackageManager,
-) : ViewModel(), MTLog.Loggable {
+) : ViewModel(), MTLogK.Loggable {
 
     companion object {
         private val LOG_TAG: String = NearbyAgencyTypeViewModel::class.java.simpleName
@@ -73,7 +73,7 @@ class NearbyAgencyTypeViewModel @Inject constructor(
     fun setNearbyLocation(newNearbyLocation: AndroidLocation?) {
         val currentLocation = _params.value?.nearbyLocation
         if (newNearbyLocation == currentLocation) {
-            MTLog.d(this, "setNearbyLocation() > SKIP (same)")
+            MTLogK.d(this, "setNearbyLocation() > SKIP (same)")
             return
         }
         val currentParams: NearbyParams = _params.value ?: NearbyParams()
@@ -132,7 +132,7 @@ class NearbyAgencyTypeViewModel @Inject constructor(
         currentParams: NearbyParams? = null,
     ): List<POIManager>? {
         if (currentParams == null || !currentParams.isReady) {
-            MTLog.d(this, "getNearbyPOIs() > SKIP (not ready)")
+            MTLogK.d(this, "getNearbyPOIs() > SKIP (not ready)")
             return null
         }
         val typeAgencies: List<IAgencyNearbyProperties> = currentParams.typeAgencies ?: return null

@@ -3,7 +3,7 @@ package org.mtransit.android.ui
 import android.view.View
 import androidx.activity.OnBackPressedCallback
 import androidx.slidingpanelayout.widget.SlidingPaneLayout
-import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.MTLogK
 
 /**
  * Similar to [androidx.navigation.fragment.AbstractListDetailFragment.InnerOnBackPressedCallback]
@@ -12,7 +12,7 @@ class ListDetailOnBackPressedCallback(
     private val slidingPaneLayout: SlidingPaneLayout,
 ) : OnBackPressedCallback(enabled = true),
     SlidingPaneLayout.PanelSlideListener,
-    MTLog.Loggable {
+    MTLogK.Loggable {
 
     companion object {
         private val LOG_TAG: String = ListDetailOnBackPressedCallback::class.java.simpleName

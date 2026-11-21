@@ -4,7 +4,7 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.adapter.FragmentStateAdapter
-import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.MTLogK
 import org.mtransit.android.commons.data.News
 import org.mtransit.android.data.AuthorityAndUuid
 import org.mtransit.android.data.authorityAndUuidT
@@ -13,7 +13,7 @@ import org.mtransit.android.ui.news.details.NewsDetailsFragment
 
 class NewsPagerAdapter(
     fragment: Fragment,
-) : FragmentStateAdapter(fragment), MTLog.Loggable {
+) : FragmentStateAdapter(fragment), MTLogK.Loggable {
 
     companion object {
         private val LOG_TAG: String = NewsPagerAdapter::class.java.simpleName
@@ -49,7 +49,7 @@ class NewsPagerAdapter(
 
     fun getItem(position: Int): News? {
         if (items.size < position) {
-            MTLog.w(this, "getItem() > No item for $position (item:${items.size})!")
+            MTLogK.w(this, "getItem() > No item for $position (item:${items.size})!")
         }
         return this.items.getOrNull(position)
     }
@@ -60,7 +60,7 @@ class NewsPagerAdapter(
                 it.authorityAndUuidT == authorityAndUuid
             }.takeIf { it >= 0 }
         } ?: run {
-            MTLog.w(this, "getItemPosition() > No news article for '$authorityAndUuid'!")
+            MTLogK.w(this, "getItemPosition() > No news article for '$authorityAndUuid'!")
             null
         }
     }

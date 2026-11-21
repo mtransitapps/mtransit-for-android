@@ -4,7 +4,7 @@ import android.content.Context
 import android.graphics.Color
 import androidx.annotation.ColorInt
 import com.google.android.gms.maps.model.LatLng
-import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.MTLogK
 import org.mtransit.android.commons.StringUtils
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.ui.view.MapViewController
@@ -24,7 +24,7 @@ data class MTPOIMarker(
     var rotation: Float?,
     var zIndex: Float?,
     val uuidsAndAuthority: MTPOIMarkerIds,
-) : MTLog.Loggable {
+) : MTLogK.Loggable {
 
     fun getIdentifier(): String {
         return position.toString()

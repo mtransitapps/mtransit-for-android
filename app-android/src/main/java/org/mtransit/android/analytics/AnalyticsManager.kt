@@ -6,8 +6,8 @@ import androidx.annotation.MainThread
 import androidx.annotation.Size
 import com.google.firebase.analytics.FirebaseAnalytics
 import dagger.hilt.android.qualifiers.ApplicationContext
-import org.mtransit.android.commons.MTLog
-import org.mtransit.android.commons.MTLog.Loggable
+import org.mtransit.android.commons.MTLogK
+import org.mtransit.android.commons.MTLogK.Loggable
 import javax.inject.Inject
 
 // ENABLE:
@@ -74,11 +74,11 @@ class AnalyticsManager @Inject internal constructor(
         value: String
     ) {
         if (!ANALYTICS_ENABLED) return
-        if (DEBUG) MTLog.d(this, "setUserProperty($name, $value)")
+        if (DEBUG) MTLogK.d(this, "setUserProperty($name, $value)")
         try {
             firebaseAnalytics?.setUserProperty(name, value)
         } catch (e: Exception) {
-            MTLog.w(this, e, "Error while tracing user property ($name:$value)")
+            MTLogK.w(this, "Error while tracing user property ($name:$value)", e)
         }
     }
 
@@ -87,7 +87,7 @@ class AnalyticsManager @Inject internal constructor(
         params: AnalyticsEventsParamsProvider?
     ) {
         if (!ANALYTICS_ENABLED) return
-        if (DEBUG) MTLog.d(this, "logEvent($name, $params)")
+        if (DEBUG) MTLogK.d(this, "logEvent($name, $params)")
         val bundle = params?.let {
             Bundle().apply {
                 for ((key, value) in it.to()) {
@@ -98,7 +98,7 @@ class AnalyticsManager @Inject internal constructor(
                         is Long -> putLong(key, value)
                         is Double -> putDouble(key, value)
 
-                        else -> MTLog.w(this@AnalyticsManager, "Unexpected event parameter type for '$key'>'$value'!")
+                        else -> MTLogK.w(this@AnalyticsManager, "Unexpected event parameter type for '$key'>'$value'!")
                     }
                 }
             }
@@ -109,7 +109,7 @@ class AnalyticsManager @Inject internal constructor(
     @MainThread
     override fun trackScreenView(page: AnalyticsScreen) {
         if (!ANALYTICS_ENABLED) return
-        if (DEBUG) MTLog.d(this, "trackScreenView($page)")
+        if (DEBUG) MTLogK.d(this, "trackScreenView($page)")
         try {
             firebaseAnalytics?.logEvent(
                 FirebaseAnalytics.Event.SCREEN_VIEW,
@@ -119,14 +119,14 @@ class AnalyticsManager @Inject internal constructor(
                 }
             )
         } catch (e: Exception) {
-            MTLog.w(this, e, "Error while tracking screen view! ($page)")
+            MTLogK.w(this, "Error while tracking screen view! ($page)", e)
         }
     }
 
     @MainThread
     override fun trackButtonClick(buttonName: String, buttonId: String?, page: AnalyticsScreen?) {
         if (!ANALYTICS_ENABLED) return
-        if (DEBUG) MTLog.d(this, "trackButtonClick($buttonName, $buttonId, $page)")
+        if (DEBUG) MTLogK.d(this, "trackButtonClick($buttonName, $buttonId, $page)")
         try {
             firebaseAnalytics?.logEvent(
                 AnalyticsEvents.BUTTON_CLICK,
@@ -142,7 +142,7 @@ class AnalyticsManager @Inject internal constructor(
                 }
             )
         } catch (e: Exception) {
-            MTLog.w(this, e, "Error while tracking button $buttonName click! (page:$page)")
+            MTLogK.w(this, "Error while tracking button $buttonName click! (page:$page)", e)
         }
     }
 }

@@ -12,7 +12,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.MTLogK
 import org.mtransit.android.commons.data.Direction
 import org.mtransit.android.commons.data.Route
 import org.mtransit.android.commons.data.RouteDirection
@@ -39,7 +39,7 @@ class ServiceUpdatesViewModel @Inject constructor(
     dataSourceRequestManager: DataSourceRequestManager,
     private val dataSourcesRepository: DataSourcesRepository,
     poiRepository: POIRepository,
-) : ViewModel(), MTLog.Loggable {
+) : ViewModel(), MTLogK.Loggable {
     companion object {
         private val LOG_TAG: String = ServiceUpdatesViewModel::class.java.simpleName
 

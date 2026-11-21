@@ -19,7 +19,7 @@ import org.mtransit.android.ad.IAdScreenActivity
 import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.billing.BillingUtils
 import org.mtransit.android.billing.IBillingManager
-import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.MTLogK
 import org.mtransit.android.commons.ToastUtils
 import org.mtransit.android.commons.getQuantityText
 import org.mtransit.android.data.POIListFooterManager
@@ -38,7 +38,7 @@ class DefaultPOIListFooterManager(
     private val getHideText: () -> Boolean, // additional condition do hide text
     @get:Px private val getTextHorizontalMargin: () -> Int = { 0 },
     private val canShowRewardedAd: () -> Boolean = { adManager.canShowRewardedAd() },
-) : POIListFooterManager, MTLog.Loggable {
+) : POIListFooterManager, MTLogK.Loggable {
 
     companion object {
 
@@ -93,7 +93,7 @@ class DefaultPOIListFooterManager(
                             is RelativeLayout -> widthInPx += viewTotalWidth
 
                             else -> {
-                                MTLog.w(LOG_TAG, "Unexpected footer root view type: ${this.javaClass.simpleName}")
+                                MTLogK.w(LOG_TAG, "Unexpected footer root view type: ${this.javaClass.simpleName}")
                                 widthInPx += viewTotalWidth
                             }
                         }
@@ -165,13 +165,13 @@ class DefaultPOIListFooterManager(
         } else if (!showSupportInsteadOfRewardedAd) { // rewarded ad
             this.analyticsManager.trackButtonClick("list_footer_rewarded_ad", getFragment())
             if (!adManager.isRewardedAdAvailableToShow()) {
-                MTLog.w(LOG_TAG, "footer.onTextClick() > skip (no ad available)")
+                MTLogK.w(LOG_TAG, "footer.onTextClick() > skip (no ad available)")
                 ToastUtils.makeTextAndShow(getFragment()?.context, R.string.support_watch_rewarded_ad_not_ready)
                 return@OnClickListener
             }
             (getFragment()?.activity as? IAdScreenActivity)?.let { adManager.showRewardedAd(it) }
                 ?: run {
-                    MTLog.w(LOG_TAG, "onRewardedAdButtonClick() > skip (no view or no activity)")
+                    MTLogK.w(LOG_TAG, "onRewardedAdButtonClick() > skip (no view or no activity)")
                     ToastUtils.makeTextAndShow(getFragment()?.context, R.string.support_watch_rewarded_ad_default_failure_message)
                     return@OnClickListener
                 }

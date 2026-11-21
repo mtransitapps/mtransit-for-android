@@ -6,6 +6,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import org.mtransit.android.commons.MTLog;
+import org.mtransit.android.commons.MTLogK;
 import org.mtransit.android.dev.CrashReporter;
 import org.mtransit.android.dev.CrashlyticsCrashReporter;
 
@@ -48,6 +49,10 @@ public final class CrashUtils implements MTLog.Loggable {
 		w(loggable.getLogTag(), msg, args);
 	}
 
+	public static void w(@NonNull MTLogK.Loggable loggable, @NonNull String msg) {
+		w(loggable.getLogTag(), msg);
+	}
+
 	public static void w(@NonNull String tag, @NonNull String msg, @NonNull Object... args) {
 		MTLog.w(tag, msg, args);
 		report(String.format(msg, args));
@@ -55,6 +60,10 @@ public final class CrashUtils implements MTLog.Loggable {
 
 	public static void w(@NonNull MTLog.Loggable loggable, @Nullable Throwable t, @NonNull String msg, @NonNull Object... args) {
 		w(loggable.getLogTag(), t, msg, args);
+	}
+
+	public static void w(@NonNull MTLogK.Loggable loggable, @Nullable Throwable t, @NonNull String msg) {
+		w(loggable.getLogTag(), t, msg);
 	}
 
 	public static void w(@NonNull String tag, @Nullable Throwable t, @NonNull String msg, @NonNull Object... args) {

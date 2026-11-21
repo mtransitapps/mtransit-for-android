@@ -3,7 +3,7 @@ package org.mtransit.android.ui
 import android.view.MenuItem
 import org.mtransit.android.R
 import org.mtransit.android.analytics.AnalyticsScreen
-import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.MTLogK
 
 private val NavigationDrawerController.currentAnalyticsScreen: AnalyticsScreen? get() = mainActivityWR.get()?.currentAnalyticsScreen
 
@@ -30,7 +30,7 @@ internal fun NavigationDrawerController.trackNavigationItemSelected(menuItem: Me
         R.id.nav_fares -> this.analyticsManager.trackButtonClick("drawer_nav_fares", currentAnalyticsScreen)
         R.id.nav_send_feedback -> this.analyticsManager.trackButtonClick("drawer_nav_send_feedback", currentAnalyticsScreen)
         else -> {
-            MTLog.w(this, "trackNavigationItemSelected() > Unexpected screen nav item ID '${menuItem.itemId}'!")
+            MTLogK.w(this, "trackNavigationItemSelected() > Unexpected screen nav item ID '${menuItem.itemId}'!")
             this.analyticsManager.trackButtonClick("drawer_nav_unknown", currentAnalyticsScreen)
         }
     }

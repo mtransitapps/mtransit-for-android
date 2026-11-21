@@ -13,7 +13,7 @@ import kotlinx.coroutines.withContext
 import org.mtransit.android.R
 import org.mtransit.android.analytics.AnalyticsUserProperties
 import org.mtransit.android.analytics.IAnalyticsManager
-import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.MTLogK
 import org.mtransit.android.commons.SqlUtils
 import org.mtransit.android.commons.UriUtils
 import org.mtransit.android.data.Favorite
@@ -30,7 +30,7 @@ class FavoriteRepository(
     private val analyticsManager: IAnalyticsManager,
     private val demoModeManager: DemoModeManager,
     private val ioDispatcher: CoroutineDispatcher,
-) : MTLog.Loggable {
+) : MTLogK.Loggable {
 
     @Inject
     constructor(
