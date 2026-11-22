@@ -50,11 +50,11 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          RUN_IDS=$(gh run list --workflow mt-build.yml --branch "$MT_DEFAULT_BRANCH_NAME" --status in_progress \
-            --limit 1000 --json databaseId,event --jq '.[] | select(.event != "pull_request" and .event != "pull_request_target") | .databaseId' \
+          RUN_ID=$(gh run list --workflow mt-build.yml --branch "$MT_DEFAULT_BRANCH_NAME" \
+            --limit 1 --json databaseId,status,event \
+            --jq '.[0] | select(.status == "in_progress" and .event != "pull_request" and .event != "pull_request_target") | .databaseId' \
             --repo "$GITHUB_REPOSITORY")
-          while IFS= read -r RUN_ID; do
-            [ -n "$RUN_ID" ] || continue
+          if [ -n "$RUN_ID" ]; then
             if ! gh run cancel "$RUN_ID" --repo "$GITHUB_REPOSITORY"; then
               STATUS=$(gh run view "$RUN_ID" --repo "$GITHUB_REPOSITORY" --json status --jq '.status')
               if [ "$STATUS" != "completed" ]; then
@@ -62,7 +62,7 @@ jobs:
               fi
               echo "Build run $RUN_ID already completed."
             fi
-          done <<< "$RUN_IDS"
+          fi
 
   MT-SYNC-CODE-JOB:
     name: "MT Sync Code"
@@ -84,10 +84,10 @@ jobs:
           git submodule foreach '
             DEFAULT_BRANCH=$(gh repo view --json defaultBranchRef --jq ".defaultBranchRef.name") || exit 1
             [ -n "$DEFAULT_BRANCH" ] || exit 1
-            RUN_IDS=$(gh run list --workflow mt-build.yml --branch "$DEFAULT_BRANCH" --status in_progress --limit 1000 \
-              --json databaseId,event --jq ".[] | select(.event != \"pull_request\" and .event != \"pull_request_target\") | .databaseId") || exit 1
-            for RUN_ID in $RUN_IDS; do
-              [ -n "$RUN_ID" ] || continue
+            RUN_ID=$(gh run list --workflow mt-build.yml --branch "$DEFAULT_BRANCH" --limit 1 \
+              --json databaseId,status,event \
+              --jq ".[0] | select(.status == \"in_progress\" and .event != \"pull_request\" and .event != \"pull_request_target\") | .databaseId") || exit 1
+            if [ -n "$RUN_ID" ]; then
               if ! gh run cancel "$RUN_ID"; then
                 STATUS=$(gh run view "$RUN_ID" --json status --jq ".status")
                 if [ "$STATUS" != "completed" ]; then
@@ -95,7 +95,7 @@ jobs:
                 fi
                 echo "Build run $name/$RUN_ID already completed."
               fi
-            done
+            fi
           '
       - name: MT check out submodules
         run: ./sh/git/submodules_init.sh
@@ -200,9 +200,9 @@ jobs:
           git submodule foreach '
             DEFAULT_BRANCH=$(gh repo view --json defaultBranchRef --jq ".defaultBranchRef.name") || exit 1
             [ -n "$DEFAULT_BRANCH" ] || exit 1
-            RUN_ID=$(gh run list --workflow mt-build.yml --branch "$DEFAULT_BRANCH" --status completed --limit 1000 \
-              --json databaseId,conclusion,event \
-              --jq "[.[] | select(.conclusion == \"cancelled\" and .event != \"pull_request\" and .event != \"pull_request_target\")][0].databaseId // empty") || exit 1
+            RUN_ID=$(gh run list --workflow mt-build.yml --branch "$DEFAULT_BRANCH" --limit 1 \
+              --json databaseId,status,conclusion,event \
+              --jq ".[0] | select(.status == \"completed\" and .conclusion == \"cancelled\" and .event != \"pull_request\" and .event != \"pull_request_target\") | .databaseId") || exit 1
             if [ -n "$RUN_ID" ]; then
               echo "Rerunning canceled build $name/$RUN_ID..."
               if ! gh run rerun "$RUN_ID"; then
