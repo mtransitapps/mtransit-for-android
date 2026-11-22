@@ -46,10 +46,11 @@ jobs:
       actions: write
     steps:
       - name: MT cancel in-progress build runs
+        if: ${{ github.ref == format('refs/heads/{0}', github.event.repository.default_branch) }}
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          RUN_IDS=$(gh run list --workflow mt-build.yml --status in_progress \
+          RUN_IDS=$(gh run list --workflow mt-build.yml --branch "$MT_DEFAULT_BRANCH_NAME" --status in_progress \
             --limit 1000 --json databaseId --jq '.[].databaseId' \
             --repo "$GITHUB_REPOSITORY")
           while IFS= read -r RUN_ID; do
@@ -76,15 +77,14 @@ jobs:
           token: ${{ secrets.MT_PAT }}
           fetch-depth: 0 # fetch all (not required util release build)
       - name: MT cancel in-progress submodule build runs
+        if: ${{ github.ref == format('refs/heads/{0}', github.event.repository.default_branch) }}
         env:
           GH_TOKEN: ${{ secrets.MT_PAT }}
         run: |
           git submodule foreach '
-            SUBMODULE_URL=$(git remote get-url origin)
-            SUBMODULE_REPO=${SUBMODULE_URL#https://github.com/}
-            SUBMODULE_REPO=${SUBMODULE_REPO#git@github.com:}
-            SUBMODULE_REPO=${SUBMODULE_REPO%.git}
-            RUN_IDS=$(gh run list --workflow mt-build.yml --status in_progress --limit 1000 \
+            DEFAULT_BRANCH=$(gh repo view --json defaultBranchRef --jq ".defaultBranchRef.name") || exit 1
+            [ -n "$DEFAULT_BRANCH" ] || exit 1
+            RUN_IDS=$(gh run list --workflow mt-build.yml --branch "$DEFAULT_BRANCH" --status in_progress --limit 1000 \
               --json databaseId --jq ".[].databaseId") || exit 1
             for RUN_ID in $RUN_IDS; do
               [ -n "$RUN_ID" ] || continue
@@ -93,7 +93,7 @@ jobs:
                 if [ "$STATUS" != "completed" ]; then
                   exit 1
                 fi
-                echo "Build run $SUBMODULE_REPO/$RUN_ID already completed."
+                echo "Build run $name/$RUN_ID already completed."
               fi
             done
           '
@@ -192,20 +192,19 @@ jobs:
       - name: MT push commits
         run: ./sh/ci/push_commits.sh
       - name: MT restart latest canceled submodule builds
+        if: ${{ github.ref == format('refs/heads/{0}', github.event.repository.default_branch) }}
         env:
           GH_TOKEN: ${{ secrets.MT_PAT }}
         run: |
           FAILED=false
           git submodule foreach '
-            SUBMODULE_URL=$(git remote get-url origin)
-            SUBMODULE_REPO=${SUBMODULE_URL#https://github.com/}
-            SUBMODULE_REPO=${SUBMODULE_REPO#git@github.com:}
-            SUBMODULE_REPO=${SUBMODULE_REPO%.git}
-            RUN_ID=$(gh run list --workflow mt-build.yml --status completed --limit 1000 \
+            DEFAULT_BRANCH=$(gh repo view --json defaultBranchRef --jq ".defaultBranchRef.name") || exit 1
+            [ -n "$DEFAULT_BRANCH" ] || exit 1
+            RUN_ID=$(gh run list --workflow mt-build.yml --branch "$DEFAULT_BRANCH" --status completed --limit 1000 \
               --json databaseId,conclusion \
               --jq "[.[] | select(.conclusion == \"cancelled\")][0].databaseId // empty") || exit 1
             if [ -n "$RUN_ID" ]; then
-              echo "Rerunning canceled build $SUBMODULE_REPO/$RUN_ID..."
+              echo "Rerunning canceled build $name/$RUN_ID..."
               if ! gh run rerun "$RUN_ID"; then
                 exit 1
               fi
