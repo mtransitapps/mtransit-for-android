@@ -75,7 +75,7 @@ jobs:
           submodules: true # required to set right token
           token: ${{ secrets.MT_PAT }}
           fetch-depth: 0 # fetch all (not required util release build)
-      - name: MT cancel latest in-progress submodule build runs
+      - name: MT cancel in-progress submodule build runs
         env:
           GH_TOKEN: ${{ secrets.MT_PAT }}
         run: |
@@ -83,10 +83,11 @@ jobs:
           while read -r SUBMODULE_KEY SUBMODULE_URL; do
             SUBMODULE_REPO=${SUBMODULE_URL#https://github.com/}
             SUBMODULE_REPO=${SUBMODULE_REPO%.git}
-            RUN_ID=$(gh run list --workflow mt-build.yml --limit 1 \
-              --json databaseId,status --jq '.[] | select(.status == "in_progress") | .databaseId' \
+            RUN_IDS=$(gh run list --workflow mt-build.yml --status in_progress --limit 1000 \
+              --json databaseId --jq '.[].databaseId' \
               --repo "$SUBMODULE_REPO")
-            if [ -n "$RUN_ID" ]; then
+            while IFS= read -r RUN_ID; do
+              [ -n "$RUN_ID" ] || continue
               if ! gh run cancel "$RUN_ID" --repo "$SUBMODULE_REPO"; then
                 STATUS=$(gh run view "$RUN_ID" --repo "$SUBMODULE_REPO" --json status --jq '.status')
                 if [ "$STATUS" != "completed" ]; then
@@ -94,7 +95,7 @@ jobs:
                 fi
                 echo "Build run $SUBMODULE_REPO/$RUN_ID already completed."
               fi
-            fi
+            done <<< "$RUN_IDS"
           done <<< "$SUBMODULE_URLS"
       - name: MT check out submodules
         run: ./sh/git/submodules_init.sh
