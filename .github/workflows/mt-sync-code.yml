@@ -85,12 +85,11 @@ jobs:
             SUBMODULE_REPO=${SUBMODULE_REPO#git@github.com:}
             SUBMODULE_REPO=${SUBMODULE_REPO%.git}
             RUN_IDS=$(gh run list --workflow mt-build.yml --status in_progress --limit 1000 \
-              --json databaseId --jq ".[].databaseId" \
-              --repo "$SUBMODULE_REPO") || exit 1
+              --json databaseId --jq ".[].databaseId") || exit 1
             for RUN_ID in $RUN_IDS; do
               [ -n "$RUN_ID" ] || continue
-              if ! gh run cancel "$RUN_ID" --repo "$SUBMODULE_REPO"; then
-                STATUS=$(gh run view "$RUN_ID" --repo "$SUBMODULE_REPO" --json status --jq ".status")
+              if ! gh run cancel "$RUN_ID"; then
+                STATUS=$(gh run view "$RUN_ID" --json status --jq ".status")
                 if [ "$STATUS" != "completed" ]; then
                   exit 1
                 fi
@@ -204,11 +203,10 @@ jobs:
             SUBMODULE_REPO=${SUBMODULE_REPO%.git}
             RUN_ID=$(gh run list --workflow mt-build.yml --status completed --limit 1000 \
               --json databaseId,conclusion \
-              --jq "[.[] | select(.conclusion == \"cancelled\")][0].databaseId // empty" \
-              --repo "$SUBMODULE_REPO") || exit 1
+              --jq "[.[] | select(.conclusion == \"cancelled\")][0].databaseId // empty") || exit 1
             if [ -n "$RUN_ID" ]; then
               echo "Rerunning canceled build $SUBMODULE_REPO/$RUN_ID..."
-              if ! gh run rerun "$RUN_ID" --repo "$SUBMODULE_REPO"; then
+              if ! gh run rerun "$RUN_ID"; then
                 exit 1
               fi
             fi
