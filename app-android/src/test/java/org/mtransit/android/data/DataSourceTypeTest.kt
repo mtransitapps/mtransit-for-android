@@ -1,13 +1,14 @@
 package org.mtransit.android.data
 
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
-import org.junit.Test
 import org.mtransit.android.R
 import org.mtransit.android.commons.data.DataSourceTypeId
 import org.mtransit.android.datasource.DataSourcesConverters
 import org.mtransit.android.ui.fragment.POIViewModel
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
 class DataSourceTypeTest {
 
@@ -16,7 +17,8 @@ class DataSourceTypeTest {
         val type = DataSourceType.parseId(6)
         assertEquals(DataSourceType.TYPE_GONDOLA, type)
         assertEquals(type, DataSourceType.parseNavResId(R.id.root_nav_gondola))
-        assertTrue(DataSourceTypeId.isGTFSType(type!!.id))
+        assertNotNull(type)
+        assertTrue(DataSourceTypeId.isGTFSType(type.id))
         assertTrue(DataSourceTypeId.isRDSType(type.id))
         assertFalse(type.isExtendedType)
         assertEquals(DataSourceStopType.STATION, type.stopType)
