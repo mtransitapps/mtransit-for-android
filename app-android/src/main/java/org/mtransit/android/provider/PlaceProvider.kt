@@ -100,29 +100,29 @@ class PlaceProvider : AgencyProvider(), POIProviderContract {
                 return null
             }
             MTLogK.i(this, "Loading from Places API...")
-            val searchByTextResponse = Tasks.await(placesClient.searchByText(searchByTextRequest))
+            val gSearchByTextResponse = Tasks.await(placesClient.searchByText(searchByTextRequest))
             val newLastUpdateInMs = UITimeUtils.currentTimeMillis()
             val authority = _authority
             val lang = if (LocaleUtils.isFR()) Locale.FRENCH.language else Locale.ENGLISH.language
             var score = 1000
-            val places: List<Place>? = searchByTextResponse?.places?.mapNotNull { place ->
+            val places: List<Place>? = gSearchByTextResponse?.places?.mapNotNull { gPlace ->
                 try {
-                    val providerId = place.id ?: return@mapNotNull null
+                    val providerId = gPlace.id ?: return@mapNotNull null
                     Place(
                         authority,
                         providerId,
                         lang,
                         newLastUpdateInMs,
-                        place.location?.latitude ?: return@mapNotNull null,
-                        place.location?.longitude ?: return@mapNotNull null,
-                        place.displayName ?: return@mapNotNull null
+                        gPlace.location?.latitude ?: return@mapNotNull null,
+                        gPlace.location?.longitude ?: return@mapNotNull null,
+                        gPlace.displayName ?: return@mapNotNull null
                     ).apply {
                         this.score = score--
-                        this.iconUrl = place.iconMaskUrl
-                        this.iconBgColor = place.iconBackgroundColor
+                        this.iconUrl = gPlace.iconMaskUrl
+                        this.iconBgColor = gPlace.iconBackgroundColor
                     }
                 } catch (e: Exception) {
-                    MTLogK.w(this, "Error while parsing result '$place'!", e)
+                    MTLogK.w(this, "Error while parsing result '$gPlace'!", e)
                     null
                 }
             }
