@@ -2,29 +2,27 @@ package org.mtransit.android.data;
 
 import android.content.ContentValues;
 import android.database.Cursor;
-import android.text.TextUtils;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.Discouraged;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.mtransit.android.BuildConfig;
 import org.mtransit.android.commons.ColorUtils;
 import org.mtransit.android.commons.HtmlUtils;
 import org.mtransit.android.commons.LocaleUtils;
-import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.data.Accessibility;
 import org.mtransit.android.commons.data.DataSourceTypeId;
 import org.mtransit.android.commons.data.DefaultPOI;
 import org.mtransit.android.commons.data.POI;
 import org.mtransit.android.provider.ModuleProvider;
 
+import kotlinx.serialization.json.JsonObject;
+
 public class Module extends DefaultPOI {
 
-	private static final String LOG_TAG = Module.class.getSimpleName();
+	protected static final String LOG_TAG = Module.class.getSimpleName();
 
 	@NonNull
 	@Override
@@ -42,7 +40,7 @@ public class Module extends DefaultPOI {
 	private String color = null;
 
 	@Nullable
-	private String location = null;
+	protected String location = null;
 
 	@Nullable
 	private String nameFr = null;
@@ -95,7 +93,7 @@ public class Module extends DefaultPOI {
 		return dstId;
 	}
 
-	private void setColor(@Nullable String color) {
+	protected void setColor(@Nullable String color) {
 		this.color = color;
 		this.colorInt = null; // reset
 	}
@@ -135,7 +133,7 @@ public class Module extends DefaultPOI {
 		return nameFr;
 	}
 
-	private void setNameFr(@Nullable String nameFr) {
+	protected void setNameFr(@Nullable String nameFr) {
 		this.nameFr = nameFr;
 	}
 
@@ -145,20 +143,20 @@ public class Module extends DefaultPOI {
 		return repo;
 	}
 
-	private void setRepo(@Nullable String repo) {
+	protected void setRepo(@Nullable String repo) {
 		this.repo = repo;
 	}
 
-	private static final String STORE_PRODUCTION = "production";
+	protected static final String STORE_PRODUCTION = "production";
 	@SuppressWarnings("unused")
-	private static final String STORE_BETA_PRIVATE = "beta-private";
+	protected static final String STORE_BETA_PRIVATE = "beta-private";
 
 	@Nullable
 	public String getStore() {
 		return store;
 	}
 
-	private void setStore(@Nullable String store) {
+	protected void setStore(@Nullable String store) {
 		this.store = store;
 	}
 
@@ -213,129 +211,10 @@ public class Module extends DefaultPOI {
 		this.uuid = null;
 	}
 
-	private static final String JSON_PKG = "pkg";
-	private static final String JSON_TYPE_ID = "type_id";
-	private static final String JSON_COLOR = "color";
-	private static final String JSON_LOCATION = "location";
-	private static final String JSON_NAME_FR = "name_fr";
-	private static final String JSON_REPO = "repo";
-	private static final String JSON_STORE = "store";
-
-	@Nullable
+	@NonNull
 	@Override
-	public JSONObject toJSON() {
-		try {
-			final JSONObject json = new JSONObject();
-			json.put(JSON_PKG, this.pkg);
-			json.put(JSON_TYPE_ID, this.dstId);
-			if (!TextUtils.isEmpty(this.color)) {
-				json.put(JSON_COLOR, this.color);
-			}
-			if (!TextUtils.isEmpty(this.location)) {
-				json.put(JSON_LOCATION, this.location);
-			}
-			if (!TextUtils.isEmpty(this.nameFr)) {
-				json.put(JSON_NAME_FR, this.nameFr);
-			}
-			if (!TextUtils.isEmpty(this.repo)) {
-				json.put(JSON_REPO, this.repo);
-			}
-			if (!TextUtils.isEmpty(this.store)) {
-				json.put(JSON_STORE, this.store);
-			}
-			DefaultPOI.toJSON(this, json);
-			return json;
-		} catch (JSONException jsone) {
-			MTLog.w(this, jsone, "Error while converting to JSON (%s)!", this);
-			return null;
-		}
-	}
-
-	@Nullable
-	@Override
-	public POI fromJSON(@NonNull JSONObject json) {
-		return fromJSONStatic(json);
-	}
-
-	@Nullable
-	public static Module fromJSONStatic(@NonNull JSONObject json) {
-		try {
-			final String optStore = json.optString(JSON_STORE);
-			if (!BuildConfig.DEBUG && !STORE_PRODUCTION.equals(optStore)) return null; // ignore non-production agency modules in release builds
-			final Module module = new Module(
-					DefaultPOI.getAuthorityFromJSON(json),
-					DefaultPOI.getIdFromJSON(json),
-					json.getString(JSON_PKG),
-					json.getInt(JSON_TYPE_ID),
-					DefaultPOI.getLatFromJSON(json),
-					DefaultPOI.getLngFromJSON(json),
-					DefaultPOI.getNameFromJSON(json)
-			);
-			final String optColor = json.optString(JSON_COLOR);
-			if (!TextUtils.isEmpty(optColor)) {
-				module.setColor(optColor);
-			}
-			final String optLocation = json.optString(JSON_LOCATION);
-			if (!TextUtils.isEmpty(optLocation)) {
-				module.setLocation(optLocation);
-			}
-			final String optNameFr = json.optString(JSON_NAME_FR);
-			if (!TextUtils.isEmpty(optNameFr)) {
-				module.setNameFr(optNameFr);
-			}
-			final String optRepo = json.optString(JSON_REPO);
-			if (!TextUtils.isEmpty(optRepo)) {
-				module.setRepo(optRepo);
-			}
-			if (!TextUtils.isEmpty(optStore)) {
-				module.setStore(optStore);
-			}
-			DefaultPOI.fromJSON(json, module);
-			return module;
-		} catch (JSONException jsone) {
-			MTLog.w(LOG_TAG, jsone, "Error while parsing JSON '%s'!", json);
-			return null;
-		}
-	}
-
-	@Nullable
-	public static Module fromSimpleJSONStatic(@NonNull JSONObject json, @NonNull String authority, int id) {
-		try {
-			final String optStore = json.optString(JSON_STORE);
-			if (!BuildConfig.DEBUG && !STORE_PRODUCTION.equals(optStore)) return null; // ignore non-production agency modules in release builds
-			final Module module = new Module(
-					authority,
-					id,
-					json.getString(JSON_PKG),
-					Integer.parseInt(json.getString(JSON_TYPE_ID)),
-					DefaultPOI.getLatFromJSON(json),
-					DefaultPOI.getLngFromJSON(json),
-					DefaultPOI.getNameFromJSON(json)
-			);
-			final String optColor = json.optString(JSON_COLOR);
-			if (!TextUtils.isEmpty(optColor)) {
-				module.setColor(optColor);
-			}
-			final String optLocation = json.optString(JSON_LOCATION);
-			if (!TextUtils.isEmpty(optLocation)) {
-				module.setLocation(optLocation);
-			}
-			final String optNameFr = json.optString(JSON_NAME_FR);
-			if (!TextUtils.isEmpty(optNameFr)) {
-				module.setNameFr(optNameFr);
-			}
-			final String optRepo = json.optString(JSON_REPO);
-			if (!TextUtils.isEmpty(optRepo)) {
-				module.setRepo(optRepo);
-			}
-			if (!TextUtils.isEmpty(optStore)) {
-				module.setStore(optStore);
-			}
-			return module;
-		} catch (JSONException jsone) {
-			MTLog.w(LOG_TAG, jsone, "Error while parsing simple JSON '%s'!", json);
-			return null;
-		}
+	public JsonObject toJson() {
+		return ModuleExtKt.toJsonK(this);
 	}
 
 	@NonNull
