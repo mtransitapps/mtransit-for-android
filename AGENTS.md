@@ -24,6 +24,8 @@ The main build file is:
 - https://github.com/mtransitapps/mtransit-for-android/blob/master/.github/workflows/mt-build.yml
 It's using:
 - https://github.com/mtransitapps/gh-actions/blob/master/.github/actions/setup/action.yml
+Detekt config:
+- https://github.com/mtransitapps/commons/blob/master/config/detekt/detekt-config.yml
 
 Shared code and files are deployed/generated from:
 - https://github.com/mtransitapps/commons/tree/master/shared: code/files shared between all root repositories (not submodules)
@@ -35,3 +37,10 @@ Shared code and files are deployed/generated from:
 
 Dependencies versions are all in (some dependencies use BOMs):
 - https://github.com/mtransitapps/commons/blob/master/gradle/libs.versions.toml
+
+Code changes must compile, pass detekt & lint analysis, and pass unit tests.
+The following Gradle commands are available:
+- `compileAll`: compile code for all modules or an individual module
+- `detektAll`: run detekt on all modules or an individual module
+- `:app-android:lintDebug`: run lint checks on the main Android app and all dependencies (modules)
+- `testAll`: run unit tests on all modules or an individual module
