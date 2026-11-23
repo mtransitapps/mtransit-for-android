@@ -25,31 +25,31 @@ public enum DataSourceType {
 	TYPE_LIGHT_RAIL(DataSourceTypeId.LIGHT_RAIL, false, // GTFS - LRT
 			DataSourceStopType.STATION,
 			R.string.agency_type_light_rail_short_name, R.string.agency_type_light_rail_all, //
-			R.drawable.ic_light_rail_black_24dp, //
+			org.mtransit.android.commons.R.drawable.ic_light_rail_black_24dp, //
 			R.id.root_nav_light_rail, //
 			true, true, true, true, true), //
 	TYPE_SUBWAY(DataSourceTypeId.SUBWAY, false, // GTFS - Metro
 			DataSourceStopType.STATION,
 			R.string.agency_type_subway_short_name, R.string.agency_type_subway_all, //
-			R.drawable.ic_directions_subway_black_24dp, //
+			org.mtransit.android.commons.R.drawable.ic_directions_subway_black_24dp, //
 			R.id.root_nav_subway, //
 			true, true, true, true, true), //
 	TYPE_RAIL(DataSourceTypeId.RAIL, false, // GTFS - Train
 			DataSourceStopType.TRAIN_STATION,
 			R.string.agency_type_rail_short_name, R.string.agency_type_rail_all, //
-			R.drawable.ic_directions_railway_black_24dp, //
+			org.mtransit.android.commons.R.drawable.ic_directions_railway_black_24dp, //
 			R.id.root_nav_rail, //
 			true, true, true, true, true), //
 	TYPE_BUS(DataSourceTypeId.BUS, false, // GTFS - Bus
 			DataSourceStopType.STOP,
 			R.string.agency_type_bus_short_name, R.string.agency_type_bus_all, //
-			R.drawable.ic_directions_bus_black_24dp, //
+			org.mtransit.android.commons.R.drawable.ic_directions_bus_black_24dp, //
 			R.id.root_nav_bus, //
 			true, true, true, true, true), //
 	TYPE_FERRY(DataSourceTypeId.FERRY, false, // GTFS - Boat
 			DataSourceStopType.TERMINAL,
 			R.string.agency_type_ferry_short_name, R.string.agency_type_ferry_all, //
-			R.drawable.ic_directions_boat_black_24dp, //
+			org.mtransit.android.commons.R.drawable.ic_directions_boat_black_24dp, //
 			R.id.root_nav_ferry, //
 			true, true, true, true, true), //
 	TYPE_GONDOLA(DataSourceTypeId.GONDOLA, false, // GTFS - Aerial lift
@@ -62,14 +62,14 @@ public enum DataSourceType {
 	TYPE_TRAM(DataSourceTypeId.EX_TRAM, true, // GTFS - Tram, Streetcar
 			DataSourceStopType.STOP,
 			R.string.agency_type_tram_short_name, R.string.agency_type_tram_all, //
-			R.drawable.ic_light_rail_black_24dp, //
+			org.mtransit.android.commons.R.drawable.ic_light_rail_black_24dp, //
 			R.id.root_nav_tram, //
 			true, true, true, true, true), //
 
 	TYPE_BIKE(DataSourceTypeId.BIKE, false,// like BIXI, Velib
 			DataSourceStopType.STATION,
 			R.string.agency_type_bike_short_name, R.string.agency_type_bike_all, //
-			R.drawable.ic_directions_bike_black_24dp, //
+			org.mtransit.android.commons.R.drawable.ic_directions_bike_black_24dp, //
 			R.id.root_nav_bike, //
 			true, true, true, true, true), //
 
