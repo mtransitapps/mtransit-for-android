@@ -14,7 +14,7 @@ class DataSourceTypeTest {
 
     @Test
     fun gondolaTypeIsAvailableAcrossTransitScreens() {
-        val type = DataSourceType.parseId(6)
+        val type = DataSourceType.parseId(DataSourceTypeId.GONDOLA)
         assertEquals(DataSourceType.TYPE_GONDOLA, type)
         assertEquals(type, DataSourceType.parseNavResId(R.id.root_nav_gondola))
         assertNotNull(type)
@@ -28,9 +28,9 @@ class DataSourceTypeTest {
     @Test
     fun gondolaTypeRoundTripsThroughDatabaseConverter() {
         val converter = DataSourcesConverters()
-        val type = converter.fromTypeId(6)
+        val type = converter.fromTypeId(DataSourceTypeId.GONDOLA)
         assertEquals(DataSourceType.TYPE_GONDOLA, type)
-        assertEquals(6, converter.dataSourceTypeToTypeId(type))
+        assertEquals(DataSourceTypeId.GONDOLA, converter.dataSourceTypeToTypeId(type))
     }
 
     @Test
