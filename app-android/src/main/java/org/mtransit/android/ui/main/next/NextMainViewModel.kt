@@ -155,6 +155,7 @@ class NextMainViewModel @Inject constructor(
         ITEM_ID_AGENCY_TYPE_START_WITH + DataSourceType.TYPE_RAIL.id -> R.id.root_nav_rail
         ITEM_ID_AGENCY_TYPE_START_WITH + DataSourceType.TYPE_BUS.id -> R.id.root_nav_bus
         ITEM_ID_AGENCY_TYPE_START_WITH + DataSourceType.TYPE_FERRY.id -> R.id.root_nav_ferry
+        ITEM_ID_AGENCY_TYPE_START_WITH + DataSourceType.TYPE_GONDOLA.id -> R.id.root_nav_gondola
         ITEM_ID_AGENCY_TYPE_START_WITH + DataSourceType.TYPE_BIKE.id -> R.id.root_nav_bike
         ITEM_ID_AGENCY_TYPE_START_WITH + DataSourceType.TYPE_MODULE.id -> R.id.root_nav_module
         null -> null
@@ -177,6 +178,7 @@ class NextMainViewModel @Inject constructor(
         R.id.root_nav_rail -> ITEM_ID_AGENCY_TYPE_START_WITH + DataSourceType.TYPE_RAIL.id
         R.id.root_nav_bus -> ITEM_ID_AGENCY_TYPE_START_WITH + DataSourceType.TYPE_BUS.id
         R.id.root_nav_ferry -> ITEM_ID_AGENCY_TYPE_START_WITH + DataSourceType.TYPE_FERRY.id
+        R.id.root_nav_gondola -> ITEM_ID_AGENCY_TYPE_START_WITH + DataSourceType.TYPE_GONDOLA.id
         R.id.root_nav_bike -> ITEM_ID_AGENCY_TYPE_START_WITH + DataSourceType.TYPE_BIKE.id
         R.id.root_nav_module -> ITEM_ID_AGENCY_TYPE_START_WITH + DataSourceType.TYPE_MODULE.id
         null -> null
@@ -196,6 +198,7 @@ class NextMainViewModel @Inject constructor(
         R.id.root_nav_bike,
         R.id.root_nav_bus,
         R.id.root_nav_ferry,
+        R.id.root_nav_gondola,
         R.id.root_nav_light_rail,
         R.id.root_nav_tram,
         R.id.root_nav_subway,

@@ -33,6 +33,12 @@
         android:id="@+id/drawer_modules"
         android:checkableBehavior="single">
         <item
+            android:id="@id/root_nav_gondola"
+            android:icon="@drawable/ic_gondola_lift_black_24dp"
+            android:title="@string/agency_type_gondola_all"
+            android:visible="false"
+            tools:visible="true" />
+        <item
             android:id="@id/root_nav_bike"
             android:icon="@drawable/ic_directions_bike_black_24dp"
             android:title="@string/agency_type_bike_all"
