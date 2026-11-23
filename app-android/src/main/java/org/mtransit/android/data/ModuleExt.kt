@@ -16,6 +16,7 @@ import org.mtransit.android.commons.data.getLngFromJson
 import org.mtransit.android.commons.data.getNameFromJson
 import org.mtransit.android.commons.data.toJsonCommon
 import org.mtransit.android.data.Module.LOG_TAG
+import org.mtransit.commons.jsonPrimitiveOrNull
 import kotlinx.serialization.json.put as putK
 
 private const val JSON_PKG = "pkg"
@@ -47,7 +48,7 @@ fun JsonObject.toModule(
     id: Int = getIdFromJson(),
 ): Module? {
     try {
-        val optStore = this[JSON_STORE]?.jsonPrimitive?.contentOrNull
+        val optStore = this[JSON_STORE]?.jsonPrimitiveOrNull?.contentOrNull
         if (!BuildConfig.DEBUG && Module.STORE_PRODUCTION != optStore) return null // ignore non-production agency modules in release builds
         return Module(
             authority,
@@ -58,10 +59,10 @@ fun JsonObject.toModule(
             getLngFromJson(),
             getNameFromJson(),
         ).apply {
-            color = this@toModule[JSON_COLOR]?.jsonPrimitive?.contentOrNull?.takeIf { it.isNotEmpty() }
-            location = this@toModule[JSON_LOCATION]?.jsonPrimitive?.contentOrNull?.takeIf { it.isNotEmpty() }
-            nameFr = this@toModule[JSON_NAME_FR]?.jsonPrimitive?.contentOrNull?.takeIf { it.isNotEmpty() }
-            repo = this@toModule[JSON_REPO]?.jsonPrimitive?.contentOrNull?.takeIf { it.isNotEmpty() }
+            color = this@toModule[JSON_COLOR]?.jsonPrimitiveOrNull?.contentOrNull?.takeIf { it.isNotEmpty() }
+            location = this@toModule[JSON_LOCATION]?.jsonPrimitiveOrNull?.contentOrNull?.takeIf { it.isNotEmpty() }
+            nameFr = this@toModule[JSON_NAME_FR]?.jsonPrimitiveOrNull?.contentOrNull?.takeIf { it.isNotEmpty() }
+            repo = this@toModule[JSON_REPO]?.jsonPrimitiveOrNull?.contentOrNull?.takeIf { it.isNotEmpty() }
             store = optStore?.takeIf { it.isNotEmpty() }
             applyTo(this)
         }

@@ -27,6 +27,7 @@ import org.mtransit.android.ui.view.map.updateFlat
 import org.mtransit.android.ui.view.map.updatePosition
 import org.mtransit.android.ui.view.map.updateSnippet
 import org.mtransit.android.ui.view.map.updateTitle
+import org.mtransit.commons.jsonPrimitiveOrNull
 import kotlinx.serialization.json.put as putK
 
 val Place.latLng: LatLng get() = LatLng(this.lat, this.lng)
@@ -90,6 +91,7 @@ fun Place.toJsonK() = try {
     throw se
 }
 
+@Suppress("unused")
 fun JsonObject.toPlace() = try {
     Place(
         getAuthorityFromJson(),
@@ -100,9 +102,9 @@ fun JsonObject.toPlace() = try {
         getLngFromJson(),
         getNameFromJson(),
     ).apply {
-        subTitle = this@toPlace[JSON_SUB_TITLE]?.jsonPrimitive?.contentOrNull
-        iconUrl = this@toPlace[JSON_ICON_URL]?.jsonPrimitive?.contentOrNull
-        iconBgColor = this@toPlace[JSON_ICON_BG_COLOR]?.jsonPrimitive?.intOrNull
+        subTitle = this@toPlace[JSON_SUB_TITLE]?.jsonPrimitiveOrNull?.contentOrNull
+        iconUrl = this@toPlace[JSON_ICON_URL]?.jsonPrimitiveOrNull?.contentOrNull
+        iconBgColor = this@toPlace[JSON_ICON_BG_COLOR]?.jsonPrimitiveOrNull?.intOrNull
         applyTo(this)
     }
 } catch (se: SerializationException) {
