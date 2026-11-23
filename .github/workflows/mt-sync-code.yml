@@ -39,8 +39,34 @@ env:
   MT_STORE_PRODUCTION_ON: ${{ secrets.MT_STORE_PRODUCTION_ON }}
   MT_STORE_PRODUCTION_OFF: ${{ secrets.MT_STORE_PRODUCTION_OFF }}
 jobs:
+  MT-CANCEL-BUILD-JOB:
+    name: "MT Cancel running builds"
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      - name: MT cancel in-progress build runs
+        if: ${{ github.ref == format('refs/heads/{0}', github.event.repository.default_branch) }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          RUN_ID=$(gh run list --workflow mt-build.yml --branch "$MT_DEFAULT_BRANCH_NAME" \
+            --limit 1 --json databaseId,status,event \
+            --jq '.[0] | select(.status == "in_progress" and .event != "pull_request" and .event != "pull_request_target") | .databaseId' \
+            --repo "$GITHUB_REPOSITORY")
+          if [ -n "$RUN_ID" ]; then
+            if ! gh run cancel "$RUN_ID" --repo "$GITHUB_REPOSITORY"; then
+              STATUS=$(gh run view "$RUN_ID" --repo "$GITHUB_REPOSITORY" --json status --jq '.status')
+              if [ "$STATUS" != "completed" ]; then
+                exit 1
+              fi
+              echo "Build run $RUN_ID already completed."
+            fi
+          fi
+
   MT-SYNC-CODE-JOB:
     name: "MT Sync Code"
+    needs: MT-CANCEL-BUILD-JOB
     timeout-minutes: 30
     runs-on: ubuntu-latest
     steps:
@@ -50,6 +76,27 @@ jobs:
           submodules: true # required to set right token
           token: ${{ secrets.MT_PAT }}
           fetch-depth: 0 # fetch all (not required util release build)
+      - name: MT cancel in-progress submodule build runs
+        if: ${{ github.ref == format('refs/heads/{0}', github.event.repository.default_branch) }}
+        env:
+          GH_TOKEN: ${{ secrets.MT_PAT }}
+        run: |
+          git submodule foreach '
+            DEFAULT_BRANCH=$(gh repo view --json defaultBranchRef --jq ".defaultBranchRef.name") || exit 1
+            [ -n "$DEFAULT_BRANCH" ] || exit 1
+            RUN_ID=$(gh run list --workflow mt-build.yml --branch "$DEFAULT_BRANCH" --limit 1 \
+              --json databaseId,status,event \
+              --jq ".[0] | select(.status == \"in_progress\" and .event != \"pull_request\" and .event != \"pull_request_target\") | .databaseId") || exit 1
+            if [ -n "$RUN_ID" ]; then
+              if ! gh run cancel "$RUN_ID"; then
+                STATUS=$(gh run view "$RUN_ID" --json status --jq ".status")
+                if [ "$STATUS" != "completed" ]; then
+                  exit 1
+                fi
+                echo "Build run $name/$RUN_ID already completed."
+              fi
+            fi
+          '
       - name: MT check out submodules
         run: ./sh/git/submodules_init.sh
       - name: MT setup MT_GIT_BRANCH env
@@ -144,25 +191,25 @@ jobs:
             app-android/build/outputs/bundle
       - name: MT push commits
         run: ./sh/ci/push_commits.sh
-      # - name: MT trigger submodule builds
-      #   if: ${{ github.event_name != 'pull_request' && github.ref_name == env.MT_DEFAULT_BRANCH_NAME }}
-      #   continue-on-error: true
-      #   run: |
-      #     SUBMODULES_CHANGED=false
-      #     while IFS= read -r SUBMODULE_PATH; do
-      #       if git diff --quiet "$MT_SHA" HEAD -- "$SUBMODULE_PATH"; then
-      #         continue
-      #       fi
-      #       SUBMODULES_CHANGED=true
-      #       SUBMODULE_NAME=$(basename "$SUBMODULE_PATH")
-      #       echo "Triggering 'mt-build.yml' for '${SUBMODULE_NAME}' on branch '${MT_BRANCH_NAME}'..."
-      #       gh workflow run mt-build.yml \
-      #         --repo "mtransitapps/${SUBMODULE_NAME}" \
-      #         --ref "$MT_BRANCH_NAME" || echo "Failed to trigger mt-build.yml for '${SUBMODULE_NAME}' (continuing)..."
-      #     done < <(git config --file .gitmodules --get-regexp path | awk '{print $2}')
-
-      #     if [ "$SUBMODULES_CHANGED" = "false" ]; then
-      #       echo "No submodule changes detected between '$MT_SHA' and HEAD."
-      #     fi
-      #   env:
-      #     GH_TOKEN: ${{ secrets.MT_PAT }}
+      - name: MT restart latest canceled submodule builds
+        if: ${{ github.ref == format('refs/heads/{0}', github.event.repository.default_branch) }}
+        env:
+          GH_TOKEN: ${{ secrets.MT_PAT }}
+        run: |
+          FAILED=false
+          git submodule foreach '
+            DEFAULT_BRANCH=$(gh repo view --json defaultBranchRef --jq ".defaultBranchRef.name") || exit 1
+            [ -n "$DEFAULT_BRANCH" ] || exit 1
+            RUN_ID=$(gh run list --workflow mt-build.yml --branch "$DEFAULT_BRANCH" --limit 1 \
+              --json databaseId,status,conclusion,event \
+              --jq ".[0] | select(.status == \"completed\" and .conclusion == \"cancelled\" and .event != \"pull_request\" and .event != \"pull_request_target\") | .databaseId") || exit 1
+            if [ -n "$RUN_ID" ]; then
+              echo "Rerunning canceled build $name/$RUN_ID..."
+              if ! gh run rerun "$RUN_ID"; then
+                exit 1
+              fi
+            fi
+          ' || FAILED=true
+          if [ "$FAILED" = true ]; then
+            exit 1
+          fi
