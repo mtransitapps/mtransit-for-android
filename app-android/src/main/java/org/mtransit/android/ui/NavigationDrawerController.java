@@ -490,6 +490,8 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 			return ITEM_ID_AGENCY_TYPE_START_WITH + DataSourceType.TYPE_BUS.getId();
 		} else if (navItemId == R.id.root_nav_ferry) {
 			return ITEM_ID_AGENCY_TYPE_START_WITH + DataSourceType.TYPE_FERRY.getId();
+		} else if (navItemId == R.id.root_nav_gondola) {
+			return ITEM_ID_AGENCY_TYPE_START_WITH + DataSourceType.TYPE_GONDOLA.getId();
 		} else if (navItemId == R.id.root_nav_bike) {
 			return ITEM_ID_AGENCY_TYPE_START_WITH + DataSourceType.TYPE_BIKE.getId();
 		} else if (navItemId == R.id.root_nav_module) {

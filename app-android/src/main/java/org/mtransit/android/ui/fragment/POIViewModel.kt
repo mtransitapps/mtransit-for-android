@@ -117,6 +117,7 @@ class POIViewModel @Inject constructor(
                     dst == DataSourceType.TYPE_RAIL -> maxDistanceInMeters * 2f
                     dst == DataSourceType.TYPE_LIGHT_RAIL -> maxDistanceInMeters * 2f
                     dst == DataSourceType.TYPE_FERRY -> maxDistanceInMeters * 2f
+                    dst == DataSourceType.TYPE_GONDOLA -> maxDistanceInMeters * 2f
                     else -> {
                         MTLogK.w(LOG_TAG, "Unexpected type $dst in POI nearby agencies!")
                         maxDistanceInMeters

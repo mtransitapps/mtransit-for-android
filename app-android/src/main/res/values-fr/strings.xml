@@ -47,6 +47,8 @@
     <string name="agency_type_stops_nearby">%1$s à proximité</string>
     <string name="agency_type_ferry_short_name">Bateau</string>
     <string name="agency_type_ferry_all">Bateaux</string>
+    <string name="agency_type_gondola_short_name">Téléphérique</string>
+    <string name="agency_type_gondola_all">Téléphériques</string>
     <string name="agency_type_light_rail_short_name">Train léger</string>
     <string name="agency_type_light_rail_all">Trains légers</string>
     <string name="agency_type_tram_short_name">Tram</string>

@@ -18,6 +18,7 @@
     <item name="root_nav_rail" type="id" />
     <item name="root_nav_bus" type="id" />
     <item name="root_nav_ferry" type="id" />
+    <item name="root_nav_gondola" type="id" />
     <item name="root_nav_bike" type="id" />
     <item name="root_nav_module" type="id" />
     <item name="nav_poi" type="id" />

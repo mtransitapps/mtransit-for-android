@@ -52,6 +52,12 @@ public enum DataSourceType {
 			R.drawable.ic_directions_boat_black_24dp, //
 			R.id.root_nav_ferry, //
 			true, true, true, true, true), //
+	TYPE_GONDOLA(DataSourceTypeId.GONDOLA, false, // GTFS - Aerial lift
+			DataSourceStopType.STATION,
+			R.string.agency_type_gondola_short_name, R.string.agency_type_gondola_all, //
+			org.mtransit.android.commons.R.drawable.ic_gondola_lift_black_24dp, //
+			R.id.root_nav_gondola, //
+			true, true, true, true, true), //
 
 	TYPE_TRAM(DataSourceTypeId.EX_TRAM, true, // GTFS - Tram, Streetcar
 			DataSourceStopType.STOP,
@@ -229,6 +235,8 @@ public enum DataSourceType {
 			return TYPE_BUS;
 		case DataSourceTypeId.FERRY:
 			return TYPE_FERRY;
+		case DataSourceTypeId.GONDOLA:
+			return TYPE_GONDOLA;
 		case DataSourceTypeId.EX_TRAM:
 			return TYPE_TRAM;
 		case DataSourceTypeId.BIKE:
@@ -265,6 +273,8 @@ public enum DataSourceType {
 			return TYPE_BUS;
 		} else if (navResId == R.id.root_nav_ferry) {
 			return TYPE_FERRY;
+		} else if (navResId == R.id.root_nav_gondola) {
+			return TYPE_GONDOLA;
 		} else if (navResId == R.id.root_nav_bike) {
 			return TYPE_BIKE;
 		} else if (navResId == R.id.root_nav_module) {

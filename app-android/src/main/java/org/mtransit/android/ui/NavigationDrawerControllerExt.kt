@@ -21,6 +21,7 @@ internal fun NavigationDrawerController.trackNavigationItemSelected(menuItem: Me
         R.id.root_nav_rail -> this.analyticsManager.trackButtonClick("drawer_nav_rail", currentAnalyticsScreen)
         R.id.root_nav_bus -> this.analyticsManager.trackButtonClick("drawer_nav_bus", currentAnalyticsScreen)
         R.id.root_nav_ferry -> this.analyticsManager.trackButtonClick("drawer_nav_ferry", currentAnalyticsScreen)
+        R.id.root_nav_gondola -> this.analyticsManager.trackButtonClick("drawer_nav_gondola", currentAnalyticsScreen)
         R.id.root_nav_bike -> this.analyticsManager.trackButtonClick("drawer_nav_bike", currentAnalyticsScreen)
         R.id.root_nav_module -> this.analyticsManager.trackButtonClick("drawer_nav_module", currentAnalyticsScreen)
         R.id.nav_settings -> this.analyticsManager.trackButtonClick("drawer_nav_settings", currentAnalyticsScreen)
