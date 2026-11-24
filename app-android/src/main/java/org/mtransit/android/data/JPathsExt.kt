@@ -1,3 +1,5 @@
+@file:Suppress("TooManyFunctions")
+
 package org.mtransit.android.data
 
 import android.graphics.Paint
