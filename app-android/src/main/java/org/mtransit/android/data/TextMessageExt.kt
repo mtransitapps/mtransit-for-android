@@ -1,6 +1,5 @@
 package org.mtransit.android.data
 
-import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.jsonPrimitive
@@ -21,9 +20,9 @@ fun TextMessage.toJsonK() = try {
         putK(JSON_MESSAGE, this@toJsonK.message)
         toJsonCommon(this@toJsonK)
     }
-} catch (se: SerializationException) {
-    MTLogK.w(this, "Error while converting to JSON ($this)!", se)
-    throw se
+} catch (iae: IllegalArgumentException) {
+    MTLogK.w(this, "Error while converting to JSON ($this)!", iae)
+    throw iae
 }
 
 @Suppress("unused")
@@ -35,7 +34,7 @@ fun JsonObject.toTextMessage() = try {
     ).apply {
         applyTo(this)
     }
-} catch (se: SerializationException) {
-    MTLogK.w(LOG_TAG, "Error while parsing JSON '$this'!", se)
-    throw se
+} catch (iae: IllegalArgumentException) {
+    MTLogK.w(LOG_TAG, "Error while parsing JSON '$this'!", iae)
+    throw iae
 }

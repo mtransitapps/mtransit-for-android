@@ -1,6 +1,5 @@
 package org.mtransit.android.data
 
-import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.contentOrNull
@@ -38,9 +37,9 @@ fun Module.toJsonK() = try {
         this@toJsonK.store?.takeIf { it.isNotEmpty() }?.let { putK(JSON_STORE, it) }
         toJsonCommon(this@toJsonK)
     }
-} catch (se: SerializationException) {
-    MTLogK.w(this, "Error while converting to JSON ($this)!", se)
-    throw se
+} catch (iae: IllegalArgumentException) {
+    MTLogK.w(this, "Error while converting to JSON ($this)!", iae)
+    throw iae
 }
 
 fun JsonObject.toModule(
@@ -66,8 +65,8 @@ fun JsonObject.toModule(
             store = optStore?.takeIf { it.isNotEmpty() }
             applyTo(this)
         }
-    } catch (se: SerializationException) {
-        MTLogK.w(LOG_TAG, "Error while parsing JSON '$this'!", se)
-        throw se
+    } catch (iae: IllegalArgumentException) {
+        MTLogK.w(LOG_TAG, "Error while parsing JSON '$this'!", iae)
+        throw iae
     }
 }

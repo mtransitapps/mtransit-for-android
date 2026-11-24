@@ -3,7 +3,6 @@ package org.mtransit.android.data
 import android.content.Context
 import android.graphics.Color
 import com.google.android.gms.maps.model.LatLng
-import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.contentOrNull
@@ -86,9 +85,9 @@ fun Place.toJsonK() = try {
         this@toJsonK.iconBgColor?.let { putK(JSON_ICON_BG_COLOR, it) }
         toJsonCommon(this@toJsonK)
     }
-} catch (se: SerializationException) {
-    MTLogK.w(this, "Error while converting to JSON ($this)!", se)
-    throw se
+} catch (iae: IllegalArgumentException) {
+    MTLogK.w(this, "Error while converting to JSON ($this)!", iae)
+    throw iae
 }
 
 @Suppress("unused")
@@ -107,7 +106,7 @@ fun JsonObject.toPlace() = try {
         iconBgColor = this@toPlace[JSON_ICON_BG_COLOR]?.jsonPrimitiveOrNull?.intOrNull
         applyTo(this)
     }
-} catch (se: SerializationException) {
-    MTLogK.w(Module.LOG_TAG, "Error while parsing JSON '$this'!", se)
-    throw se
+} catch (iae: IllegalArgumentException) {
+    MTLogK.w(Module.LOG_TAG, "Error while parsing JSON '$this'!", iae)
+    throw iae
 }

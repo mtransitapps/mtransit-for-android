@@ -1,7 +1,6 @@
 package org.mtransit.android.data
 
 import android.graphics.Paint
-import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
@@ -46,9 +45,9 @@ fun JPaths.toJsonK() = buildJsonObject {
 
 fun String?.toJPaths() = try {
     this?.let { pathsJson.parseToJsonElement(it).jsonObject.toJPaths() }
-} catch (se: SerializationException) {
-    MTLogK.w(JPaths.LOG_TAG, "Error while parsing JSON string '${this}'!", se)
-    throw se
+} catch (iae: IllegalArgumentException) {
+    MTLogK.w(JPaths.LOG_TAG, "Error while parsing JSON string '$this'!", iae)
+    throw iae
 }
 
 fun JsonObject.toJPaths() = try {
@@ -60,8 +59,8 @@ fun JsonObject.toJPaths() = try {
                 }.orEmpty()
             )
         }
-} catch (se: SerializationException) {
-    MTLogK.w(JPaths.LOG_TAG, "Error while parsing JSON '$this'!", se)
+} catch (iae: IllegalArgumentException) {
+    MTLogK.w(JPaths.LOG_TAG, "Error while parsing JSON '$this'!", iae)
     null
 }
 
@@ -79,8 +78,8 @@ private fun JPath.toJsonK() = try {
         put(JSON_FORM, form.toJsonK())
         rotation?.let { put(JSON_ROTATION, it.toJsonK()) }
     }
-} catch (se: SerializationException) {
-    MTLogK.w(JPaths.LOG_TAG, "Error while converting to JSON!", se)
+} catch (iae: IllegalArgumentException) {
+    MTLogK.w(JPaths.LOG_TAG, "Error while converting to JSON!", iae)
     null
 }
 
@@ -91,9 +90,9 @@ private fun JsonObject.toJPath(): JPath? {
             getValue(JSON_FORM).jsonObject.toJForm() ?: return null,
             this[JSON_ROTATION]?.jsonObjectOrNull?.toJRotation(),
         )
-    } catch (se: SerializationException) {
-        MTLogK.w(JPaths.LOG_TAG, "Error while parsing path JSON '$this'!", se)
-        throw se
+    } catch (iae: IllegalArgumentException) {
+        MTLogK.w(JPaths.LOG_TAG, "Error while parsing path JSON '$this'!", iae)
+        throw iae
     }
 }
 
@@ -115,8 +114,8 @@ fun JsonObject.toJPaint() = try {
     val style = Paint.Style.valueOf(getValue(JSON_STYLE).jsonPrimitive.content)
     val strokeWidth = this[JSON_STROKE_WIDTH]?.jsonPrimitiveOrNull?.contentOrNull?.toFloatOrNull() ?: -1f
     if (strokeWidth >= 0f) JPaint(style, strokeWidth) else JPaint(style)
-} catch (se: SerializationException) {
-    MTLogK.w(JPaths.LOG_TAG, "Error while parsing paint JSON '$this'!", se)
+} catch (iae: IllegalArgumentException) {
+    MTLogK.w(JPaths.LOG_TAG, "Error while parsing paint JSON '$this'!", iae)
     null
 }
 
@@ -129,7 +128,7 @@ private const val JSON_FORM_TYPE = "formType"
 fun JForm.toJsonK(): JsonObject = when (this) {
     is JCircle -> toJsonK()
     is JRect -> toJsonK()
-    else -> throw SerializationException("Unsupported form type: ${this::class.simpleName}")
+    else -> throw IllegalArgumentException("Unsupported form type: ${this::class.simpleName}")
 }
 
 fun JsonObject.toJForm(): JForm? = try {
@@ -141,9 +140,9 @@ fun JsonObject.toJForm(): JForm? = try {
             null
         }
     }
-} catch (se: SerializationException) {
-    MTLogK.w(JPaths.LOG_TAG, "Error while parsing form JSON '$this'!", se)
-    throw se
+} catch (iae: IllegalArgumentException) {
+    MTLogK.w(JPaths.LOG_TAG, "Error while parsing form JSON '$this'!", iae)
+    throw iae
 }
 
 // region JCircle
@@ -165,8 +164,8 @@ fun JsonObject.toJCircle() = try {
         getValue(JSON_Y).jsonPrimitive.content.toFloat(),
         getValue(JSON_RADIUS).jsonPrimitive.content.toFloat(),
     )
-} catch (se: SerializationException) {
-    MTLogK.w(JPaths.LOG_TAG, "Error while parsing circle JSON '$this'!", se)
+} catch (iae: IllegalArgumentException) {
+    MTLogK.w(JPaths.LOG_TAG, "Error while parsing circle JSON '$this'!", iae)
     null
 }
 
@@ -178,7 +177,6 @@ private const val JSON_LEFT = "left"
 private const val JSON_TOP = "top"
 private const val JSON_RIGHT = "right"
 private const val JSON_BOTTOM = "bottom"
-
 
 fun JRect.toJsonK() = buildJsonObject {
     putK(JSON_LEFT, left)
@@ -195,8 +193,8 @@ fun JsonObject.toJRect() = try {
         getValue(JSON_RIGHT).jsonPrimitive.content.toFloat(),
         getValue(JSON_BOTTOM).jsonPrimitive.content.toFloat(),
     )
-} catch (se: SerializationException) {
-    MTLogK.w(JPaths.LOG_TAG, "Error while parsing rectangle JSON '$this'!", se)
+} catch (iae: IllegalArgumentException) {
+    MTLogK.w(JPaths.LOG_TAG, "Error while parsing rectangle JSON '$this'!", iae)
     null
 }
 
@@ -223,9 +221,9 @@ fun JsonObject?.toJRotation() = this?.let {
             getValue(JSON_PX).jsonPrimitive.float,
             getValue(JSON_PY).jsonPrimitive.float,
         )
-    } catch (se: SerializationException) {
-        MTLogK.w(JPaths.LOG_TAG, "Error while parsing rotation JSON '$this'!", se)
-        throw se
+    } catch (iae: IllegalArgumentException) {
+        MTLogK.w(JPaths.LOG_TAG, "Error while parsing rotation JSON '$this'!", iae)
+        throw iae
     }
 }
 

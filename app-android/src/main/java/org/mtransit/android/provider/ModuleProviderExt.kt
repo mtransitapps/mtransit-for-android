@@ -1,6 +1,5 @@
 package org.mtransit.android.provider
 
-import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.jsonArray
@@ -18,9 +17,9 @@ private val moduleJson = Json {
 
 fun String.toModules(authority: String) = try {
     moduleJson.parseToJsonElement(this).jsonArray.toModules(authority)
-} catch (se: SerializationException) {
-    MTLogK.w(LOG_TAG, "Error while parsing JSON string '$this'", se)
-    throw se
+} catch (iae: IllegalArgumentException) {
+    MTLogK.w(LOG_TAG, "Error while parsing JSON string '$this'", iae)
+    throw iae
 }
 
 private fun JsonArray.toModules(authority: String) =
