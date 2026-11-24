@@ -44,7 +44,7 @@ fun JPaths.toJsonK() = buildJsonObject {
 }
 
 fun String?.toJPaths() = try {
-    this?.let { pathsJson.parseToJsonElement(it).jsonObject.toJPaths() }
+    this?.let { pathsJson.parseToJsonElement(it).jsonObjectOrNull?.toJPaths() }
 } catch (iae: IllegalArgumentException) {
     MTLogK.w(JPaths.LOG_TAG, "Error while parsing JSON string '$this'!", iae)
     throw iae
