@@ -31,7 +31,7 @@ public class Module extends DefaultPOI {
 	}
 
 	@NonNull
-	private final String pkg;
+	protected final String pkg;
 
 	@DataSourceTypeId.DataSourceType
 	private final int dstId;

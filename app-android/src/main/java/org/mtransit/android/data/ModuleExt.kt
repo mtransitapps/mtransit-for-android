@@ -39,28 +39,28 @@ fun Module.toJsonK() = jsonRunCatching {
     }
 }.getOrThrow()
 
-fun JsonObject.toModule(
+fun JsonObject.toModuleOrNull(
     authority: String = getAuthorityFromJson(),
     id: Int = getIdFromJson(),
-): Module? {
-    jsonRunCatching(LOG_TAG) {
-        val optStore = this[JSON_STORE]?.jsonPrimitiveOrNull?.contentOrNull
-        if (!BuildConfig.DEBUG && Module.STORE_PRODUCTION != optStore) return null // ignore non-production agency modules in release builds
-        return Module(
-            authority,
-            id,
-            getValue(JSON_PKG).jsonPrimitive.content,
-            getValue(JSON_TYPE_ID).jsonPrimitive.int,
-            getLatFromJson(),
-            getLngFromJson(),
-            getNameFromJson(),
-        ).apply {
-            color = this@toModule[JSON_COLOR]?.jsonPrimitiveOrNull?.contentOrNull?.takeIf { it.isNotEmpty() }
-            location = this@toModule[JSON_LOCATION]?.jsonPrimitiveOrNull?.contentOrNull?.takeIf { it.isNotEmpty() }
-            nameFr = this@toModule[JSON_NAME_FR]?.jsonPrimitiveOrNull?.contentOrNull?.takeIf { it.isNotEmpty() }
-            repo = this@toModule[JSON_REPO]?.jsonPrimitiveOrNull?.contentOrNull?.takeIf { it.isNotEmpty() }
-            store = optStore?.takeIf { it.isNotEmpty() }
-            applyTo(this)
+) = jsonRunCatching(LOG_TAG) {
+    this[JSON_STORE]?.jsonPrimitiveOrNull?.contentOrNull
+        ?.takeIf { BuildConfig.DEBUG || Module.STORE_PRODUCTION == it } // ignore non-production agency modules in release builds
+        ?.let { optStore ->
+            Module(
+                authority,
+                id,
+                getValue(JSON_PKG).jsonPrimitive.content,
+                getValue(JSON_TYPE_ID).jsonPrimitive.int,
+                getLatFromJson(),
+                getLngFromJson(),
+                getNameFromJson(),
+            ).apply {
+                color = this@toModuleOrNull[JSON_COLOR]?.jsonPrimitiveOrNull?.contentOrNull?.takeIf { it.isNotEmpty() }
+                location = this@toModuleOrNull[JSON_LOCATION]?.jsonPrimitiveOrNull?.contentOrNull?.takeIf { it.isNotEmpty() }
+                nameFr = this@toModuleOrNull[JSON_NAME_FR]?.jsonPrimitiveOrNull?.contentOrNull?.takeIf { it.isNotEmpty() }
+                repo = this@toModuleOrNull[JSON_REPO]?.jsonPrimitiveOrNull?.contentOrNull?.takeIf { it.isNotEmpty() }
+                store = optStore?.takeIf { it.isNotEmpty() }
+                applyTo(this)
+            }
         }
-    }.getOrThrow()
-}
+}.getOrNull()

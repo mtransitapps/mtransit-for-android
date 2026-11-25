@@ -3,7 +3,7 @@ package org.mtransit.android.datasource
 import androidx.room.TypeConverter
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.JPaths
-import org.mtransit.android.data.toJPaths
+import org.mtransit.android.data.toJPathsOrNull
 import org.mtransit.android.data.toJsonString
 
 class DataSourcesConverters {
@@ -20,7 +20,7 @@ class DataSourcesConverters {
 
     @TypeConverter
     fun fromJsonString(jsonString: String?): JPaths? {
-        return jsonString?.toJPaths()
+        return jsonString?.toJPathsOrNull()
     }
 
     @TypeConverter

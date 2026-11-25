@@ -46,7 +46,7 @@ public class JPaths implements MTLog.Loggable {
 
 	@Nullable
 	public static JPaths fromJsonString(@Nullable String jsonString) {
-		return JPathsExtKt.toJPaths(jsonString);
+		return JPathsExtKt.toJPathsOrNull(jsonString);
 	}
 
 	@Override

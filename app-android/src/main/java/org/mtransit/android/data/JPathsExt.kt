@@ -3,6 +3,7 @@
 package org.mtransit.android.data
 
 import android.graphics.Paint
+import androidx.annotation.VisibleForTesting
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
@@ -37,29 +38,29 @@ private val pathsJson = Json {
 private const val JSON_ID = "id"
 private const val JSON_PATHS = "paths"
 
-fun JPaths.toJsonString() = pathsJson.encodeToString(toJsonK())
+fun JPaths.toJsonString() = pathsJson.encodeToString(toJson())
 
-fun JPaths.toJsonK() = buildJsonObject {
-    putK(JSON_ID, this@toJsonK.id)
+fun JPaths.toJson() = buildJsonObject {
+    putK(JSON_ID, this@toJson.id)
     putJsonArray(JSON_PATHS) {
-        addAll(this@toJsonK.paths.mapNotNull(JPath::toJsonK))
+        addAll(this@toJson.paths.mapNotNull(JPath::toJson))
     }
 }
 
-fun String?.toJPaths() = this?.jsonRunCatching(LOG_TAG) {
+fun String?.toJPathsOrNull() = this?.jsonRunCatching(LOG_TAG) {
     pathsJson.parseToJsonElement(this).jsonObjectOrNull?.toJPaths()
 }?.getOrNull()
 
-fun JsonObject.toJPaths() = jsonRunCatching(LOG_TAG) {
-    JPaths(getValue(JSON_ID).jsonPrimitive.content)
-        .apply {
-            this.paths.addAll(
-                this@toJPaths[JSON_PATHS]?.jsonArrayOrNull?.mapNotNull {
-                    it.jsonObjectOrNull?.toJPath()
-                }.orEmpty()
-            )
-        }
-}.getOrNull()
+@VisibleForTesting
+internal fun JsonObject.toJPaths() = JPaths(
+    getValue(JSON_ID).jsonPrimitive.content
+).apply {
+    paths.addAll(
+        get(JSON_PATHS)?.jsonArrayOrNull?.mapNotNull {
+            it.jsonObjectOrNull?.toJPathOrNull()
+        }.orEmpty()
+    )
+}
 
 // endregion
 
@@ -69,19 +70,19 @@ private const val JSON_PAINT = "paint"
 private const val JSON_FORM = "form"
 private const val JSON_ROTATION = "rotation"
 
-private fun JPath.toJsonK() = jsonRunCatching(LOG_TAG) {
+private fun JPath.toJson() = jsonRunCatching(LOG_TAG) {
     buildJsonObject {
-        put(JSON_PAINT, paint.toJsonK())
-        put(JSON_FORM, form.toJsonK())
-        rotation?.let { put(JSON_ROTATION, it.toJsonK()) }
+        paint.toJsonOrNull()?.let { put(JSON_PAINT, it) }
+        form.toJsonOrNull()?.let { put(JSON_FORM, it) }
+        rotation?.toJsonOrNull()?.let { put(JSON_ROTATION, it) }
     }
 }.getOrNull()
 
-private fun JsonObject.toJPath() = jsonRunCatching(LOG_TAG) {
+private fun JsonObject.toJPathOrNull() = jsonRunCatching(LOG_TAG) {
     JPath(
         getValue(JSON_PAINT).jsonObject.toJPaint(),
         getValue(JSON_FORM).jsonObject.toJForm(),
-        this[JSON_ROTATION]?.jsonObjectOrNull?.toJRotation(),
+        this[JSON_ROTATION]?.jsonObjectOrNull?.toJRotationOrNull(),
     )
 }.getOrNull()
 
@@ -92,14 +93,16 @@ private fun JsonObject.toJPath() = jsonRunCatching(LOG_TAG) {
 private const val JSON_STYLE = "style"
 private const val JSON_STROKE_WIDTH = "strokeWidth"
 
-fun JPaint.toJsonK() = buildJsonObject {
-    putK(JSON_STYLE, style.name)
-    if (strokeWidth >= 0f) {
-        putK(JSON_STROKE_WIDTH, strokeWidth)
+private fun JPaint.toJsonOrNull() = jsonRunCatching(LOG_TAG) {
+    buildJsonObject {
+        putK(JSON_STYLE, style.name)
+        if (strokeWidth >= 0f) {
+            putK(JSON_STROKE_WIDTH, strokeWidth)
+        }
     }
-}
+}.getOrNull()
 
-fun JsonObject.toJPaint() = jsonRunCatching(LOG_TAG) {
+private fun JsonObject.toJPaint() = jsonRunCatching(LOG_TAG) {
     val style = Paint.Style.valueOf(getValue(JSON_STYLE).jsonPrimitive.content)
     val strokeWidth = this[JSON_STROKE_WIDTH]?.jsonPrimitiveOrNull?.contentOrNull?.toFloatOrNull() ?: -1f
     if (strokeWidth >= 0f) JPaint(style, strokeWidth) else JPaint(style)
@@ -111,13 +114,15 @@ fun JsonObject.toJPaint() = jsonRunCatching(LOG_TAG) {
 
 private const val JSON_FORM_TYPE = "formType"
 
-fun JForm.toJsonK() = when (this) {
-    is JCircle -> toJsonK()
-    is JRect -> toJsonK()
-    else -> throw IllegalArgumentException("Unsupported form type: ${this::class.simpleName}")
-}
+private fun JForm.toJsonOrNull() = jsonRunCatching(LOG_TAG) {
+    when (this) {
+        is JCircle -> toJson()
+        is JRect -> toJson()
+        else -> throw IllegalArgumentException("Unsupported form type: ${this::class.simpleName}")
+    }
+}.getOrNull()
 
-fun JsonObject.toJForm() = jsonRunCatching(LOG_TAG) {
+private fun JsonObject.toJForm() = jsonRunCatching(LOG_TAG) {
     when (getValue(JSON_FORM_TYPE).jsonPrimitive.int) {
         JForm.FORM_CIRCLE -> toJCircle()
         JForm.FORM_RECT -> toJRect()
@@ -131,14 +136,14 @@ private const val JSON_X = "x"
 private const val JSON_Y = "y"
 private const val JSON_RADIUS = "radius"
 
-fun JCircle.toJsonK() = buildJsonObject {
+private fun JCircle.toJson() = buildJsonObject {
     putK(JSON_X, x)
     putK(JSON_Y, y)
     putK(JSON_RADIUS, radius)
     putK(JSON_FORM_TYPE, formType)
 }
 
-fun JsonObject.toJCircle() = jsonRunCatching(LOG_TAG) {
+private fun JsonObject.toJCircle() = jsonRunCatching(LOG_TAG) {
     JCircle(
         getValue(JSON_X).jsonPrimitive.content.toFloat(),
         getValue(JSON_Y).jsonPrimitive.content.toFloat(),
@@ -155,7 +160,7 @@ private const val JSON_TOP = "top"
 private const val JSON_RIGHT = "right"
 private const val JSON_BOTTOM = "bottom"
 
-fun JRect.toJsonK() = buildJsonObject {
+private fun JRect.toJson() = buildJsonObject {
     putK(JSON_LEFT, left)
     putK(JSON_TOP, top)
     putK(JSON_RIGHT, right)
@@ -163,7 +168,7 @@ fun JRect.toJsonK() = buildJsonObject {
     putK(JSON_FORM_TYPE, formType)
 }
 
-fun JsonObject.toJRect() = jsonRunCatching(LOG_TAG) {
+private fun JsonObject.toJRect() = jsonRunCatching(LOG_TAG) {
     JRect(
         getValue(JSON_LEFT).jsonPrimitive.content.toFloat(),
         getValue(JSON_TOP).jsonPrimitive.content.toFloat(),
@@ -182,18 +187,20 @@ private const val JSON_DEGREES = "degrees"
 private const val JSON_PX = "px"
 private const val JSON_PY = "py"
 
-fun JRotation.toJsonK() = buildJsonObject {
-    putK(JSON_DEGREES, degrees)
-    putK(JSON_PX, px)
-    putK(JSON_PY, py)
-}
+private fun JRotation.toJsonOrNull() = jsonRunCatching(LOG_TAG) {
+    buildJsonObject {
+        putK(JSON_DEGREES, degrees)
+        putK(JSON_PX, px)
+        putK(JSON_PY, py)
+    }
+}.getOrNull()
 
-fun JsonObject.toJRotation() = jsonRunCatching(LOG_TAG) {
+private fun JsonObject.toJRotationOrNull() = jsonRunCatching(LOG_TAG) {
     JRotation(
         getValue(JSON_DEGREES).jsonPrimitive.float,
         getValue(JSON_PX).jsonPrimitive.float,
         getValue(JSON_PY).jsonPrimitive.float,
     )
-}.getOrThrow()
+}.getOrNull()
 
 // endregion

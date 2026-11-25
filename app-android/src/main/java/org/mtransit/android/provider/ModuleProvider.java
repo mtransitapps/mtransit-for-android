@@ -429,7 +429,7 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 			final long newLastUpdateInMs = UITimeUtils.currentTimeMillis();
 			final String jsonString = FileUtils.fromFileRes(context, R.raw.modules);
 			MTLog.d(this, "loadDataFromWWW() > jsonString: %s.", jsonString);
-			final Collection<Module> modules = ModuleProviderExtKt.toModules(jsonString, getAUTHORITY(context));
+			final Collection<Module> modules = ModuleProviderExtKt.toModulesOrThrow(jsonString, getAUTHORITY(context));
 			deleteAllModuleData();
 			insertModulesLockDB(this, modules);
 			getStorage(context).edit()
