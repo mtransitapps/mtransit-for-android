@@ -6,7 +6,6 @@ import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.int
 import kotlinx.serialization.json.jsonPrimitive
 import org.mtransit.android.BuildConfig
-import org.mtransit.android.commons.MTLogK
 import org.mtransit.android.commons.data.applyTo
 import org.mtransit.android.commons.data.getAuthorityFromJson
 import org.mtransit.android.commons.data.getIdFromJson
@@ -14,6 +13,7 @@ import org.mtransit.android.commons.data.getLatFromJson
 import org.mtransit.android.commons.data.getLngFromJson
 import org.mtransit.android.commons.data.getNameFromJson
 import org.mtransit.android.commons.data.toJsonCommon
+import org.mtransit.android.commons.jsonRunCatching
 import org.mtransit.android.data.Module.LOG_TAG
 import org.mtransit.commons.jsonPrimitiveOrNull
 import kotlinx.serialization.json.put as putK
@@ -26,7 +26,7 @@ private const val JSON_NAME_FR = "name_fr"
 private const val JSON_REPO = "repo"
 private const val JSON_STORE = "store"
 
-fun Module.toJsonK() = try {
+fun Module.toJsonK() = jsonRunCatching {
     buildJsonObject {
         putK(JSON_PKG, this@toJsonK.pkg)
         putK(JSON_TYPE_ID, this@toJsonK.dstId)
@@ -37,16 +37,13 @@ fun Module.toJsonK() = try {
         this@toJsonK.store?.takeIf { it.isNotEmpty() }?.let { putK(JSON_STORE, it) }
         toJsonCommon(this@toJsonK)
     }
-} catch (iae: IllegalArgumentException) {
-    MTLogK.w(this, "Error while converting to JSON ($this)!", iae)
-    throw iae
-}
+}.getOrThrow()
 
 fun JsonObject.toModule(
     authority: String = getAuthorityFromJson(),
     id: Int = getIdFromJson(),
 ): Module? {
-    try {
+    jsonRunCatching(LOG_TAG) {
         val optStore = this[JSON_STORE]?.jsonPrimitiveOrNull?.contentOrNull
         if (!BuildConfig.DEBUG && Module.STORE_PRODUCTION != optStore) return null // ignore non-production agency modules in release builds
         return Module(
@@ -65,8 +62,5 @@ fun JsonObject.toModule(
             store = optStore?.takeIf { it.isNotEmpty() }
             applyTo(this)
         }
-    } catch (iae: IllegalArgumentException) {
-        MTLogK.w(LOG_TAG, "Error while parsing JSON '$this'!", iae)
-        throw iae
-    }
+    }.getOrThrow()
 }

@@ -4,7 +4,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
-import org.mtransit.android.commons.MTLogK
+import org.mtransit.android.commons.jsonRunCatching
 import org.mtransit.android.data.toModule
 import org.mtransit.android.provider.ModuleProvider.LOG_TAG
 
@@ -15,12 +15,9 @@ private val moduleJson = Json {
     isLenient = true // allows unquoted strings or malformed formatting (if legacy org.json writers were used)
 }
 
-fun String.toModules(authority: String) = try {
+fun String.toModules(authority: String) = jsonRunCatching(LOG_TAG) {
     moduleJson.parseToJsonElement(this).jsonArray.toModules(authority)
-} catch (iae: IllegalArgumentException) {
-    MTLogK.w(LOG_TAG, "Error while parsing JSON string '$this'", iae)
-    throw iae
-}
+}.getOrThrow()
 
 private fun JsonArray.toModules(authority: String) =
     this.mapIndexedNotNull { index, jsonElement ->

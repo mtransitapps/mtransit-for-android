@@ -10,13 +10,14 @@ import kotlinx.serialization.json.intOrNull
 import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.long
 import org.mtransit.android.commons.ColorUtils
-import org.mtransit.android.commons.MTLogK
 import org.mtransit.android.commons.data.applyTo
 import org.mtransit.android.commons.data.getAuthorityFromJson
 import org.mtransit.android.commons.data.getLatFromJson
 import org.mtransit.android.commons.data.getLngFromJson
 import org.mtransit.android.commons.data.getNameFromJson
 import org.mtransit.android.commons.data.toJsonCommon
+import org.mtransit.android.commons.jsonRunCatching
+import org.mtransit.android.data.Module.LOG_TAG
 import org.mtransit.android.ui.view.map.ExtendedMarkerOptions
 import org.mtransit.android.ui.view.map.IMarker
 import org.mtransit.android.ui.view.map.MTMapIconZoomGroup
@@ -75,7 +76,7 @@ private const val JSON_SUB_TITLE = "sub_title"
 private const val JSON_ICON_URL = "icon_url"
 private const val JSON_ICON_BG_COLOR = "icon_bg_color"
 
-fun Place.toJsonK() = try {
+fun Place.toJsonK() = jsonRunCatching(this) {
     buildJsonObject {
         putK(JSON_PROVIDER_ID, this@toJsonK.providerId)
         putK(JSON_LANG, this@toJsonK.lang)
@@ -85,13 +86,10 @@ fun Place.toJsonK() = try {
         this@toJsonK.iconBgColor?.let { putK(JSON_ICON_BG_COLOR, it) }
         toJsonCommon(this@toJsonK)
     }
-} catch (iae: IllegalArgumentException) {
-    MTLogK.w(this, "Error while converting to JSON ($this)!", iae)
-    throw iae
-}
+}.getOrThrow()
 
 @Suppress("unused")
-fun JsonObject.toPlace() = try {
+fun JsonObject.toPlace() = jsonRunCatching(LOG_TAG) {
     Place(
         getAuthorityFromJson(),
         getValue(JSON_PROVIDER_ID).jsonPrimitive.content,
@@ -106,7 +104,4 @@ fun JsonObject.toPlace() = try {
         iconBgColor = this@toPlace[JSON_ICON_BG_COLOR]?.jsonPrimitiveOrNull?.intOrNull
         applyTo(this)
     }
-} catch (iae: IllegalArgumentException) {
-    MTLogK.w(Module.LOG_TAG, "Error while parsing JSON '$this'!", iae)
-    throw iae
-}
+}.getOrThrow()
