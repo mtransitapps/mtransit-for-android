@@ -17,7 +17,7 @@ import org.mtransit.android.commons.data.getLngFromJson
 import org.mtransit.android.commons.data.getNameFromJson
 import org.mtransit.android.commons.data.toJsonCommon
 import org.mtransit.android.commons.jsonRunCatching
-import org.mtransit.android.data.Module.LOG_TAG
+import org.mtransit.android.data.Place.LOG_TAG
 import org.mtransit.android.ui.view.map.ExtendedMarkerOptions
 import org.mtransit.android.ui.view.map.IMarker
 import org.mtransit.android.ui.view.map.MTMapIconZoomGroup

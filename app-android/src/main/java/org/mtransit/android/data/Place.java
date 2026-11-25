@@ -18,7 +18,7 @@ import kotlinx.serialization.json.JsonObject;
 
 public class Place extends DefaultPOI {
 
-	private static final String LOG_TAG = Place.class.getSimpleName();
+	protected static final String LOG_TAG = Place.class.getSimpleName();
 
 	@NonNull
 	@Override
