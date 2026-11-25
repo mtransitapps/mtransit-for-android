@@ -42,7 +42,7 @@ import org.mtransit.android.ui.view.common.MTTransitions
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
 import org.mtransit.android.ui.view.common.observeEvent
-import org.mtransit.android.ui.view.setJSONAndVisibility
+import org.mtransit.android.ui.view.setJsonAndVisibility
 import org.mtransit.android.util.FragmentUtils
 import org.mtransit.android.util.UIRouteUtils
 import org.mtransit.commons.FeatureFlags
@@ -279,7 +279,7 @@ class RDSRouteFragment :
             }
         }
         viewModel.agency.observe(viewLifecycleOwner) { agency ->
-            binding?.routeTypeImg?.setJSONAndVisibility(agency)
+            binding?.routeTypeImg?.setJsonAndVisibility(agency)
         }
     }
 

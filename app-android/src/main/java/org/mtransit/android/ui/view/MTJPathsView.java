@@ -71,7 +71,7 @@ public class MTJPathsView extends MTView {
 		}
 	}
 
-	public void setJSON(@Nullable JPaths jPaths) {
+	public void setJson(@Nullable JPaths jPaths) {
 		boolean invalidate;
 		if (this.jPaths == null && jPaths != null) {
 			invalidate = true;

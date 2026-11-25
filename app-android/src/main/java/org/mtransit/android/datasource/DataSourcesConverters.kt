@@ -19,12 +19,12 @@ class DataSourcesConverters {
     }
 
     @TypeConverter
-    fun fromJSONString(jsonString: String?): JPaths? {
+    fun fromJsonString(jsonString: String?): JPaths? {
         return jsonString?.toJPaths()
     }
 
     @TypeConverter
-    fun jPathsToJSONString(jPaths: JPaths?): String? {
+    fun jPathsToJsonString(jPaths: JPaths?): String? {
         return jPaths?.toJsonString()
     }
 }

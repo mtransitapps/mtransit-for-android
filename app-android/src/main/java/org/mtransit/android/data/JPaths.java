@@ -7,8 +7,6 @@ import androidx.annotation.Nullable;
 
 import org.mtransit.android.commons.MTLog;
 
-import kotlinx.serialization.json.JsonObject;
-
 import java.util.HashSet;
 import java.util.Objects;
 
@@ -46,13 +44,8 @@ public class JPaths implements MTLog.Loggable {
 		return paths;
 	}
 
-	@NonNull
-	public JsonObject toJson() {
-		return JPathsExtKt.toJsonK(this);
-	}
-
 	@Nullable
-	public static JPaths fromJSONString(@Nullable String jsonString) {
+	public static JPaths fromJsonString(@Nullable String jsonString) {
 		return JPathsExtKt.toJPaths(jsonString);
 	}
 

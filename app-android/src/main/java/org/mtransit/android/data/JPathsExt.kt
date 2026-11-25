@@ -48,7 +48,7 @@ fun JPaths.toJsonK() = buildJsonObject {
 
 fun String?.toJPaths() = this?.jsonRunCatching(LOG_TAG) {
     pathsJson.parseToJsonElement(this).jsonObjectOrNull?.toJPaths()
-}?.getOrThrow()
+}?.getOrNull()
 
 fun JsonObject.toJPaths() = jsonRunCatching(LOG_TAG) {
     JPaths(getValue(JSON_ID).jsonPrimitive.content)

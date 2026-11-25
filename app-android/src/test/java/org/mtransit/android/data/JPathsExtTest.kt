@@ -25,7 +25,7 @@ class JPathsExtTest {
             )
         }
 
-        val json = paths.toJson()
+        val json = paths.toJsonK()
 
         assertEquals(2, json.getValue("paths").jsonArray.size)
         assertEquals(paths, json.toJPaths())
