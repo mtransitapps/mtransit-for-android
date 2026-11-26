@@ -4,7 +4,7 @@ import androidx.room.TypeConverter
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.JPaths
 import org.mtransit.android.data.toJPathsOrNull
-import org.mtransit.android.data.toJsonString
+import org.mtransit.android.data.toJsonStringOrNull
 
 class DataSourcesConverters {
 
@@ -25,6 +25,6 @@ class DataSourcesConverters {
 
     @TypeConverter
     fun jPathsToJsonString(jPaths: JPaths?): String? {
-        return jPaths?.toJsonString()
+        return jPaths?.toJsonStringOrNull()
     }
 }

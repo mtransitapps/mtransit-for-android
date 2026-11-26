@@ -38,9 +38,10 @@ private val pathsJson = Json {
 private const val JSON_ID = "id"
 private const val JSON_PATHS = "paths"
 
-fun JPaths.toJsonString() = pathsJson.encodeToString(toJson())
+fun JPaths.toJsonStringOrNull() = jsonRunCatching { pathsJson.encodeToString(toJson()) }.getOrNull()
 
-fun JPaths.toJson() = buildJsonObject {
+@VisibleForTesting
+internal fun JPaths.toJson() = buildJsonObject {
     putK(JSON_ID, this@toJson.id)
     putJsonArray(JSON_PATHS) {
         addAll(this@toJson.paths.mapNotNull(JPath::toJson))
