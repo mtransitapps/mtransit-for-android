@@ -1,5 +1,7 @@
 package org.mtransit.android.data;
 
+import static org.mtransit.android.data.ModuleExtKt.makeModule;
+
 import android.content.ContentValues;
 import android.database.Cursor;
 
@@ -37,24 +39,24 @@ public class Module extends DefaultPOI {
 	private final int dstId;
 
 	@Nullable
-	private String color = null;
+	protected String color = null;
 
 	@Nullable
 	protected String location = null;
 
 	@Nullable
-	private String nameFr = null;
+	protected String nameFr = null;
 
 	@Nullable
-	private String repo = null;
+	protected String repo = null;
 
 	@Nullable
-	private String store = null;
+	protected String store = null;
 
 	/**
 	 * @param id useful to store in DB
 	 */
-	public Module(
+	protected Module(
 			@NonNull String authority,
 			int id,
 			@NonNull String pkg,
@@ -93,11 +95,6 @@ public class Module extends DefaultPOI {
 		return dstId;
 	}
 
-	protected void setColor(@Nullable String color) {
-		this.color = color;
-		this.colorInt = null; // reset
-	}
-
 	@Nullable
 	public String getColor() {
 		return this.color;
@@ -123,28 +120,16 @@ public class Module extends DefaultPOI {
 		return this.location;
 	}
 
-	private void setLocation(@Nullable String location) {
-		this.location = location;
-	}
-
 	@SuppressWarnings("WeakerAccess")
 	@Nullable
 	public String getNameFr() {
 		return nameFr;
 	}
 
-	protected void setNameFr(@Nullable String nameFr) {
-		this.nameFr = nameFr;
-	}
-
 	@SuppressWarnings("unused")
 	@Nullable
 	public String getRepo() {
 		return repo;
-	}
-
-	protected void setRepo(@Nullable String repo) {
-		this.repo = repo;
 	}
 
 	protected static final String STORE_PRODUCTION = "production";
@@ -154,10 +139,6 @@ public class Module extends DefaultPOI {
 	@Nullable
 	public String getStore() {
 		return store;
-	}
-
-	protected void setStore(@Nullable String store) {
-		this.store = store;
 	}
 
 	@NonNull
@@ -239,21 +220,21 @@ public class Module extends DefaultPOI {
 
 	@NonNull
 	public static Module fromCursorStatic(@NonNull Cursor c, @NonNull String authority) {
-		final Module module = new Module(
+		return makeModule(
 				authority,
 				DefaultPOI.getIdFromCursor(c),
 				c.getString(c.getColumnIndexOrThrow(ModuleProvider.ModuleColumns.T_MODULE_K_PKG)),
 				c.getInt(c.getColumnIndexOrThrow(ModuleProvider.ModuleColumns.T_MODULE_K_TARGET_TYPE_ID)),
 				DefaultPOI.getLatFromCursor(c),
 				DefaultPOI.getLngFromCursor(c),
-				DefaultPOI.getNameFromCursor(c)
+				DefaultPOI.getNameFromCursor(c),
+				c.getString(c.getColumnIndexOrThrow(ModuleProvider.ModuleColumns.T_MODULE_K_COLOR)),
+				c.getString(c.getColumnIndexOrThrow(ModuleProvider.ModuleColumns.T_MODULE_K_LOCATION)),
+				c.getString(c.getColumnIndexOrThrow(ModuleProvider.ModuleColumns.T_MODULE_K_NAME_FR)),
+				c.getString(c.getColumnIndexOrThrow(ModuleProvider.ModuleColumns.T_MODULE_K_REPO)),
+				c.getString(c.getColumnIndexOrThrow(ModuleProvider.ModuleColumns.T_MODULE_K_STORE)),
+				getScoreFromCursor(c),
+				getAccessibleFromCursor(c)
 		);
-		module.setColor(c.getString(c.getColumnIndexOrThrow(ModuleProvider.ModuleColumns.T_MODULE_K_COLOR)));
-		module.setLocation(c.getString(c.getColumnIndexOrThrow(ModuleProvider.ModuleColumns.T_MODULE_K_LOCATION)));
-		module.setNameFr(c.getString(c.getColumnIndexOrThrow(ModuleProvider.ModuleColumns.T_MODULE_K_NAME_FR)));
-		module.setRepo(c.getString(c.getColumnIndexOrThrow(ModuleProvider.ModuleColumns.T_MODULE_K_REPO)));
-		module.setStore(c.getString(c.getColumnIndexOrThrow(ModuleProvider.ModuleColumns.T_MODULE_K_STORE)));
-		DefaultPOI.fromCursor(c, module);
-		return module;
 	}
 }

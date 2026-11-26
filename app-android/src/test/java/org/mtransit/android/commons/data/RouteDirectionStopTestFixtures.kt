@@ -2,7 +2,7 @@ package org.mtransit.android.commons.data
 
 import org.mtransit.android.data.IAgencyProperties
 
-fun makeDefaultPOI(
+fun mkDefaultPOI(
     agency: IAgencyProperties? = null,
     authority: String = agency?.authority ?: "authority",
     id: Int = 1,
@@ -13,16 +13,16 @@ fun makeDefaultPOI(
     name: String = "name #$id",
     lat: Double = 1.0,
     lng: Double = 2.0,
-) = DefaultPOI(
-    authority,
-    id,
-    dataSourceTypeId,
-    type,
-    statusType,
-    actionsType,
-    lat,
-    lng,
-    name
+) = makeDefaultPOI(
+    authority = authority,
+    id = id,
+    dataSourceTypeId = dataSourceTypeId,
+    type = type,
+    statusType = statusType,
+    actionsType = actionsType,
+    lat = lat,
+    lng = lng,
+    name = name,
 )
 
 fun makeBikeStation(
@@ -33,7 +33,7 @@ fun makeBikeStation(
     name: String = "name #$id",
     lat: Double = 1.0,
     lng: Double = 2.0,
-) = makeDefaultPOI(
+) = mkDefaultPOI(
     authority = authority,
     id = id,
     dataSourceTypeId = dataSourceTypeId,
@@ -61,9 +61,9 @@ fun makeRDS(
     stopTimeZoneId: String? = "UTC",
     isNoPickup: Boolean = false,
     alwaysLastTripStop: Boolean = false,
-) = RouteDirectionStop(
-    dataSourceTypeId,
-    Route(
+) = makeRouteDirectionStop(
+    dataSourceTypeId = dataSourceTypeId,
+    route = Route(
         authority,
         routeId,
         "#$routeId",
@@ -72,14 +72,14 @@ fun makeRDS(
         routeOriginalIdHash,
         routeType,
     ),
-    Direction(
+    direction = Direction(
         authority,
         directionId,
         Direction.HEADSIGN_TYPE_STRING,
         "Head-Sign $originalDirectionId",
         routeId,
     ),
-    makeStop(
+    stop = makeStop(
         stopId = stopId,
         stopName = stopName,
         stopLat = stopLat,
@@ -87,8 +87,8 @@ fun makeRDS(
         stopOriginalIdHash = stopOriginalIdHash,
         stopTimeZoneId = stopTimeZoneId,
     ),
-    isNoPickup,
-    alwaysLastTripStop,
+    noPickup = isNoPickup,
+    alwaysLastTripStop = alwaysLastTripStop,
 )
 
 fun makeStop(

@@ -38,6 +38,7 @@ import org.mtransit.android.commons.provider.common.requiredContext
 import org.mtransit.android.commons.provider.poi.POIProvider
 import org.mtransit.android.commons.provider.poi.POIProviderContract
 import org.mtransit.android.data.Place
+import org.mtransit.android.data.makePlace
 import org.mtransit.android.ui.view.map.toLatLngBounds
 import org.mtransit.android.util.UITimeUtils
 import java.net.SocketException
@@ -106,25 +107,23 @@ class PlaceProvider : AgencyProvider(), POIProviderContract {
             val lang = if (LocaleUtils.isFR()) Locale.FRENCH.language else Locale.ENGLISH.language
             var score = 1000
             val places: List<Place>? = gSearchByTextResponse?.places?.mapNotNull { gPlace ->
-                try {
+                runCatching {
                     val providerId = gPlace.id ?: return@mapNotNull null
-                    Place(
-                        authority,
-                        providerId,
-                        lang,
-                        newLastUpdateInMs,
-                        gPlace.location?.latitude ?: return@mapNotNull null,
-                        gPlace.location?.longitude ?: return@mapNotNull null,
-                        gPlace.displayName ?: return@mapNotNull null
-                    ).apply {
-                        this.score = score--
-                        this.iconUrl = gPlace.iconMaskUrl
-                        this.iconBgColor = gPlace.iconBackgroundColor
-                    }
-                } catch (e: Exception) {
+                    makePlace(
+                        authority = authority,
+                        providerId = providerId,
+                        lang = lang,
+                        readAtInMs = newLastUpdateInMs,
+                        lat = gPlace.location?.latitude ?: return@mapNotNull null,
+                        lng = gPlace.location?.longitude ?: return@mapNotNull null,
+                        name = gPlace.displayName ?: return@mapNotNull null,
+                        iconUrl = gPlace.iconMaskUrl,
+                        iconBgColorInt = gPlace.iconBackgroundColor,
+                        score = score--
+                    )
+                }.onFailure { e ->
                     MTLogK.w(this, "Error while parsing result '$gPlace'!", e)
-                    null
-                }
+                }.getOrNull()
             }
             MTLogK.i(this, "Loaded ${places?.size} places.")
             if (Constants.DEBUG) {

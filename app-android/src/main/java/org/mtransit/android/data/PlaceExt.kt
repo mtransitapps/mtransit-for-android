@@ -10,11 +10,13 @@ import kotlinx.serialization.json.intOrNull
 import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.long
 import org.mtransit.android.commons.ColorUtils
-import org.mtransit.android.commons.data.applyTo
+import org.mtransit.android.commons.data.Accessibility
 import org.mtransit.android.commons.data.getAuthorityFromJson
 import org.mtransit.android.commons.data.getLatFromJson
 import org.mtransit.android.commons.data.getLngFromJson
 import org.mtransit.android.commons.data.getNameFromJson
+import org.mtransit.android.commons.data.getScoreFromJson
+import org.mtransit.android.commons.data.optDefaultPOIInit
 import org.mtransit.android.commons.data.toJsonCommon
 import org.mtransit.android.commons.jsonRunCatching
 import org.mtransit.android.data.Place.LOG_TAG
@@ -29,6 +31,38 @@ import org.mtransit.android.ui.view.map.updateSnippet
 import org.mtransit.android.ui.view.map.updateTitle
 import org.mtransit.commons.jsonPrimitiveOrNull
 import kotlinx.serialization.json.put as putK
+
+@Suppress("LongParameterList")
+fun makePlace(
+    authority: String,
+    providerId: String,
+    lang: String,
+    readAtInMs: Long,
+    lat: Double,
+    lng: Double,
+    name: String,
+    subTitle: String? = null,
+    iconUrl: String? = null,
+    iconBgColorInt: Int? = null,
+    score: Int? = null,
+    accessible: Int = Accessibility.DEFAULT,
+) = Place(
+    authority,
+    providerId,
+    lang,
+    readAtInMs,
+    lat,
+    lng,
+    name,
+).apply {
+    this.subTitle = subTitle
+    this.iconUrl = iconUrl
+    this.iconBgColorInt = iconBgColorInt
+    optDefaultPOIInit(
+        score = score,
+        accessible = accessible
+    )
+}
 
 val Place.latLng: LatLng get() = LatLng(this.lat, this.lng)
 
@@ -90,18 +124,17 @@ fun Place.toJsonK() = jsonRunCatching(this) {
 
 @Suppress("unused")
 fun JsonObject.toPlace() = jsonRunCatching(LOG_TAG) {
-    Place(
-        getAuthorityFromJson(),
-        getValue(JSON_PROVIDER_ID).jsonPrimitive.content,
-        getValue(JSON_LANG).jsonPrimitive.content,
-        getValue(JSON_READ_AT_IN_MS).jsonPrimitive.long,
-        getLatFromJson(),
-        getLngFromJson(),
-        getNameFromJson(),
-    ).apply {
-        subTitle = this@toPlace[JSON_SUB_TITLE]?.jsonPrimitiveOrNull?.contentOrNull
-        iconUrl = this@toPlace[JSON_ICON_URL]?.jsonPrimitiveOrNull?.contentOrNull
-        iconBgColor = this@toPlace[JSON_ICON_BG_COLOR]?.jsonPrimitiveOrNull?.intOrNull
-        applyTo(this)
-    }
+    makePlace(
+        authority = getAuthorityFromJson(),
+        providerId = getValue(JSON_PROVIDER_ID).jsonPrimitive.content,
+        lang = getValue(JSON_LANG).jsonPrimitive.content,
+        readAtInMs = getValue(JSON_READ_AT_IN_MS).jsonPrimitive.long,
+        lat = getLatFromJson(),
+        lng = getLngFromJson(),
+        name = getNameFromJson(),
+        subTitle = this@toPlace[JSON_SUB_TITLE]?.jsonPrimitiveOrNull?.contentOrNull,
+        iconUrl = this@toPlace[JSON_ICON_URL]?.jsonPrimitiveOrNull?.contentOrNull,
+        iconBgColorInt = this@toPlace[JSON_ICON_BG_COLOR]?.jsonPrimitiveOrNull?.intOrNull,
+        score = getScoreFromJson(),
+    )
 }.getOrThrow()

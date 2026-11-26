@@ -1,5 +1,7 @@
 package org.mtransit.android.data;
 
+import static org.mtransit.android.data.TextMessageExtKt.makeTextMessage;
+
 import android.content.ContentValues;
 import android.database.Cursor;
 
@@ -29,7 +31,7 @@ public class TextMessage extends DefaultPOI {
 
 	private final long messageId;
 
-	public TextMessage(long messageId, @DataSourceTypeId.DataSourceType int dataSourceTypeId, @NonNull String message) {
+	protected TextMessage(long messageId, @DataSourceTypeId.DataSourceType int dataSourceTypeId, @NonNull String message) {
 		super(AUTHORITY, -1, dataSourceTypeId, POI.ITEM_VIEW_TYPE_TEXT_MESSAGE, POI.ITEM_STATUS_TYPE_NONE, POI.ITEM_ACTION_TYPE_NONE, 0.0d, 0.0d, message);
 		this.messageId = messageId;
 	}
@@ -90,7 +92,7 @@ public class TextMessage extends DefaultPOI {
 	@NonNull
 	@Override
 	public ContentValues toContentValues() {
-		ContentValues values = super.toContentValues();
+		final ContentValues values = super.toContentValues();
 		values.put(TextMessageColumns.T_TEXT_MESSAGE_K_MESSAGE_ID, getMessageId());
 		values.put(TextMessageColumns.T_TEXT_MESSAGE_K_MESSAGE, getMessage());
 		return values;
@@ -105,12 +107,13 @@ public class TextMessage extends DefaultPOI {
 	@NonNull
 	public static TextMessage fromCursorStatic(@NonNull Cursor c,
 											   @SuppressWarnings("unused") @NonNull String authority) {
-		final long messageId = c.getLong(c.getColumnIndexOrThrow(TextMessageColumns.T_TEXT_MESSAGE_K_MESSAGE_ID));
-		final String message = c.getString(c.getColumnIndexOrThrow(TextMessageColumns.T_TEXT_MESSAGE_K_MESSAGE));
-		final int dataSourceTypeId = DefaultPOI.getDataSourceTypeIdFromCursor(c);
-		final TextMessage textMessage = new TextMessage(messageId, dataSourceTypeId, message);
-		DefaultPOI.fromCursor(c, textMessage);
-		return textMessage;
+		return makeTextMessage(
+				c.getLong(c.getColumnIndexOrThrow(TextMessageColumns.T_TEXT_MESSAGE_K_MESSAGE_ID)),
+				DefaultPOI.getDataSourceTypeIdFromCursor(c),
+				c.getString(c.getColumnIndexOrThrow(TextMessageColumns.T_TEXT_MESSAGE_K_MESSAGE)),
+				DefaultPOI.getScoreFromCursor(c),
+				DefaultPOI.getAccessibleFromCursor(c)
+		);
 	}
 
 	private static class TextMessageColumns {

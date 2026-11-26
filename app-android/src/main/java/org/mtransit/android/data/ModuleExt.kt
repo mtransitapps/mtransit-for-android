@@ -6,17 +6,56 @@ import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.int
 import kotlinx.serialization.json.jsonPrimitive
 import org.mtransit.android.BuildConfig
-import org.mtransit.android.commons.data.applyTo
+import org.mtransit.android.commons.data.Accessibility
+import org.mtransit.android.commons.data.DataSourceTypeId
 import org.mtransit.android.commons.data.getAuthorityFromJson
 import org.mtransit.android.commons.data.getIdFromJson
 import org.mtransit.android.commons.data.getLatFromJson
 import org.mtransit.android.commons.data.getLngFromJson
 import org.mtransit.android.commons.data.getNameFromJson
+import org.mtransit.android.commons.data.getScoreFromJson
+import org.mtransit.android.commons.data.optDefaultPOIInit
 import org.mtransit.android.commons.data.toJsonCommon
 import org.mtransit.android.commons.jsonRunCatching
 import org.mtransit.android.data.Module.LOG_TAG
 import org.mtransit.commons.jsonPrimitiveOrNull
 import kotlinx.serialization.json.put as putK
+
+@Suppress("LongParameterList")
+fun makeModule(
+    authority: String,
+    id: Int,
+    pkg: String,
+    @DataSourceTypeId.DataSourceType dstId: Int,
+    lat: Double,
+    lng: Double,
+    name: String,
+    color: String? = null,
+    location: String? = null,
+    nameFr: String? = null,
+    repo: String? = null,
+    store: String? = null,
+    score: Int? = null,
+    accessible: Int = Accessibility.DEFAULT,
+) = Module(
+    authority,
+    id,
+    pkg,
+    dstId,
+    lat,
+    lng,
+    name
+).apply {
+    this.color = color
+    this.location = location
+    this.nameFr = nameFr
+    this.repo = repo
+    this.store = store
+    optDefaultPOIInit(
+        score = score,
+        accessible = accessible
+    )
+}
 
 private const val JSON_PKG = "pkg"
 private const val JSON_TYPE_ID = "type_id"
@@ -45,20 +84,19 @@ fun JsonObject.toModuleOrNull(
 ) = jsonRunCatching(LOG_TAG) {
     val optStore = this[JSON_STORE]?.jsonPrimitiveOrNull?.contentOrNull
     if (!BuildConfig.DEBUG && optStore != Module.STORE_PRODUCTION) return@jsonRunCatching null // ignore non-production agency modules in release builds
-    Module(
-        authority,
-        id,
-        getValue(JSON_PKG).jsonPrimitive.content,
-        getValue(JSON_TYPE_ID).jsonPrimitive.int,
-        getLatFromJson(),
-        getLngFromJson(),
-        getNameFromJson(),
-    ).apply {
-        color = this@toModuleOrNull[JSON_COLOR]?.jsonPrimitiveOrNull?.contentOrNull?.takeIf { it.isNotEmpty() }
-        location = this@toModuleOrNull[JSON_LOCATION]?.jsonPrimitiveOrNull?.contentOrNull?.takeIf { it.isNotEmpty() }
-        nameFr = this@toModuleOrNull[JSON_NAME_FR]?.jsonPrimitiveOrNull?.contentOrNull?.takeIf { it.isNotEmpty() }
-        repo = this@toModuleOrNull[JSON_REPO]?.jsonPrimitiveOrNull?.contentOrNull?.takeIf { it.isNotEmpty() }
-        store = optStore?.takeIf { it.isNotEmpty() }
-        applyTo(this)
-    }
+    makeModule(
+        authority = authority,
+        id = id,
+        pkg = getValue(JSON_PKG).jsonPrimitive.content,
+        dstId = getValue(JSON_TYPE_ID).jsonPrimitive.int,
+        lat = getLatFromJson(),
+        lng = getLngFromJson(),
+        name = getNameFromJson(),
+        color = this@toModuleOrNull[JSON_COLOR]?.jsonPrimitiveOrNull?.contentOrNull?.takeIf { it.isNotEmpty() },
+        location = this@toModuleOrNull[JSON_LOCATION]?.jsonPrimitiveOrNull?.contentOrNull?.takeIf { it.isNotEmpty() },
+        nameFr = this@toModuleOrNull[JSON_NAME_FR]?.jsonPrimitiveOrNull?.contentOrNull?.takeIf { it.isNotEmpty() },
+        repo = this@toModuleOrNull[JSON_REPO]?.jsonPrimitiveOrNull?.contentOrNull?.takeIf { it.isNotEmpty() },
+        store = optStore?.takeIf { it.isNotEmpty() },
+        score = getScoreFromJson(),
+    )
 }.getOrNull()
