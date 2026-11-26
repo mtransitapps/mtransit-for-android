@@ -7,6 +7,7 @@ import androidx.core.view.isVisible
 import org.mtransit.android.commons.data.AvailabilityPercent
 import org.mtransit.android.commons.data.POIStatus
 import org.mtransit.android.commons.data.ServiceUpdates
+import org.mtransit.android.commons.data.value1Default
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.databinding.LayoutPoiStatusAvailabilityPercentBinding
 import org.mtransit.android.ui.view.common.context
@@ -48,6 +49,7 @@ data class POIAvailabilityStatusViewHolder(
         super.bind(status, dataProvider, serviceUpdates)
         status?.let { availabilityPercent ->
             binding.apply {
+                val value1SubValueDefault = availabilityPercent.value1Default
                 if (!availabilityPercent.isStatusOK) {
                     if (UIFeatureFlags.F_POI_STATUS_AVAILABILITY_DOTS) {
                         dots.isVisible = false
@@ -61,8 +63,8 @@ data class POIAvailabilityStatusViewHolder(
                         textTv.isVisible = false
                         dots.setColorDots(
                             availabilityPercent.totalValue,
-                            List(availabilityPercent.value1SubValueDefault) { availabilityPercent.value1SubValueDefaultColorBg } +
-                                List(availabilityPercent.value1SubValue1 ?: 0) { availabilityPercent.value1SubValue1ColorBg }
+                            List(value1SubValueDefault.value) { value1SubValueDefault.colorBg } +
+                                availabilityPercent.value1SubValue1?.let { sv1 -> List(sv1.value) { sv1.colorBg } }.orEmpty()
                         )
                         dots.isVisible = true
                     } else {
@@ -75,24 +77,24 @@ data class POIAvailabilityStatusViewHolder(
                             pie.setPiecesColors(
                                 listOf(
                                     androidXPair(
-                                        availabilityPercent.value1SubValueDefaultColor,
-                                        availabilityPercent.value1SubValueDefaultColorBg
+                                        value1SubValueDefault.color,
+                                        value1SubValueDefault.colorBg
                                     ),
                                     androidXPair(
-                                        availabilityPercent.value1SubValue1Color,
-                                        availabilityPercent.value1SubValue1ColorBg
+                                        availabilityPercent.value1SubValue1?.color,
+                                        availabilityPercent.value1SubValue1?.colorBg
                                     ),
                                     androidXPair(
-                                        availabilityPercent.value2Color,
-                                        availabilityPercent.value2ColorBg
+                                        availabilityPercent.value2.color,
+                                        availabilityPercent.value2.colorBg
                                     )
                                 )
                             )
                             pie.setPieces(
                                 listOf(
-                                    availabilityPercent.value1SubValueDefault,
-                                    availabilityPercent.value1SubValue1,
-                                    availabilityPercent.value2
+                                    value1SubValueDefault.value,
+                                    availabilityPercent.value1SubValue1?.value,
+                                    availabilityPercent.value2.value
                                 )
                             )
                             pie.isVisible = true

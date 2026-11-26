@@ -47,7 +47,7 @@ fun JPaths.toJson() = buildJsonObject {
     }
 }
 
-fun String?.toJPathsOrNull() = this?.jsonRunCatching(LOG_TAG) {
+fun String?.toJPathsOrNull() = this?.takeIf { it.isNotBlank() }?.jsonRunCatching(LOG_TAG) {
     pathsJson.parseToJsonElement(this).jsonObjectOrNull?.toJPaths()
 }?.getOrNull()
 
@@ -145,9 +145,9 @@ private fun JCircle.toJson() = buildJsonObject {
 
 private fun JsonObject.toJCircle() = jsonRunCatching(LOG_TAG) {
     JCircle(
-        getValue(JSON_X).jsonPrimitive.content.toFloat(),
-        getValue(JSON_Y).jsonPrimitive.content.toFloat(),
-        getValue(JSON_RADIUS).jsonPrimitive.content.toFloat(),
+        getValue(JSON_X).jsonPrimitive.float,
+        getValue(JSON_Y).jsonPrimitive.float,
+        getValue(JSON_RADIUS).jsonPrimitive.float,
     )
 }.getOrThrow()
 
@@ -170,10 +170,10 @@ private fun JRect.toJson() = buildJsonObject {
 
 private fun JsonObject.toJRect() = jsonRunCatching(LOG_TAG) {
     JRect(
-        getValue(JSON_LEFT).jsonPrimitive.content.toFloat(),
-        getValue(JSON_TOP).jsonPrimitive.content.toFloat(),
-        getValue(JSON_RIGHT).jsonPrimitive.content.toFloat(),
-        getValue(JSON_BOTTOM).jsonPrimitive.content.toFloat(),
+        getValue(JSON_LEFT).jsonPrimitive.float,
+        getValue(JSON_TOP).jsonPrimitive.float,
+        getValue(JSON_RIGHT).jsonPrimitive.float,
+        getValue(JSON_BOTTOM).jsonPrimitive.float,
     )
 }.getOrThrow()
 

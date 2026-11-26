@@ -303,7 +303,7 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 			@NonNull CommonStatusViewHolder statusViewHolder,
 			@Nullable POIStatus status
 	) {
-		AvailabilityPercentStatusViewHolder availabilityPercentStatusViewHolder = (AvailabilityPercentStatusViewHolder) statusViewHolder;
+		final AvailabilityPercentStatusViewHolder availabilityPercentStatusViewHolder = (AvailabilityPercentStatusViewHolder) statusViewHolder;
 		if (status instanceof AvailabilityPercent) {
 			AvailabilityPercent availabilityPercent = (AvailabilityPercent) status;
 			if (!availabilityPercent.isStatusOK()) {
@@ -327,7 +327,7 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 			}
 			availabilityPercentStatusViewHolder.progressBar.setIndeterminate(false);
 			availabilityPercentStatusViewHolder.progressBar.setMax(availabilityPercent.getTotalValue());
-			availabilityPercentStatusViewHolder.progressBar.setProgress(availabilityPercent.getValue1());
+			availabilityPercentStatusViewHolder.progressBar.setProgress(availabilityPercent.getValue1().getValue());
 			availabilityPercentStatusViewHolder.progressBar.setVisibility(View.VISIBLE);
 			setStatusView(statusViewHolder, true);
 		} else {

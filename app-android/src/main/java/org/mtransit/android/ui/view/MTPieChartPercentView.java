@@ -75,8 +75,8 @@ public class MTPieChartPercentView extends MTView {
 			return;
 		}
 		for (int i = 0; i < piecesSize; i++) {
-			Piece piece = this.pieces.get(i);
-			Pair<Integer, Integer> pieceColor = piecesColors.get(i);
+			final Piece piece = this.pieces.get(i);
+			final Pair<Integer, Integer> pieceColor = piecesColors.get(i);
 			if (pieceColor.first != null) {
 				piece.setPaintColor(pieceColor.first);
 			}
@@ -94,9 +94,9 @@ public class MTPieChartPercentView extends MTView {
 		}
 		boolean sizesChanged = false;
 		for (int i = 0; i < piecesSize; i++) {
-			Piece piece = this.pieces.get(i);
-			Integer newSize = newSizes.get(i);
-			int newSizeI = newSize == null ? 0 : newSize;
+			final Piece piece = this.pieces.get(i);
+			@Nullable final Integer newSize = newSizes.get(i);
+			final int newSizeI = newSize == null ? 0 : newSize;
 			if (piece.getSize() != newSizeI) {
 				piece.setSize(newSizeI);
 				sizesChanged = true;
