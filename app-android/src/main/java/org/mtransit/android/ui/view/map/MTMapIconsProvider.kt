@@ -46,6 +46,9 @@ object MTMapIconsProvider {
     @JvmStatic
     val ferryVehicleIconDef = MTMapIconDef(R.drawable.map_icon_stop_replace_flat_filled_boat_nodpi, size = 41.dpToPx, replaceColor = true)
 
+    @JvmStatic
+    val gondolaVehicleIconDef = MTMapIconDef(R.drawable.map_icon_stop_replace_flat_filled_gondola_nodpi, size = 41.dpToPx, replaceColor = true)
+
     // @formatter:on
 
     @JvmStatic
@@ -68,6 +71,7 @@ object MTMapIconsProvider {
             DataSourceType.TYPE_RAIL -> railVehicleIconDef
             DataSourceType.TYPE_BUS -> busVehicleIconDef
             DataSourceType.TYPE_FERRY -> ferryVehicleIconDef
+            DataSourceType.TYPE_GONDOLA -> gondolaVehicleIconDef
             else -> defaultIconDef // should not happen?
         }
 }

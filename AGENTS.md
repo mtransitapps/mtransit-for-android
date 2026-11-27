@@ -38,9 +38,9 @@ Shared code and files are deployed/generated from:
 Dependencies versions are all in (some dependencies use BOMs):
 - https://github.com/mtransitapps/commons/blob/master/gradle/libs.versions.toml
 
-Code changes have to compile, pass detekt & lint analysis and unit tests:
-These Gradle commands are available:
-- `compileAll`: compile code for all modules code or individual module
-- `detektAll`: run detekt on all modules code or individual module
-- `:app-android:lintDebug`: run lint checks on the Android app and all dependencies (modules)
-- `testAll`: run unit tests on all modules code or individual module
+Code changes must compile, pass detekt & lint analysis, and pass unit tests.
+The following Gradle commands are available:
+- `compileAll`: compile code for all modules or an individual module
+- `detektAll`: run detekt on all modules or an individual module
+- `:app-android:lintDebug`: run lint checks on the main Android app and all dependencies (modules)
+- `testAll`: run unit tests on all modules or an individual module

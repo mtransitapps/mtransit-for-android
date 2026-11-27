@@ -303,7 +303,7 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 			@NonNull CommonStatusViewHolder statusViewHolder,
 			@Nullable POIStatus status
 	) {
-		AvailabilityPercentStatusViewHolder availabilityPercentStatusViewHolder = (AvailabilityPercentStatusViewHolder) statusViewHolder;
+		final AvailabilityPercentStatusViewHolder availabilityPercentStatusViewHolder = (AvailabilityPercentStatusViewHolder) statusViewHolder;
 		if (status instanceof AvailabilityPercent) {
 			AvailabilityPercent availabilityPercent = (AvailabilityPercent) status;
 			if (!availabilityPercent.isStatusOK()) {
@@ -311,23 +311,25 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 				availabilityPercentStatusViewHolder.textTv1.setText(availabilityPercent.getStatusMsg(context), TextView.BufferType.SPANNABLE);
 				availabilityPercentStatusViewHolder.textTv1.setVisibility(View.VISIBLE);
 			} else {
+				// value1 = default + sub-value
 				final CharSequence value1SubValue1Text = availabilityPercent.getValue1SubValue1Text(context);
-				if (value1SubValue1Text == null) { // NO SUB-VALUE
-					availabilityPercentStatusViewHolder.textTv1.setText(availabilityPercent.getValue1Text(context, false), TextView.BufferType.SPANNABLE);
+				if (value1SubValue1Text == null) { // WITHOUT SUB-VALUE -> use value1
+					availabilityPercentStatusViewHolder.textTv1.setText(availabilityPercent.getValue1Text(context), TextView.BufferType.SPANNABLE);
 					availabilityPercentStatusViewHolder.textTv1.setVisibility(View.VISIBLE);
 					availabilityPercentStatusViewHolder.textTv1SubValue1.setVisibility(View.GONE);
-				} else { // WITH SUB-VALUE
+				} else { // WITH SUB-VALUE -> use default + sub-value
 					availabilityPercentStatusViewHolder.textTv1.setText(availabilityPercent.getValue1SubValueDefaultText(context), TextView.BufferType.SPANNABLE);
 					availabilityPercentStatusViewHolder.textTv1.setVisibility(View.VISIBLE);
 					availabilityPercentStatusViewHolder.textTv1SubValue1.setText(value1SubValue1Text, TextView.BufferType.SPANNABLE);
 					availabilityPercentStatusViewHolder.textTv1SubValue1.setVisibility(View.VISIBLE);
 				}
+				// value2
 				availabilityPercentStatusViewHolder.textTv2.setText(availabilityPercent.getValue2Text(context), TextView.BufferType.SPANNABLE);
 				availabilityPercentStatusViewHolder.textTv2.setVisibility(View.VISIBLE);
 			}
 			availabilityPercentStatusViewHolder.progressBar.setIndeterminate(false);
 			availabilityPercentStatusViewHolder.progressBar.setMax(availabilityPercent.getTotalValue());
-			availabilityPercentStatusViewHolder.progressBar.setProgress(availabilityPercent.getValue1());
+			availabilityPercentStatusViewHolder.progressBar.setProgress(availabilityPercent.getValue1().getValue());
 			availabilityPercentStatusViewHolder.progressBar.setVisibility(View.VISIBLE);
 			setStatusView(statusViewHolder, true);
 		} else {

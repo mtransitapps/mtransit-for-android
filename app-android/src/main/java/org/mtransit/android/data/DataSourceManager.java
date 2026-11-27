@@ -109,9 +109,9 @@ public final class DataSourceManager implements MTLog.Loggable {
 	) {
 		Cursor cursor = null;
 		try {
-			final String serviceUpdateFilterJSONString = serviceUpdateFilter.toJsonString();
+			final String serviceUpdateFilterJsonString = serviceUpdateFilter.toJsonString();
 			final Uri uri = Uri.withAppendedPath(getUri(authority), ServiceUpdateProviderContract.SERVICE_UPDATE_PATH);
-			cursor = queryContentResolver(context.getContentResolver(), uri, null, serviceUpdateFilterJSONString, null, null);
+			cursor = queryContentResolver(context.getContentResolver(), uri, null, serviceUpdateFilterJsonString, null, null);
 			return getServiceUpdates(cursor);
 		} catch (Exception e) {
 			CrashUtils.w(LOG_TAG, e, "Error while loading '%s' service updates from '%s'!", serviceUpdateFilter, authority);
@@ -138,9 +138,9 @@ public final class DataSourceManager implements MTLog.Loggable {
 	public static ArrayList<News> findNews(@NonNull Context context, @NonNull String authority, @Nullable NewsProviderContract.Filter newsFilter) {
 		Cursor cursor = null;
 		try {
-			String newsFilterJSONString = newsFilter == null ? null : newsFilter.toJsonString();
+			String newsFilterJsonString = newsFilter == null ? null : newsFilter.toJsonString();
 			final Uri uri = Uri.withAppendedPath(getUri(authority), NewsProviderContract.NEWS_PATH);
-			cursor = queryContentResolver(context.getContentResolver(), uri, null, newsFilterJSONString, null, null);
+			cursor = queryContentResolver(context.getContentResolver(), uri, null, newsFilterJsonString, null, null);
 			return getNews(cursor, authority);
 		} catch (Exception e) {
 			CrashUtils.w(LOG_TAG, e, "Error while loading '%s' news from '%s'!", newsFilter, authority);
@@ -172,9 +172,9 @@ public final class DataSourceManager implements MTLog.Loggable {
 		if (!UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) return null;
 		Cursor cursor = null;
 		try {
-			final String vehicleLocationFilterJSONString = vehicleLocationFilter == null ? null : vehicleLocationFilter.toJsonString();
+			final String vehicleLocationFilterJsonString = vehicleLocationFilter == null ? null : vehicleLocationFilter.toJsonString();
 			final Uri uri = Uri.withAppendedPath(getUri(authority), VehicleLocationProviderContract.VEHICLE_LOCATION_PATH);
-			cursor = queryContentResolver(context.getContentResolver(), uri, null, vehicleLocationFilterJSONString, null, null);
+			cursor = queryContentResolver(context.getContentResolver(), uri, null, vehicleLocationFilterJsonString, null, null);
 			return getVehicleLocations(cursor, authority);
 		} catch (Exception e) {
 			CrashUtils.w(LOG_TAG, e, "Error while loading '%s' vehicle locations from '%s'!", vehicleLocationFilter, authority);
@@ -205,9 +205,9 @@ public final class DataSourceManager implements MTLog.Loggable {
 	) {
 		Cursor cursor = null;
 		try {
-			final String scheduleTimestampsFilterJSONString = scheduleTimestampsFilter == null ? null : ScheduleTimestampsProviderContractExtKt.toJsonString(scheduleTimestampsFilter);
+			final String scheduleTimestampsFilterJsonString = scheduleTimestampsFilter == null ? null : ScheduleTimestampsProviderContractExtKt.toJsonString(scheduleTimestampsFilter);
 			final Uri uri = Uri.withAppendedPath(getUri(authority), ScheduleTimestampsProviderContract.SCHEDULE_TIMESTAMPS_PATH);
-			cursor = queryContentResolver(context.getContentResolver(), uri, null, scheduleTimestampsFilterJSONString, null, null);
+			cursor = queryContentResolver(context.getContentResolver(), uri, null, scheduleTimestampsFilterJsonString, null, null);
 			return getScheduleTimestamp(cursor);
 		} catch (Exception e) {
 			CrashUtils.w(LOG_TAG, e, "Error while loading '%s' schedule timestamps from '%s'!", scheduleTimestampsFilter, authority);
@@ -232,9 +232,9 @@ public final class DataSourceManager implements MTLog.Loggable {
 	public static POIStatus findStatus(@NonNull Context context, @NonNull String authority, @NonNull StatusProviderContract.Filter statusFilter) {
 		Cursor cursor = null;
 		try {
-			final String statusFilterJSONString = statusFilter.toJsonString();
+			final String statusFilterJsonString = statusFilter.toJsonString();
 			final Uri uri = Uri.withAppendedPath(getUri(authority), StatusProviderContract.STATUS_PATH);
-			cursor = queryContentResolver(context.getContentResolver(), uri, null, statusFilterJSONString, null, null);
+			cursor = queryContentResolver(context.getContentResolver(), uri, null, statusFilterJsonString, null, null);
 			return getPOIStatus(cursor);
 		} catch (Exception e) {
 			CrashUtils.w(LOG_TAG, e, "Error while loading '%s' status from '%s'!", statusFilter, authority);
@@ -420,7 +420,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 			cursor = queryContentResolver(context.getContentResolver(), uri, null, null, null, null);
 			if (cursor != null && cursor.getCount() > 0) {
 				if (cursor.moveToFirst()) {
-					result = JPaths.fromJSONString(cursor.getString(0));
+					result = JPaths.fromJsonString(cursor.getString(0));
 				}
 			}
 		} catch (Exception e) {

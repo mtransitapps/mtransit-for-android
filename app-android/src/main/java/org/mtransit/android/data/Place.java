@@ -1,5 +1,7 @@
 package org.mtransit.android.data;
 
+import static org.mtransit.android.data.PlaceExtKt.makePlace;
+
 import android.content.ContentValues;
 import android.database.Cursor;
 
@@ -18,7 +20,7 @@ import kotlinx.serialization.json.JsonObject;
 
 public class Place extends DefaultPOI {
 
-	private static final String LOG_TAG = Place.class.getSimpleName();
+	protected static final String LOG_TAG = Place.class.getSimpleName();
 
 	@NonNull
 	@Override
@@ -35,15 +37,15 @@ public class Place extends DefaultPOI {
 	private final long readAtInMs;
 
 	@Nullable
-	private String subTitle = null;
+	protected String subTitle = null;
 
 	@Nullable
-	private String iconUrl = null;
+	protected String iconUrl = null;
 	@Nullable
 	@ColorInt
-	private Integer iconBgColorInt = null;
+	protected Integer iconBgColorInt = null;
 
-	public Place(
+	protected Place(
 			@NonNull String authority,
 			@NonNull String providerId,
 			@NonNull String lang,
@@ -79,26 +81,14 @@ public class Place extends DefaultPOI {
 		return readAtInMs;
 	}
 
-	public void setSubTitle(@Nullable String subTitle) {
-		this.subTitle = subTitle;
-	}
-
 	@Nullable
 	public String getSubTitle() {
 		return subTitle;
 	}
 
-	public void setIconUrl(@Nullable String iconUrl) {
-		this.iconUrl = iconUrl;
-	}
-
 	@Nullable
 	public String getIconUrl() {
 		return iconUrl;
-	}
-
-	public void setIconBgColor(@Nullable @ColorInt Integer iconBgColorInt) {
-		this.iconBgColorInt = iconBgColorInt;
 	}
 
 	@ColorInt
@@ -208,28 +198,19 @@ public class Place extends DefaultPOI {
 
 	@NonNull
 	public static Place fromCursorStatic(@NonNull Cursor c, @NonNull String authority) {
-		final Place place = new Place(
+		return makePlace(
 				authority,
 				c.getString(c.getColumnIndexOrThrow(PlaceProvider.PlaceColumns.T_PLACE_K_PROVIDER_ID)),
 				c.getString(c.getColumnIndexOrThrow(PlaceProvider.PlaceColumns.T_PLACE_K_LANG)),
 				c.getLong(c.getColumnIndexOrThrow(PlaceProvider.PlaceColumns.T_PLACE_K_READ_AT_IN_MS)),
 				DefaultPOI.getLatFromCursor(c),
 				DefaultPOI.getLngFromCursor(c),
-				DefaultPOI.getNameFromCursor(c)
+				DefaultPOI.getNameFromCursor(c),
+				CursorExtKt.optString(c, PlaceProvider.PlaceColumns.T_PLACE_K_SUB_TITLE, null),
+				CursorExtKt.optString(c, PlaceProvider.PlaceColumns.T_PLACE_K_ICON_URL, null),
+				CursorExtKt.optInt(c, PlaceProvider.PlaceColumns.T_PLACE_K_ICON_BG_COLOR, null),
+				DefaultPOI.getScoreFromCursor(c),
+				DefaultPOI.getAccessibleFromCursor(c)
 		);
-		final String subTitle = CursorExtKt.optString(c, PlaceProvider.PlaceColumns.T_PLACE_K_SUB_TITLE, null);
-		if (subTitle != null) {
-			place.setSubTitle(subTitle);
-		}
-		final Integer iconColor = CursorExtKt.optInt(c, PlaceProvider.PlaceColumns.T_PLACE_K_ICON_BG_COLOR, null);
-		if (iconColor != null) {
-			place.setIconBgColor(iconColor);
-		}
-		final String iconUrl = CursorExtKt.optString(c, PlaceProvider.PlaceColumns.T_PLACE_K_ICON_URL, null);
-		if (iconUrl != null) {
-			place.setIconUrl(iconUrl);
-		}
-		DefaultPOI.fromCursor(c, place);
-		return place;
 	}
 }

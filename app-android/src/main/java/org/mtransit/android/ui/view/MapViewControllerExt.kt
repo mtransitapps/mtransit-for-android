@@ -11,6 +11,7 @@ import org.mtransit.android.commons.dpToPx
 import org.mtransit.android.commons.provider.vehiclelocations.model.VehicleLocation
 import org.mtransit.android.data.Place
 import org.mtransit.android.data.latLng
+import org.mtransit.android.data.makePlace
 import org.mtransit.android.data.toExtendedMarkerOptions
 import org.mtransit.android.data.updateMarker
 import org.mtransit.android.ui.location.UILocationUtils
@@ -189,17 +190,16 @@ fun MapViewController.onSelectedPlaceLocation(selectedLocation: LatLng, selected
             }
         }
         ?: context.getString(R.string.place_pin_placed)
-    val selectedPlace = Place(
-        "android.location.Geocoder",
-        UUID.randomUUID().toString(),
-        selectedAddress?.locale?.language ?: Locale.getDefault().language,
-        TimeUtils.currentTimeMillis(),
-        usedLocation.latitude,
-        usedLocation.longitude,
-        name
-    ).apply {
-        this.subTitle = subTitle
-    }
+    val selectedPlace = makePlace(
+        authority = "android.location.Geocoder",
+        providerId = UUID.randomUUID().toString(),
+        lang = selectedAddress?.locale?.language ?: Locale.getDefault().language,
+        readAtInMs = TimeUtils.currentTimeMillis(),
+        lat = usedLocation.latitude,
+        lng = usedLocation.longitude,
+        name = name,
+        subTitle = subTitle,
+    )
     setSelectedPlace(context, selectedPlace, selectedLocation)
 }
 

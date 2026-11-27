@@ -20,7 +20,7 @@ import org.mtransit.android.ui.view.POIViewUtils
 import org.mtransit.android.ui.view.common.MTTransitions.setTransitionName
 import org.mtransit.android.ui.view.common.navigateF
 import org.mtransit.android.ui.view.common.textAndVisibility
-import org.mtransit.android.ui.view.setJSONAndVisibility
+import org.mtransit.android.ui.view.setJsonAndVisibility
 import org.mtransit.android.util.UIDirectionUtils
 import org.mtransit.android.util.UIRouteUtils
 import org.mtransit.commons.FeatureFlags
@@ -93,7 +93,7 @@ object POIViewHolderUtils {
     @JvmStatic
     fun RouteDirectionStopViewHolder.setupRoute(route: Route, getAgency: () -> IAgencyUIProperties?) {
         routeShortName.textAndVisibility = route.shortName.takeIf { it.isNotBlank() }?.let { UIRouteUtils.decorateRouteShortName(context, it) }
-        routeTypeImg.setJSONAndVisibility(getAgency())
+        routeTypeImg.setJsonAndVisibility(getAgency())
         if (routeShortName.isVisible && routeTypeImg.isVisible) {
             routeSpaceStart.isVisible = true
             routeTypeImg.updateLayoutParams<LinearLayout.LayoutParams> {
