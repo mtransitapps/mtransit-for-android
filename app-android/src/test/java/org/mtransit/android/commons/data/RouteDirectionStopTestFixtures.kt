@@ -63,7 +63,7 @@ fun makeRDS(
     alwaysLastTripStop: Boolean = false,
 ) = makeRouteDirectionStop(
     dataSourceTypeId = dataSourceTypeId,
-    route = Route(
+    route = makeRoute(
         authority,
         routeId,
         "#$routeId",
@@ -72,14 +72,14 @@ fun makeRDS(
         routeOriginalIdHash,
         routeType,
     ),
-    direction = Direction(
+    direction = makeDirection(
         authority,
         directionId,
         Direction.HEADSIGN_TYPE_STRING,
         "Head-Sign $originalDirectionId",
         routeId,
     ),
-    stop = makeStop(
+    stop = mkStop(
         stopId = stopId,
         stopName = stopName,
         stopLat = stopLat,
@@ -91,7 +91,7 @@ fun makeRDS(
     alwaysLastTripStop = alwaysLastTripStop,
 )
 
-fun makeStop(
+fun mkStop(
     stopId: Int = 1,
     stopCode: String = "#$stopId",
     stopName: String = "Stop #$stopId",
@@ -100,13 +100,13 @@ fun makeStop(
     stopAccessibility: Int = Accessibility.DEFAULT,
     stopOriginalIdHash: Int? = stopId.toString().hashCode(), // stopId, // "$stopId".hashCode()
     stopTimeZoneId: String? = "UTC",
-) = Stop(
-    stopId,
-    stopCode,
-    stopName,
-    stopLat,
-    stopLng,
-    stopAccessibility,
-    stopOriginalIdHash,
-    stopTimeZoneId,
+) = makeStop(
+    stopId = stopId,
+    stopCode = stopCode,
+    stopName = stopName,
+    stopLat = stopLat,
+    stopLng = stopLng,
+    stopAccessibility = stopAccessibility,
+    stopOriginalIdHash = stopOriginalIdHash,
+    stopTimeZoneId = stopTimeZoneId,
 )
