@@ -11,6 +11,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import org.mtransit.android.commons.MTLogK
 import org.mtransit.android.data.AgencyProperties
 import org.mtransit.android.data.NewsProviderProperties
+import org.mtransit.android.data.ProviderConfigEntity
 import org.mtransit.android.data.ScheduleProviderProperties
 import org.mtransit.android.data.ServiceUpdateProviderProperties
 import org.mtransit.android.data.StatusProviderProperties
@@ -25,6 +26,7 @@ import org.mtransit.commons.sql.SQLUtils
         ServiceUpdateProviderProperties::class,
         VehicleLocationProviderProperties::class,
         NewsProviderProperties::class,
+        ProviderConfigEntity::class,
     ],
     autoMigrations = [
         /*
@@ -34,8 +36,9 @@ import org.mtransit.commons.sql.SQLUtils
          * ```
          */
         AutoMigration(from = 5, to = 6),
+        AutoMigration(from = 8, to = 9),
     ],
-    version = 8,
+    version = 9,
     exportSchema = true
 )
 @TypeConverters(DataSourcesConverters::class)
@@ -52,6 +55,8 @@ abstract class DataSourcesDatabase : RoomDatabase() {
     abstract fun vehicleLocationProviderPropertiesDao(): VehicleLocationProviderPropertiesDao
 
     abstract fun newsProviderPropertiesDao(): NewsProviderPropertiesDao
+
+    abstract fun providerConfigDao(): ProviderConfigDao
 
     companion object {
 

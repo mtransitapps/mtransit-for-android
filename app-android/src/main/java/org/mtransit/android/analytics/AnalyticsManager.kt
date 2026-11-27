@@ -7,7 +7,6 @@ import androidx.annotation.Size
 import com.google.firebase.analytics.FirebaseAnalytics
 import dagger.hilt.android.qualifiers.ApplicationContext
 import org.mtransit.android.commons.MTLogK
-import org.mtransit.android.commons.MTLogK.Loggable
 import javax.inject.Inject
 
 // ENABLE:
@@ -31,7 +30,7 @@ import javax.inject.Inject
 // https://firebase.google.com/docs/analytics/debugview
 class AnalyticsManager @Inject internal constructor(
     @ApplicationContext appContext: Context,
-) : IAnalyticsManager, Loggable {
+) : IAnalyticsManager, MTLogK.Loggable {
 
     companion object {
         private val LOG_TAG: String = AnalyticsManager::class.java.getSimpleName()

@@ -46,6 +46,7 @@ class DataSourceRequestManager(
     private val dataSourcesInMemoryCache: DataSourcesInMemoryCache,
     private val dataSourcesDatabase: DataSourcesDatabase,
     private val ioDispatcher: CoroutineDispatcher,
+    private val providerConfigRepository: ProviderConfigRepository,
 ) : MTLogK.Loggable {
 
     @Inject
@@ -54,12 +55,14 @@ class DataSourceRequestManager(
         keysManager: KeysManager,
         dataSourcesInMemoryCache: DataSourcesInMemoryCache,
         dataSourcesDatabase: DataSourcesDatabase,
+        providerConfigRepository: ProviderConfigRepository,
     ) : this(
         appContext,
         keysManager,
         dataSourcesInMemoryCache,
         dataSourcesDatabase,
         Dispatchers.IO,
+        providerConfigRepository,
     )
 
     companion object {
@@ -234,10 +237,15 @@ class DataSourceRequestManager(
     // region news
 
     suspend fun findNews(newsProvider: NewsProviderProperties, newsFilter: NewsProviderContract.Filter) = withContext(ioDispatcher) {
+        val providedEncryptKeysMap = toProvidedKeys(keysManager.getKeysMap(newsProvider.authority))
+        if (UIFeatureFlags.F_IMPORT_PROVIDER_CONFIG) {
+            providerConfigRepository.findNews(newsProvider, newsFilter, providedEncryptKeysMap)
+                ?.let { return@withContext it }
+        }
         DataSourceManager.findNews(
             appContext,
             newsProvider.authority,
-            newsFilter.copy(providedEncryptKeysMap = toProvidedKeys(keysManager.getKeysMap(newsProvider.authority))),
+            newsFilter.copy(providedEncryptKeysMap = providedEncryptKeysMap),
         )
     }
 

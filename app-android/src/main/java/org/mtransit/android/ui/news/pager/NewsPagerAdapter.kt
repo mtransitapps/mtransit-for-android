@@ -72,7 +72,7 @@ class NewsPagerAdapter(
 
     fun submitList(newItems: List<News>?) {
         val idsOld = createIdSnapshot()
-        items = newItems ?: emptyList()
+        items = newItems.orEmpty()
         val idsNew = createIdSnapshot()
         DiffUtil.calculateDiff(
             object : DiffUtil.Callback() {

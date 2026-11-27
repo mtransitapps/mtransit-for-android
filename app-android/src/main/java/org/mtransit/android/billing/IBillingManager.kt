@@ -51,7 +51,7 @@ interface IBillingManager {
         val NEW_SUBSCRIPTIONS = arrayListOf(
             NEW_BASIC_SUBSCRIPTIONS,
             NEW_PRO_SUBSCRIPTIONS
-        ).takeIf { UIFeatureFlags.F_NEW_IN_APP_SUBS } ?: emptyList()
+        ).takeIf { UIFeatureFlags.F_NEW_IN_APP_SUBS }.orEmpty()
 
         @JvmField
         val FLEXIBLE_SUBSCRIPTIONS = arrayListOf(
