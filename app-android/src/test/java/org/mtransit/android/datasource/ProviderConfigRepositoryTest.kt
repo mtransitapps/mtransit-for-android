@@ -38,7 +38,7 @@ import org.mtransit.android.commons.provider.common.ProviderConfig.Companion.toC
 import org.mtransit.android.commons.provider.common.ProviderConfigContract
 import org.mtransit.android.commons.provider.common.sharedJson
 import org.mtransit.android.commons.provider.news.NewsProviderContract
-import org.mtransit.android.commons.provider.news.NewsProviderContract.Filter.Companion.toFilter
+import org.mtransit.android.commons.provider.news.NewsProviderContract.Filter.Companion.toFilterOrNull
 import org.mtransit.android.commons.provider.news.instagram.InstagramNewsConfig
 import org.mtransit.android.commons.provider.news.rss.RssNewProviderUtils
 import org.mtransit.android.commons.provider.news.rss.RssNewsConfig
@@ -248,8 +248,8 @@ class ProviderConfigRepositoryTest {
         assertEquals(ENCODED_SECRET, capturedConfig.encSecrets[KeysIds.TWITTER_BEARER_TOKEN])
         val selectionCaptor = argumentCaptor<String>()
         verify(runtime).queryMT(any(), isNull(), selectionCaptor.capture(), isNull(), isNull())
-        val xx = assertNotNull(selectionCaptor.firstValue.toFilter())
-        assertEquals("encoded-main-key", xx.providedEncryptKeysMap?.data[KeysIds.TWITTER_CACHED_API_URL])
+        val newsFilter = assertNotNull(selectionCaptor.firstValue.toFilterOrNull())
+        assertEquals("encoded-main-key", newsFilter.providedEncryptKeysMap?.data[KeysIds.TWITTER_CACHED_API_URL])
     }
 
     @Test
