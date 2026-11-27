@@ -43,11 +43,11 @@ fun TextMessage.toJsonK() = jsonRunCatching {
 }.getOrThrow()
 
 @Suppress("unused")
-fun JsonObject.toTextMessage() = jsonRunCatching(LOG_TAG) {
+fun JsonObject.toTextMessageOrNull() = jsonRunCatching(LOG_TAG) {
     makeTextMessage(
         messageId = this.getValue(JSON_MESSAGE_ID).jsonPrimitive.long,
         dataSourceTypeId = this.getDSTypeIdFromJson(),
         message = this.getValue(JSON_MESSAGE).jsonPrimitive.content,
         score = getScoreFromJson(),
     )
-}.getOrThrow()
+}.getOrNull()

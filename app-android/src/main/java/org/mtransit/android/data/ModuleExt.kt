@@ -36,7 +36,7 @@ fun makeModule(
     repo: String? = null,
     store: String? = null,
     score: Int? = null,
-    accessible: Int = Accessibility.DEFAULT,
+    @Accessibility.AccessibilityType accessible: Int = Accessibility.DEFAULT,
 ) = Module(
     authority,
     id,

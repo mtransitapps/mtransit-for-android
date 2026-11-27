@@ -45,7 +45,7 @@ fun makePlace(
     iconUrl: String? = null,
     iconBgColorInt: Int? = null,
     score: Int? = null,
-    accessible: Int = Accessibility.DEFAULT,
+    @Accessibility.AccessibilityType accessible: Int = Accessibility.DEFAULT,
 ) = Place(
     authority,
     providerId,
@@ -123,7 +123,7 @@ fun Place.toJsonK() = jsonRunCatching(this) {
 }.getOrThrow()
 
 @Suppress("unused")
-fun JsonObject.toPlace() = jsonRunCatching(LOG_TAG) {
+fun JsonObject.toPlaceOrNull() = jsonRunCatching(LOG_TAG) {
     makePlace(
         authority = getAuthorityFromJson(),
         providerId = getValue(JSON_PROVIDER_ID).jsonPrimitive.content,
@@ -132,9 +132,9 @@ fun JsonObject.toPlace() = jsonRunCatching(LOG_TAG) {
         lat = getLatFromJson(),
         lng = getLngFromJson(),
         name = getNameFromJson(),
-        subTitle = this@toPlace[JSON_SUB_TITLE]?.jsonPrimitiveOrNull?.contentOrNull,
-        iconUrl = this@toPlace[JSON_ICON_URL]?.jsonPrimitiveOrNull?.contentOrNull,
-        iconBgColorInt = this@toPlace[JSON_ICON_BG_COLOR]?.jsonPrimitiveOrNull?.intOrNull,
+        subTitle = this@toPlaceOrNull[JSON_SUB_TITLE]?.jsonPrimitiveOrNull?.contentOrNull,
+        iconUrl = this@toPlaceOrNull[JSON_ICON_URL]?.jsonPrimitiveOrNull?.contentOrNull,
+        iconBgColorInt = this@toPlaceOrNull[JSON_ICON_BG_COLOR]?.jsonPrimitiveOrNull?.intOrNull,
         score = getScoreFromJson(),
     )
-}.getOrThrow()
+}.getOrNull()

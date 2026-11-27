@@ -119,8 +119,10 @@ class PlaceProvider : AgencyProvider(), POIProviderContract {
                         name = gPlace.displayName ?: return@mapNotNull null,
                         iconUrl = gPlace.iconMaskUrl,
                         iconBgColorInt = gPlace.iconBackgroundColor,
-                        score = score--
-                    )
+                        score = score
+                    ).also {
+                        score--
+                    }
                 }.onFailure { e ->
                     MTLogK.w(this, "Error while parsing result '$gPlace'!", e)
                 }.getOrNull()
