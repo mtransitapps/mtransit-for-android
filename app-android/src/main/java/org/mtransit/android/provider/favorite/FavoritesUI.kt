@@ -18,7 +18,7 @@ import org.mtransit.android.commons.ToastUtils
 import org.mtransit.android.commons.data.DataSourceTypeId
 import org.mtransit.android.commons.data.POI
 import org.mtransit.android.data.FavoriteFolder
-import org.mtransit.android.data.TextMessage
+import org.mtransit.android.data.makeTextMessage
 import org.mtransit.android.provider.FavoriteRepository
 import org.mtransit.android.ui.MTDialog
 
@@ -29,7 +29,11 @@ object FavoritesUI : MTLogK.Loggable {
     override fun getLogTag() = LOG_TAG
 
     fun generateFavEmptyFavPOI(context: Context, textMessageId: Long, @DataSourceTypeId.DataSourceType dataSourceTypeId: Int): POI {
-        return TextMessage(textMessageId, dataSourceTypeId, context.getString(R.string.favorite_folder_empty))
+        return makeTextMessage(
+            messageId = textMessageId,
+            dataSourceTypeId = dataSourceTypeId,
+            message = context.getString(R.string.favorite_folder_empty),
+        )
     }
 
     suspend fun FavoriteRepository.addOrRemoveFavoriteUI(

@@ -14,7 +14,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
 import androidx.collection.SimpleArrayMap;
 
-import org.json.JSONObject;
 import org.mtransit.android.commons.AppUpdateUtils;
 import org.mtransit.android.commons.Constants;
 import org.mtransit.android.commons.CursorExtKt;
@@ -41,6 +40,7 @@ import org.mtransit.android.commons.provider.news.NewsProviderContract;
 import org.mtransit.android.commons.provider.poi.POIProvider;
 import org.mtransit.android.commons.provider.poi.POIProviderContract;
 import org.mtransit.android.commons.provider.scheduletimestamp.ScheduleTimestampsProviderContract;
+import org.mtransit.android.commons.provider.scheduletimestamp.ScheduleTimestampsProviderContractExtKt;
 import org.mtransit.android.commons.provider.serviceupdate.ServiceUpdateProviderContract;
 import org.mtransit.android.commons.provider.status.StatusProviderContract;
 import org.mtransit.android.commons.provider.vehiclelocations.VehicleLocationProviderContract;
@@ -55,6 +55,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
+@SuppressWarnings("deprecation")
 @SuppressLint("DeprecatedCall")
 @WorkerThread
 public final class DataSourceManager implements MTLog.Loggable {
@@ -108,9 +109,9 @@ public final class DataSourceManager implements MTLog.Loggable {
 	) {
 		Cursor cursor = null;
 		try {
-			final String serviceUpdateFilterJSONString = serviceUpdateFilter.toJSONString();
+			final String serviceUpdateFilterJsonString = serviceUpdateFilter.toJsonString();
 			final Uri uri = Uri.withAppendedPath(getUri(authority), ServiceUpdateProviderContract.SERVICE_UPDATE_PATH);
-			cursor = queryContentResolver(context.getContentResolver(), uri, null, serviceUpdateFilterJSONString, null, null);
+			cursor = queryContentResolver(context.getContentResolver(), uri, null, serviceUpdateFilterJsonString, null, null);
 			return getServiceUpdates(cursor);
 		} catch (Exception e) {
 			CrashUtils.w(LOG_TAG, e, "Error while loading '%s' service updates from '%s'!", serviceUpdateFilter, authority);
@@ -137,9 +138,9 @@ public final class DataSourceManager implements MTLog.Loggable {
 	public static ArrayList<News> findNews(@NonNull Context context, @NonNull String authority, @Nullable NewsProviderContract.Filter newsFilter) {
 		Cursor cursor = null;
 		try {
-			String newsFilterJSONString = newsFilter == null ? null : newsFilter.toJSONString();
+			String newsFilterJsonString = newsFilter == null ? null : newsFilter.toJsonString();
 			final Uri uri = Uri.withAppendedPath(getUri(authority), NewsProviderContract.NEWS_PATH);
-			cursor = queryContentResolver(context.getContentResolver(), uri, null, newsFilterJSONString, null, null);
+			cursor = queryContentResolver(context.getContentResolver(), uri, null, newsFilterJsonString, null, null);
 			return getNews(cursor, authority);
 		} catch (Exception e) {
 			CrashUtils.w(LOG_TAG, e, "Error while loading '%s' news from '%s'!", newsFilter, authority);
@@ -171,9 +172,9 @@ public final class DataSourceManager implements MTLog.Loggable {
 		if (!UIFeatureFlags.F_CONSUME_VEHICLE_LOCATION) return null;
 		Cursor cursor = null;
 		try {
-			final String vehicleLocationFilterJSONString = vehicleLocationFilter == null ? null : vehicleLocationFilter.toJSONString();
+			final String vehicleLocationFilterJsonString = vehicleLocationFilter == null ? null : vehicleLocationFilter.toJsonString();
 			final Uri uri = Uri.withAppendedPath(getUri(authority), VehicleLocationProviderContract.VEHICLE_LOCATION_PATH);
-			cursor = queryContentResolver(context.getContentResolver(), uri, null, vehicleLocationFilterJSONString, null, null);
+			cursor = queryContentResolver(context.getContentResolver(), uri, null, vehicleLocationFilterJsonString, null, null);
 			return getVehicleLocations(cursor, authority);
 		} catch (Exception e) {
 			CrashUtils.w(LOG_TAG, e, "Error while loading '%s' vehicle locations from '%s'!", vehicleLocationFilter, authority);
@@ -204,9 +205,9 @@ public final class DataSourceManager implements MTLog.Loggable {
 	) {
 		Cursor cursor = null;
 		try {
-			final String scheduleTimestampsFilterJSONString = scheduleTimestampsFilter == null ? null : scheduleTimestampsFilter.toJSONString();
+			final String scheduleTimestampsFilterJsonString = scheduleTimestampsFilter == null ? null : ScheduleTimestampsProviderContractExtKt.toJsonString(scheduleTimestampsFilter);
 			final Uri uri = Uri.withAppendedPath(getUri(authority), ScheduleTimestampsProviderContract.SCHEDULE_TIMESTAMPS_PATH);
-			cursor = queryContentResolver(context.getContentResolver(), uri, null, scheduleTimestampsFilterJSONString, null, null);
+			cursor = queryContentResolver(context.getContentResolver(), uri, null, scheduleTimestampsFilterJsonString, null, null);
 			return getScheduleTimestamp(cursor);
 		} catch (Exception e) {
 			CrashUtils.w(LOG_TAG, e, "Error while loading '%s' schedule timestamps from '%s'!", scheduleTimestampsFilter, authority);
@@ -231,9 +232,9 @@ public final class DataSourceManager implements MTLog.Loggable {
 	public static POIStatus findStatus(@NonNull Context context, @NonNull String authority, @NonNull StatusProviderContract.Filter statusFilter) {
 		Cursor cursor = null;
 		try {
-			final String statusFilterJSONString = statusFilter.toJSONStringStatic(statusFilter);
+			final String statusFilterJsonString = statusFilter.toJsonString();
 			final Uri uri = Uri.withAppendedPath(getUri(authority), StatusProviderContract.STATUS_PATH);
-			cursor = queryContentResolver(context.getContentResolver(), uri, null, statusFilterJSONString, null, null);
+			cursor = queryContentResolver(context.getContentResolver(), uri, null, statusFilterJsonString, null, null);
 			return getPOIStatus(cursor);
 		} catch (Exception e) {
 			CrashUtils.w(LOG_TAG, e, "Error while loading '%s' status from '%s'!", statusFilter, authority);
@@ -287,7 +288,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 		Integer availableVersionCode = null;
 		Cursor cursor = null;
 		try {
-			final String appUpdateFilterString = new AppUpdateUtils.AppUpdateFilter(forceAppUpdateRefresh, inFocus).toJSONString();
+			final String appUpdateFilterString = new AppUpdateUtils.AppUpdateFilter(forceAppUpdateRefresh, inFocus).toJsonString();
 			final Uri uri = Uri.withAppendedPath(getUri(authority), AgencyProviderContract.AVAILABLE_VERSION_CODE);
 			cursor = queryContentResolver(context.getContentResolver(), uri, null, appUpdateFilterString, null, null);
 			if (cursor != null && cursor.getCount() > 0) {
@@ -419,7 +420,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 			cursor = queryContentResolver(context.getContentResolver(), uri, null, null, null, null);
 			if (cursor != null && cursor.getCount() > 0) {
 				if (cursor.moveToFirst()) {
-					result = JPaths.fromJSONString(cursor.getString(0));
+					result = JPaths.fromJsonString(cursor.getString(0));
 				}
 			}
 		} catch (Exception e) {
@@ -610,12 +611,11 @@ public final class DataSourceManager implements MTLog.Loggable {
 	public static List<POIManager> findPOIMs(@NonNull Context context, @NonNull String authority, @Nullable POIProviderContract.Filter poiFilter) {
 		Cursor cursor = null;
 		try {
-			final JSONObject filterJSON = POIProviderContract.Filter.toJSON(poiFilter);
-			if (filterJSON == null) {
-				CrashUtils.w(LOG_TAG, "Invalid POI filter '%s'!", poiFilter); // should never happen
+			if (poiFilter == null) {
+				CrashUtils.w(LOG_TAG, "Invalid empty POI filter!"); // should never happen
 				return Collections.emptyList();
 			}
-			final String filterJsonString = filterJSON.toString();
+			final String filterJsonString = poiFilter.toJsonString();
 			final Uri uri = getPOIUri(authority);
 			cursor = queryContentResolver(context.getContentResolver(), uri, POIProvider.PROJECTION_POI_ALL_COLUMNS, filterJsonString, null, null);
 			return getPOIMs(cursor, authority);

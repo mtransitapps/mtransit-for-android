@@ -3,6 +3,8 @@ package org.mtransit.android.datasource
 import androidx.room.TypeConverter
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.JPaths
+import org.mtransit.android.data.toJPathsOrNull
+import org.mtransit.android.data.toJsonStringOrNull
 
 class DataSourcesConverters {
 
@@ -17,12 +19,12 @@ class DataSourcesConverters {
     }
 
     @TypeConverter
-    fun fromJSONString(jsonString: String?): JPaths? {
-        return jsonString?.let { JPaths.fromJSONString(it) }
+    fun fromJsonString(jsonString: String?): JPaths? {
+        return jsonString?.toJPathsOrNull()
     }
 
     @TypeConverter
-    fun jPathsToJSONString(jPaths: JPaths?): String? {
-        return jPaths?.let { it.toJSON()?.toString() }
+    fun jPathsToJsonString(jPaths: JPaths?): String? {
+        return jPaths?.toJsonStringOrNull()
     }
 }

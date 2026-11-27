@@ -38,6 +38,7 @@ import org.mtransit.android.commons.provider.common.requiredContext
 import org.mtransit.android.commons.provider.poi.POIProvider
 import org.mtransit.android.commons.provider.poi.POIProviderContract
 import org.mtransit.android.data.Place
+import org.mtransit.android.data.makePlace
 import org.mtransit.android.ui.view.map.toLatLngBounds
 import org.mtransit.android.util.UITimeUtils
 import java.net.SocketException
@@ -100,31 +101,31 @@ class PlaceProvider : AgencyProvider(), POIProviderContract {
                 return null
             }
             MTLogK.i(this, "Loading from Places API...")
-            val searchByTextResponse = Tasks.await(placesClient.searchByText(searchByTextRequest))
+            val gSearchByTextResponse = Tasks.await(placesClient.searchByText(searchByTextRequest))
             val newLastUpdateInMs = UITimeUtils.currentTimeMillis()
             val authority = _authority
             val lang = if (LocaleUtils.isFR()) Locale.FRENCH.language else Locale.ENGLISH.language
             var score = 1000
-            val places: List<Place>? = searchByTextResponse?.places?.mapNotNull { place ->
-                try {
-                    val providerId = place.id ?: return@mapNotNull null
-                    Place(
-                        authority,
-                        providerId,
-                        lang,
-                        newLastUpdateInMs,
-                        place.location?.latitude ?: return@mapNotNull null,
-                        place.location?.longitude ?: return@mapNotNull null,
-                        place.displayName ?: return@mapNotNull null
-                    ).apply {
-                        this.score = score--
-                        this.iconUrl = place.iconMaskUrl
-                        this.iconBgColor = place.iconBackgroundColor
+            val places: List<Place>? = gSearchByTextResponse?.places?.mapNotNull { gPlace ->
+                runCatching {
+                    val providerId = gPlace.id ?: return@mapNotNull null
+                    makePlace(
+                        authority = authority,
+                        providerId = providerId,
+                        lang = lang,
+                        readAtInMs = newLastUpdateInMs,
+                        lat = gPlace.location?.latitude ?: return@mapNotNull null,
+                        lng = gPlace.location?.longitude ?: return@mapNotNull null,
+                        name = gPlace.displayName ?: return@mapNotNull null,
+                        iconUrl = gPlace.iconMaskUrl,
+                        iconBgColorInt = gPlace.iconBackgroundColor,
+                        score = score
+                    ).also {
+                        score--
                     }
-                } catch (e: Exception) {
-                    MTLogK.w(this, "Error while parsing result '$place'!", e)
-                    null
-                }
+                }.onFailure { e ->
+                    MTLogK.w(this, "Error while parsing result '$gPlace'!", e)
+                }.getOrNull()
             }
             MTLogK.i(this, "Loaded ${places?.size} places.")
             if (Constants.DEBUG) {

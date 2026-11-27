@@ -16,8 +16,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
 import androidx.collection.ArrayMap;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.mtransit.android.R;
 import org.mtransit.android.analytics.AnalyticsEvents;
 import org.mtransit.android.analytics.AnalyticsEventsParamsProvider;
@@ -52,7 +50,6 @@ import org.mtransit.android.util.UITimeUtils;
 import org.mtransit.commons.Constants;
 
 import java.util.Collection;
-import java.util.HashSet;
 
 import dagger.hilt.EntryPoint;
 import dagger.hilt.InstallIn;
@@ -62,7 +59,7 @@ import dagger.hilt.components.SingletonComponent;
 @SuppressWarnings("UnusedReturnValue")
 public class ModuleProvider extends AgencyProvider implements POIProviderContract, StatusProviderContract {
 
-	private static final String LOG_TAG = ModuleProvider.class.getSimpleName();
+	protected static final String LOG_TAG = ModuleProvider.class.getSimpleName();
 
 	@NonNull
 	@Override
@@ -427,19 +424,12 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 
 	@WorkerThread
 	@Nullable
-	private HashSet<Module> loadDataFromWWW(@NonNull Context context) {
+	private Collection<Module> loadDataFromWWW(@NonNull Context context) {
 		try {
 			final long newLastUpdateInMs = UITimeUtils.currentTimeMillis();
 			final String jsonString = FileUtils.fromFileRes(context, R.raw.modules);
 			MTLog.d(this, "loadDataFromWWW() > jsonString: %s.", jsonString);
-			final HashSet<Module> modules = new HashSet<>();
-			final JSONArray jsonArray = new JSONArray(jsonString);
-			for (int i = 0; i < jsonArray.length(); i++) {
-				final JSONObject jModule = jsonArray.getJSONObject(i);
-				final Module module = Module.fromSimpleJSONStatic(jModule, getAUTHORITY(context), i);
-				if (module == null) continue; // error while converting JSON to Module
-				modules.add(module);
-			}
+			final Collection<Module> modules = ModuleProviderExtKt.toModulesOrThrow(jsonString, getAUTHORITY(context));
 			deleteAllModuleData();
 			insertModulesLockDB(this, modules);
 			getStorage(context).edit()

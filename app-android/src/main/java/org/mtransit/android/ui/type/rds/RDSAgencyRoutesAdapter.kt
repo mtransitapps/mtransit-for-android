@@ -26,7 +26,7 @@ import org.mtransit.android.ui.view.common.setImageResourceAndVisibility
 import org.mtransit.android.ui.view.common.setPadding
 import org.mtransit.android.ui.view.common.textAndVisibility
 import org.mtransit.android.ui.view.listfooter.FooterViewHolder
-import org.mtransit.android.ui.view.setJSONAndVisibility
+import org.mtransit.android.ui.view.setJsonAndVisibility
 import org.mtransit.android.util.UIRouteUtils
 
 class RDSAgencyRoutesAdapter(
@@ -151,7 +151,7 @@ class RDSAgencyRoutesAdapter(
             MTTransitions.setTransitionName(routeLayout, "r_" + agency.authority + "_" + route.id)
             // SHORT NAME & LOGO
             routeShortName.textAndVisibility = route.shortName.takeIf { it.isNotBlank() }?.let { UIRouteUtils.decorateRouteShortName(context, it) }
-            routeTypeImg.setJSONAndVisibility(agency)
+            routeTypeImg.setJsonAndVisibility(agency)
             if (routeShortName.isVisible && routeTypeImg.isVisible) {
                 routeSpaceStart.isVisible = showingListInsteadOfGrid
                 routeTypeImg.updateLayoutParams<LinearLayout.LayoutParams> {

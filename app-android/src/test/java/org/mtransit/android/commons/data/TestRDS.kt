@@ -101,7 +101,7 @@ fun mkCA_LONGUEUIL_RTL_9700_LEDUC(routeId: Long, isNoPickup: Boolean = false) = 
     isNoPickup = isNoPickup,
 )
 
-val CA_MTL_BIXI_HONORE_BEAUGRAND_METRO = makeBikeStation(
+val CA_MTL_BIXI_HONORE_BEAUGRAND_METRO = mkBikeStation(
     agency = CA_MTL_BIXI,
     id = 643,
     name = "Métro Honoré-Beaugrand (Sherbrooke / Honoré-Beaugrand)",
@@ -109,7 +109,7 @@ val CA_MTL_BIXI_HONORE_BEAUGRAND_METRO = makeBikeStation(
     lng = -73.53526366878214,
 )
 
-val CA_MTL_BIXI_PARC_DU_MAIL = makeBikeStation(
+val CA_MTL_BIXI_PARC_DU_MAIL = mkBikeStation(
     agency = CA_MTL_BIXI,
     id = 793,
     name = "Parc du Mail (Bois de Coulonges / du Mail)",
@@ -117,7 +117,7 @@ val CA_MTL_BIXI_PARC_DU_MAIL = makeBikeStation(
     lng = -73.54596734046936,
 )
 
-val CA_MTL_BIXI_ST_HUBERT_MAISONNEUVE = makeBikeStation(
+val CA_MTL_BIXI_ST_HUBERT_MAISONNEUVE = mkBikeStation(
     agency = CA_MTL_BIXI,
     id = 594,
     name = "St-Hubert / de Maisonneuve",
@@ -125,7 +125,7 @@ val CA_MTL_BIXI_ST_HUBERT_MAISONNEUVE = makeBikeStation(
     lng = -73.56049686670303,
 )
 
-val CA_MTL_BIXI_ST_HUBERT_MAISONNEUVE_PL_E_GAMELIN = makeBikeStation(
+val CA_MTL_BIXI_ST_HUBERT_MAISONNEUVE_PL_E_GAMELIN = mkBikeStation(
     agency = CA_MTL_BIXI,
     id = 822,
     name = "Place Émilie-Gamelin (St-Hubert / de Maisonneuve)",
@@ -133,7 +133,7 @@ val CA_MTL_BIXI_ST_HUBERT_MAISONNEUVE_PL_E_GAMELIN = makeBikeStation(
     lng = -73.56008380651474,
 )
 
-val CA_MTL_BIXI_BERRI_UQAM_ST_DENIS_MAISONNEUVE = makeBikeStation(
+val CA_MTL_BIXI_BERRI_UQAM_ST_DENIS_MAISONNEUVE = mkBikeStation(
     agency = CA_MTL_BIXI,
     id = 15,
     name = "Métro Berri-UQAM (St-Denis / de Maisonneuve)",
@@ -141,7 +141,7 @@ val CA_MTL_BIXI_BERRI_UQAM_ST_DENIS_MAISONNEUVE = makeBikeStation(
     lng = -73.561496795337,
 )
 
-val CA_MTL_BIXI_ST_DENIS_ST_CATH = makeBikeStation(
+val CA_MTL_BIXI_ST_DENIS_ST_CATH = mkBikeStation(
     agency = CA_MTL_BIXI,
     id = 175,
     name = "Ste-Catherine / St-Denis",
@@ -149,7 +149,7 @@ val CA_MTL_BIXI_ST_DENIS_ST_CATH = makeBikeStation(
     lng = -73.56040771272092,
 )
 
-val CA_MTL_BIXI_MONT_ROYAL_METRO_PL_GERALD_GODIN = makeBikeStation(
+val CA_MTL_BIXI_MONT_ROYAL_METRO_PL_GERALD_GODIN = mkBikeStation(
     agency = CA_MTL_BIXI,
     id = 347,
     name = "Métro Mont-Royal (Place Gérald-Godin)",
@@ -157,7 +157,7 @@ val CA_MTL_BIXI_MONT_ROYAL_METRO_PL_GERALD_GODIN = makeBikeStation(
     lng = -73.58144380187696,
 )
 
-val CA_MTL_BIXI_MONT_ROYAL_RESTER = makeBikeStation(
+val CA_MTL_BIXI_MONT_ROYAL_RESTER = mkBikeStation(
     agency = CA_MTL_BIXI,
     id = 184,
     name = "Resther / du Mont-Royal",
@@ -165,7 +165,7 @@ val CA_MTL_BIXI_MONT_ROYAL_RESTER = makeBikeStation(
     lng = -73.58171582221985,
 )
 
-val CA_MTL_BIXI_MONT_ROYAL_ST_HUBERT = makeBikeStation(
+val CA_MTL_BIXI_MONT_ROYAL_ST_HUBERT = mkBikeStation(
     agency = CA_MTL_BIXI,
     id = 1182,
     name = "St-Hubert / du Mont-Royal",
@@ -173,7 +173,7 @@ val CA_MTL_BIXI_MONT_ROYAL_ST_HUBERT = makeBikeStation(
     lng = -73.58117117351865,
 )
 
-val CA_MTL_BIXI_DROLET_MARIE_ANNE = makeBikeStation(
+val CA_MTL_BIXI_DROLET_MARIE_ANNE = mkBikeStation(
     agency = CA_MTL_BIXI,
     id = 134,
     name = "Drolet / Marie-Anne",
@@ -181,7 +181,7 @@ val CA_MTL_BIXI_DROLET_MARIE_ANNE = makeBikeStation(
     lng = -73.58117669820786,
 )
 
-val CA_MTL_BIXI_GILFORD_ST_DENIS = makeBikeStation(
+val CA_MTL_BIXI_GILFORD_ST_DENIS = mkBikeStation(
     agency = CA_MTL_BIXI,
     id = 742,
     name = "Gilford / St-Denis",
@@ -189,7 +189,7 @@ val CA_MTL_BIXI_GILFORD_ST_DENIS = makeBikeStation(
     lng = -73.58558893203735,
 )
 
-val CA_MTL_BIXI_MONT_ROYAL_MENTANA = makeBikeStation(
+val CA_MTL_BIXI_MONT_ROYAL_MENTANA = mkBikeStation(
     agency = CA_MTL_BIXI,
     id = 37,
     name = "de Mentana / du Mont-Royal",
@@ -197,7 +197,7 @@ val CA_MTL_BIXI_MONT_ROYAL_MENTANA = makeBikeStation(
     lng = -73.5799089088323,
 )
 
-val CA_MTL_BIXI_MONT_ROYAL_LAVAL = makeBikeStation(
+val CA_MTL_BIXI_MONT_ROYAL_LAVAL = mkBikeStation(
     agency = CA_MTL_BIXI,
     id = 183,
     name = "Laval / du Mont-Royal",
@@ -205,7 +205,7 @@ val CA_MTL_BIXI_MONT_ROYAL_LAVAL = makeBikeStation(
     lng = -73.58389645814896,
 )
 
-val CA_MTL_BIXI_MONT_ROYAL_BOYER = makeBikeStation(
+val CA_MTL_BIXI_MONT_ROYAL_BOYER = mkBikeStation(
     agency = CA_MTL_BIXI,
     id = 169,
     name = "Boyer / du Mont-Royal",
@@ -213,7 +213,7 @@ val CA_MTL_BIXI_MONT_ROYAL_BOYER = makeBikeStation(
     lng = -73.57999514846595,
 )
 
-val CA_MTL_BIXI_MONT_ROYAL_HOTEL_DE_VILLE = makeBikeStation(
+val CA_MTL_BIXI_MONT_ROYAL_HOTEL_DE_VILLE = mkBikeStation(
     agency = CA_MTL_BIXI,
     id = 182,
     name = "de l'Hôtel-de-Ville / du Mont-Royal",
@@ -221,7 +221,7 @@ val CA_MTL_BIXI_MONT_ROYAL_HOTEL_DE_VILLE = makeBikeStation(
     lng = -73.58460858464241,
 )
 
-val CA_MTL_BIXI_MENTANA_MARIE_ANNE = makeBikeStation(
+val CA_MTL_BIXI_MENTANA_MARIE_ANNE = mkBikeStation(
     agency = CA_MTL_BIXI,
     id = 188,
     name = "de Mentana / Marie-Anne",
@@ -229,7 +229,7 @@ val CA_MTL_BIXI_MENTANA_MARIE_ANNE = makeBikeStation(
     lng = -73.57785880565643,
 )
 
-val CA_MTL_BIXI_BERRY_GILFORD = makeBikeStation(
+val CA_MTL_BIXI_BERRY_GILFORD = mkBikeStation(
     agency = CA_MTL_BIXI,
     id = 190,
     name = "Berri / Gilford",
