@@ -1862,6 +1862,18 @@
     "lng": "1.616667"
   },
   {
+    "repo": "fr-aveyron-lio-bus-android",
+    "pkg": "org.mtransit.android.fr_aveyron_lio_bus",
+    "store": "beta-private",
+    "name": "liO Aveyron (12)",
+    "name_fr": "liO Aveyron (12)",
+    "location": "Rodez, Millau, Villefranche-de-Rouergue, Figeac, Aveyron, France",
+    "type_id": "3",
+    "color": "CB1C27",
+    "lat": "44.342788",
+    "lng": "2.786258"
+  },
+  {
     "repo": "fr-haute-garonne-lio-bus-android",
     "pkg": "org.mtransit.android.fr_haute_garonne_lio_bus",
     "store": "beta-private",
